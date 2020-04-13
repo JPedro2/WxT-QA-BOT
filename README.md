@@ -4,7 +4,6 @@ This Webex Teams bot is being developed to help Cisco and IBM volunteers that wi
 **Front-end Information**
 - Front-end is a simple static .HTML site with a form pushing to our API route /addEntry
 - Utilising StatiCrypt for simple page encryption (https://www.npmjs.com/package/staticrypt) 
-- Current page is password protected using the password "webexisawesome"
 - Page hosted at https://app.netlify.com/sites/suspicious-mayer-f99e85/overview using my netlify account
 - Currently manually deploying the site due to having to run the staticrypt script after updating, but this could be automated with a pipeline
 
@@ -18,8 +17,6 @@ This Webex Teams bot is being developed to help Cisco and IBM volunteers that wi
 - `addEntry()` is exempt from limits
 
 **GCP SQL Info**
-- Public IP : 35.246.123.175
-- Username: root | Password: lalol~
 - Database Name : qanda | Database Table : qanda
 
 ```sql
