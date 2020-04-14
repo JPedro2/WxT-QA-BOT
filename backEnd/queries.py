@@ -1,10 +1,11 @@
 import mysql.connector
+import credentials
 
 db = mysql.connector.connect(
-	host="35.246.123.175",
-	user="root",
-	passwd="lalol",
-	database="qanda"
+	host=credentials.DB["host"],
+	user=credentials.DB["user"],
+	passwd=credentials.DB["passwd"],
+	database=credentials.DB["qanda"]
 )
 
 cursor = db.cursor()
