@@ -1,4 +1,5 @@
 import queries
+from flask import jsonify
 import flask
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -24,15 +25,15 @@ def default():
     return
 
 # getAnswer by POST form
-@API_app.route('/getAnswer', methods=['POST', 'GET'])
-@limiter.limit("200 per hour", override_defaults=False)
-def getAnswer():
-    question = flask.request.form['question']
-    try:
-        queries.getAnswer(question)
-        return(flask.Response(status=200))
-    except:
-        flask.abort(status=400)
+#@API_app.route('/getAnswer', methods=['POST', 'GET'])
+#@limiter.limit("200 per hour", override_defaults=False)
+#def getAnswer():
+#    question = flask.request.form['question']
+#    try:
+#        queries.getAnswer(question)
+#        return(flask.Response(status=200))
+#    except:
+#        flask.abort(status=400)
 
 # getAnswer by GET
 @API_app.route('/getAnswer/<question>', methods=['GET'])
@@ -45,7 +46,7 @@ def _getAnswer(question):
         flask.abort(status=400)
 
 # addEntry by POST form
-@API_app.route('/addEntry', methods=['POST', 'GET'])
+@API_app.route('/addEntry', methods=['POST'])
 # Exempt from rate limit
 @limiter.exempt
 def addEntry():
@@ -54,6 +55,21 @@ def addEntry():
     try: 
         queries.addEntry("General", question, answer)
         return(flask.Response(status=200))
+    except:
+        flask.abort(status=400)
+
+# getAllQuestions
+@API_app.route('/getAllQuestions', methods=['GET'])
+@limiter.limit("200 per hour", override_defaults=False)
+def getAllQuestions():
+    try:
+        allQuestions = queries.getAllQuestions()
+        allQuestionsDict = {}
+        #Convert list of tuples output from SQL into a Dictionary to be returned as JSON via jsonfy
+        for index,tuple in enumerate(allQuestions):
+            for questions in tuple:
+                allQuestionsDict[index]=questions
+        return jsonify(allQuestionsDict)
     except:
         flask.abort(status=400)
 

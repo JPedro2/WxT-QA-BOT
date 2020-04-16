@@ -1,5 +1,7 @@
 import mysql.connector
 import sys
+
+# Set working directory
 sys.path.append('/home/WxT-QA-BOT')
 import credentials
 
@@ -16,16 +18,27 @@ cursor = db.cursor()
 
 # Get an answer given a question
 def getAnswer(question):
-        try:
-                cursor.execute("SELECT answer, location FROM qanda WHERE question=%s", (question,))
-                result = cursor.fetchall()[0]
-                answer, location = result[0], result[1]
-                cursor.execute("UPDATE qanda SET count=count+1 WHERE question=%s", (question,))
-                print(answer, location)
-                return(answer, location)
-        except:
-                print("No answer matching that question could be found")
-                return("Failure")
+    try:
+        cursor.execute("SELECT answer, location FROM qanda WHERE question=%s", (question,))
+        result = cursor.fetchall()[0]
+        answer, location = result[0], result[1]
+        cursor.execute("UPDATE qanda SET count=count+1 WHERE question=%s", (question,))
+        print(answer, location)
+        return(answer, location)
+    except:
+        print("No answer matching that question could be found")
+        return("Failure")
+
+# Get all questions
+def getAllQuestions():
+    try:
+        cursor.execute("SELECT question FROM qanda")
+        result = cursor.fetchall()
+        print(result)
+        return(result)
+    except:
+        print("Failure")
+        return("Failure")
 
 # Add an entry given a tag, question, answer, and (optionally) a location
 def addEntry(tag, question, answer, location=None):
