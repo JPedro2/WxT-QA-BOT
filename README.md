@@ -2,6 +2,7 @@
 This Webex Teams bot is being developed to help Cisco and IBM volunteers that will be supporting teachers and charities, across the UK, to access free video conferencing through the use of Cisco Webex Meetings
 
 **Starting the service**
+
 To start the API service, use the script `start_flask.sh`.
 
 **Front-end Information**
@@ -23,6 +24,7 @@ To start the API service, use the script `start_flask.sh`.
 - Database Name : qanda | Database Table : qanda
 
 **Database**
+
 If the API throws an error, check that the *MySQL* service is running. You can restart the service with the following command:
 ```
 sudo /etc/init.d/mysql start
