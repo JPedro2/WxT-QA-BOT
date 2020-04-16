@@ -17,14 +17,17 @@ db = mysql.connector.connect(
 cursor = db.cursor()
 
 # Get an answer given a question
-def getAnswer(question):
+def getAnswer(questionID):
     try:
-        cursor.execute("SELECT answer, location FROM qanda WHERE question=%s", (question,))
+        cursor.execute("SELECT answer, location FROM qanda WHERE id=%s", (questionID,))
         result = cursor.fetchall()[0]
         answer, location = result[0], result[1]
-        cursor.execute("UPDATE qanda SET count=count+1 WHERE question=%s", (question,))
-        print(answer, location)
-        return(answer, location)
+        cursor.execute("UPDATE qanda SET count=count+1 WHERE id=%s", (questionID,))
+        #check if location is empty, which is only used when files are submited with answers
+        if location != "":
+            return(answer, location)
+        else:
+            return(answer)
     except:
         print("No answer matching that question could be found")
         return("Failure")

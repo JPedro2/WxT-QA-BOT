@@ -24,24 +24,13 @@ limiter = Limiter(
 def default():
     return
 
-# getAnswer by POST form
-#@API_app.route('/getAnswer', methods=['POST', 'GET'])
-#@limiter.limit("200 per hour", override_defaults=False)
-#def getAnswer():
-#    question = flask.request.form['question']
-#    try:
-#        queries.getAnswer(question)
-#        return(flask.Response(status=200))
-#    except:
-#        flask.abort(status=400)
-
 # getAnswer by GET
-@API_app.route('/getAnswer/<question>', methods=['GET'])
+@API_app.route('/getAnswer/<questionID>', methods=['GET'])
 @limiter.limit("200 per hour", override_defaults=False)
-def _getAnswer(question):
+def _getAnswer(questionID):
     try:
-        out = queries.getAnswer(question)
-        return(flask.Response(status=200))
+        answer = queries.getAnswer(questionID)
+        return(answer)
     except:
         flask.abort(status=400)
 
@@ -68,7 +57,8 @@ def getAllQuestions():
         #Convert list of tuples output from SQL into a Dictionary to be returned as JSON via jsonfy
         for index,tuple in enumerate(allQuestions):
             for questions in tuple:
-                allQuestionsDict[index]=questions
+                id = index+1        #match the id from the sql table, otherwise it starts from 0
+                allQuestionsDict[id]=questions
         return jsonify(allQuestionsDict)
     except:
         flask.abort(status=400)
