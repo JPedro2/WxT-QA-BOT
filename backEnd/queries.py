@@ -1,7 +1,7 @@
-import credentials
 import mysql.connector
 import sys
 sys.path.append('/home/WxT-QA-BOT')
+import credentials
 
 # Connect to MySQL database
 db = mysql.connector.connect(
