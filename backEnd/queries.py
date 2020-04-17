@@ -23,11 +23,16 @@ def getAnswer(questionID):
         result = cursor.fetchall()[0]
         answer, location = result[0], result[1]
         cursor.execute("UPDATE qanda SET count=count+1 WHERE id=%s", (questionID,))
+        #convert the response into a dictionary to then be easily jsonfied
+        answer_resp = ["answer", "location"]
+        answer_resp = dict.fromkeys(answer_resp)
         #check if location is empty, which is only used when files are submited with answers
         if location != "":
-            return(answer, location)
+            answer_resp["answer"]=answer
+            answer_resp["location"]=location
         else:
-            return(answer)
+            answer_resp["answer"]=answer
+        return(answer_resp)
     except:
         print("No answer matching that question could be found")
         return("Failure")

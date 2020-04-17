@@ -1,2 +1,4 @@
 #!/usr/bin/env bash
-python3 /home/WxT-QA-BOT/backEnd/api.py
+source /home/WxT-QA-BOT/venv/bin/activate
+python /home/WxT-QA-BOT/backEnd/api.py
+
