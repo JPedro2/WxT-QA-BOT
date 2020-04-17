@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Q&A Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+</head>
+
+<body>
+    <section class="section">
+        <div class="tile is-ancestor">
+        <div class="tile is-vertical is-8">
+            <div class="tile">
+            <div class="tile is-parent">
+                <article class="tile is-child notification is-info">
+                <p class="title">Q&A Dashboard</p>
+                <p class="subtitle"><strong>Cisco</strong> and <strong>IBM</strong> Partnership</p>
+                <form action="/addEntry" id="submitQA" method="post">
+                    <div class="field">
+                        <label class="label">Question</label>
+                        <div class="control">
+                            <textarea class="textarea" id="question" name="question"
+                                placeholder="How does a tree get on the internet?"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label">Answer</label>
+                        <div class="control">
+                            <textarea class="textarea" id="answer" name="answer" placeholder="It logs on."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label">Group</label>
+                        <div class="select">
+                            <select>
+                                <option>General</option>
+                                <option>Connecting</option>
+                                <option>Quality Issues</option>
+                                <option>Installing</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <hr>
+
+                    <div class="field">
+                        <div class="control">
+                            <label class="checkbox">
+                                <input type="checkbox" required>
+                                I've checked my answer twice
+                            </label>
+                        </div>
+                    </div>
+                    <button type="submit" class="button is-fullwidth is-primary"><strong>Send</strong></button>
+                </form>
+                </article>
+            </div>
+            </div>
+        </div>
+  <div class="tile is-parent">
+    <article class="tile is-child notification is-success">
+      <div class="content">
+        <p class="title">Markdown Formats</p>
+        <p class="subtitle">Add special characters around your text to apply formatting</p>
+        <h4>Style</h4>
+        <b>**Bold**</b><br>
+        <i>_Italic_</i><br>
+        &gt; Blockquote<br>
+        <h4>Lists</h4>
+        1. Item 1</br>
+        2. Item 2</br>
+        3. Item 3</br>
+        * Bullet point 1</br>
+        * Bullet point 2</br>
+        <h4>Headings</h4>
+        # Heading 1<br>
+        ## Heading 2<br>
+        ### Heading 3<br>
+        --- Horizontal line<br>
+        <h4>Links</h4>
+        [Link text](link)
+        <div class="content">
+          <!-- Content -->
+        </div>
+      </div>
+    </article>
+  </div>
+</div>
+    </section>
+
+</body>
+<script>
+var btn = function(event) {
+    event.preventDefault();
+    let request = new XMLHttpRequest();
+    request.open("POST", "http://35.242.181.193:3002/addEntry");
+    request.send();
+    request.onload = () => {
+        console.log(request);
+        if (request.status === 200) {
+            console.log(JSON.parse(request.response));
+            alert("Success!")
+        } else {
+            console.log(`error ${request.status} ${request.statusText}`)
+            alert("Failure!")
+        }
+    }
+};
+var form = document.getElementById("submitQA");
+// attach event listener
+form.addEventListener("submit", btn, true);
+</script>
+
+</html>
