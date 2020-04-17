@@ -40,10 +40,11 @@ def create_app():
     # Exempt from rate limit
     @limiter.exempt
     def addEntry():
+        tag = flask.request.form.get('select')
         question = flask.request.form['question']
         answer = flask.request.form['answer']
         try: 
-            queries.addEntry("General", question, answer)
+            queries.addEntry(tag, question, answer)
             return(flask.Response(status=200))
         except:
             flask.abort(status=400)
