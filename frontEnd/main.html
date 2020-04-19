@@ -106,50 +106,113 @@
 
 </body>
 <script>
-var btn = function(event) {
-    event.preventDefault();
-    let request = new XMLHttpRequest();
-    request.open("POST", "http://35.242.181.193:3002/addEntry");
-    request.send();
-    request.onload = () => {
-        console.log(request);
-        if (request.status === 200) {
-            console.log(JSON.parse(request.response));
-            alert("Success!")
+
+// Set up CORS
+// Create the XHR object.
+function createCORSRequest(method, url) {
+    var xhr = new XMLHttpRequest();
+    if ("withCredentials" in xhr) {
+        // XHR for Chrome/Firefox/Opera/Safari.
+        xhr.open(method, url, true);
+    } else if (typeof XDomainRequest != "undefined") {
+        // XDomainRequest for IE.
+        xhr = new XDomainRequest();
+        xhr.open(method, url);
+    } else {
+        // CORS not supported.
+        xhr = null;
+    }
+    return xhr;
+};
+
+// Make the actual CORS request
+function makeCorsRequest(url, data) {
+    var xhr = createCORSRequest('POST', url);
+    if (!xhr) {
+        alert('CORS not supported');
+        return;
+    }
+    
+    // Response handlers
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            console.log(xhr.response);
+            alert("Success! Your question has been added to the Data Base")
         } else {
-            console.log(`error ${request.status} ${request.statusText}`)
-            alert("Failure!")
+            console.log(`error ${xhr.status} ${xhr.statusText}`)
+            alert("Failure")
+        }
+    };
+
+    xhr.onerror = function() {
+        alert('Woops, there was an error making the request.');
+    };
+    xhr.send(data);
+};
+
+// form reference
+const formElem = document.querySelector('form');
+
+// Submit event handler wiht preventDefault to stop the default form submission, 
+// then invoke a FormData constructor to trigger the formdata event
+formElem.addEventListener('submit', (e) => {
+
+    // on form submission, prevent default
+    e.preventDefault();
+ 
+    // construct a FormData object, which fires the formdata event
+    new FormData(formElem);
+});
+
+// When the formdata event fires the FormData object is accessed and we post it to the Flask API server
+formElem.addEventListener('formdata', (e) => {
+    console.log('formdata fired');
+    
+    // Get the form data from the event object
+    let data = e.formData;
+    
+    /* Check the value of data being sent - DEBUG Only
+    for (var value of data.values()) {
+        console.log(value);
+        }
+    */
+
+    // submit the data via XHR
+    let request = new XMLHttpRequest();
+    var url = "http://35.242.181.193:3002/addEntry";
+    makeCorsRequest(url, data);
+});
+
+/* ==============================================Commenting for Debug==============================================
+
+    var form = document.getElementById("submitQA");
+    form.addEventListener("submit", btn, true);
+
+    var question = document.getElementById('question');
+    var answer = document.getElementById('answer');
+    var preview_question = document.getElementById('preview_question');
+    var preview_answer = document.getElementById('preview_answer');
+
+
+    function preview() {
+        var question_text = document.getElementById('question').value;
+        var answer_text = document.getElementById('answer').value;
+        let request = new XMLHttpRequest();
+        request.open("POST", "https://api.github.com/markdown/raw");
+        request.setRequestHeader("Content-Type", "text/plain");
+        request.send(question_text);
+        request.onload = () => {
+            preview_question.innerHTML = request.responseText;
+        }
+        request.send(answer_text);
+        request.onload = () => {
+            preview_question.innerHTML = request.responseText;
         }
     }
-};
-var form = document.getElementById("submitQA");
 
-form.addEventListener("submit", btn, true);
-
-var question = document.getElementById('question');
-var answer = document.getElementById('answer');
-var preview_question = document.getElementById('preview_question');
-var preview_answer = document.getElementById('preview_answer');
-
-function preview() {
-    var question_text = document.getElementById('question').value;
-    var answer_text = document.getElementById('answer').value;
-    let request = new XMLHttpRequest();
-    request.open("POST", "https://api.github.com/markdown/raw");
-    request.setRequestHeader("Content-Type", "text/plain");
-    request.send(question_text);
-    request.onload = () => {
-        preview_question.innerHTML = request.responseText;
-    }
-    request.send(answer_text);
-    request.onload = () => {
-        preview_question.innerHTML = request.responseText;
-    }
-}
-
-question.addEventListener("change", preview);
-answer.addEventListener("change", preview);
-
+    question.addEventListener("change", preview);
+    answer.addEventListener("change", preview);
+    */
 </script>
 
 </html>

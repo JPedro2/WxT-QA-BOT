@@ -128,10 +128,15 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Custom credentials and guides
+# VS Code
+.vscode/
+
+# Custom credentials, shell scripts and guides
 credentials.py
 tmux-guide.md
 start-up-guide.md
 
-# Front-end Modules
+# Front-end modules
 frontEnd/node_modules/
+# Encrypted front-end
+frontEnd/index.html

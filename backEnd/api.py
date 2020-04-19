@@ -1,8 +1,9 @@
 import queries
-from flask import jsonify
+from flask import Flask, jsonify, request
 import flask
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_cors import CORS, cross_origin
 
 import sys
 # Set working directory
@@ -12,6 +13,7 @@ import credentials
 def create_app():
     # Instantiate Flask app
     API_app = flask.Flask(__name__)
+    #CORS(API_app)
 
     # Instantiate limiter
     limiter = Limiter(
@@ -27,6 +29,7 @@ def create_app():
 
     # getAnswer by GET
     @API_app.route('/getAnswer/<questionID>', methods=['GET'])
+    @cross_origin()
     @limiter.limit("200 per hour", override_defaults=False)
     def _getAnswer(questionID):
         try:
@@ -37,14 +40,16 @@ def create_app():
 
     # addEntry by POST form
     @API_app.route('/addEntry', methods=['POST'])
+    @cross_origin(supports_credentials=True)
     # Exempt from rate limit
     @limiter.exempt
+
     def addEntry():
         tag = flask.request.form.get('select')
-        question = flask.request.form['question']
-        answer = flask.request.form['answer']
-        try: 
-            queries.addEntry(tag, question, answer)
+        question = request.form.get('question')
+        answer = request.form.get('answer')
+        try:
+            queries.addEntry(tag,question, answer)
             return(flask.Response(status=200))
         except:
             flask.abort(status=400)
