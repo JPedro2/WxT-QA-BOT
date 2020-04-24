@@ -1,3 +1,4 @@
+from collections import OrderedDict 
 import mysql.connector
 import sys
 
@@ -41,9 +42,33 @@ def getAnswer(questionID):
 def getAllQuestions():
     try:
         cursor.execute("SELECT question FROM qanda")
+        #cursor.execute("SELECT question FROM aqanda")
         result = cursor.fetchall()
         print(result)
         return(result)
+    except:
+        print("Failure")
+        return("Failure")
+
+def getAll():
+    try:
+        cursor.execute("SELECT id, question, answer, location, count FROM qanda")
+        result = cursor.fetchall()
+        item = [None] * len(result)
+        for index, values in enumerate(result): 
+            resp = ["id","question","answer", "location", "count"]
+            resp = dict.fromkeys(resp)
+            item[index]=resp
+            item[index]["id"]=values[0]
+            item[index]["question"]=values[1]
+            item[index]["answer"]=values[2]
+            #check if location is empty, which is only used when files are submited with answers
+            if result[index][3] != "":
+                item[index]["location"]=values[3]
+
+            item[index]["count"]=values[4]
+
+        return(item)
     except:
         print("Failure")
         return("Failure")
@@ -60,6 +85,19 @@ def addEntry(tag, question, answer, location=None):
         return("Success")
     except:
         print("Error inserting into database")
+        return("Failure")
+
+def updateEntry(id, tag, question, answer, location):
+    try:
+        if id is None:
+            return("id required")
+        else:
+            cursor.execute("UPDATE qanda SET tag=%s, question=%s, answer=%s, location=%S WHERE id=%s)", (tag, question, answer, location, id))
+        db.commit()
+        print("Successfully updated the database")
+        return("Success")
+    except:
+        print("Error updating the database")
         return("Failure")
 
 # cursor.close()
