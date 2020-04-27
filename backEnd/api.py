@@ -34,11 +34,11 @@ def create_app():
     @limiter.limit("200 per hour", override_defaults=False)
     def _getAnswer(questionID):
         try:
-            if queries.getAnswer(questionID) == "Failure":
-                f_message = "No entry found"
+            answer = queries.getAnswer(questionID)
+            if answer == "Failure":
+                f_message = "No entry found. Question ID is not valid."
                 raise(f_message)
 
-            answer = queries.getAnswer(questionID)
             return jsonify(answer)
         except:
             if f_message != "":
@@ -67,12 +67,12 @@ def create_app():
     @limiter.limit("200 per hour", override_defaults=False)
     def getAllQuestions():
         try:
+            allQuestions = queries.getAllQuestions()
             #Check if there's a DB failure, if so, raise a HTTP 500 error code with DB Failure message
-            if queries.getAllQuestions() == "Failure":
+            if allQuestions == "Failure":
                 f_message = "Database Failure"
                 raise(f_message)
             
-            allQuestions = queries.getAllQuestions()
             allQuestionsDict = {}
             #Convert list of tuples output from SQL into a Dictionary to be returned as JSON via jsonfy
             for index,tuple in enumerate(allQuestions):
@@ -91,12 +91,12 @@ def create_app():
     @limiter.limit("200 per hour", override_defaults=False)
     def getAll():
         try:
+            allDB = queries.getAll()
             #Check if there's a DB failure, if so, raise a HTTP 500 error code with DB Failure message
-            if queries.getAll() == "Failure":
+            if allDB == "Failure":
                 f_message = "Database Failure"
                 raise(f_message)
             
-            allDB = queries.getAll()
             allDBdict = {}
             allDBdict["items"]=[None] * len(allDB) 
             #Convert list output from SQL into a Dictionary to be returned as JSON via jsonfy
@@ -110,7 +110,28 @@ def create_app():
             else:
                 abort(400)
 
-    # Update Entry on the DB W.I.P.
+
+    # ************************************************ WORK IN PROGRESS ************************************************
+
+    # Add alternatives to a question 
+    @API_app.route('/appendAlternative/<questionID>', methods=['POST'])
+    @cross_origin() #Potentially add alternatives field to FrontEnd
+    @limiter.limit("200 per hour", override_defaults=False)
+    def appendAlternative(questionID):
+        try:
+            if queries.appendAlternative(questionID) == "Failure":
+                f_message = "Question ID is invalid. No question found"
+                raise(f_message)
+            # Consume JSON payload {"alternative": "Here is an additional question"}
+            answer = queries.getAnswer(questionID)
+            return jsonify(answer)
+        except:
+            if f_message != "":
+                abort(404, f_message)
+            else:
+                abort(400)
+
+    # Update Entry on the DB **WORK IN PROGRESS**
     @API_app.route('/updateEntries', methods=['POST'])
     @limiter.limit("200 per hour", override_defaults=False)
     def updateEntries():
@@ -131,9 +152,13 @@ def create_app():
         except:
             abort(status=400)
     
+    # ************************************************ WORK IN PROGRESS ************************************************
+    
     return API_app
 
 # Main
 if __name__ == "__main__":
     API_app = create_app()
-    API_app.run(host=credentials.FLASK["Flask_HOST"], port=credentials.FLASK["Flask_PORT"], debug=False)
+    #API_app.run(host=credentials.FLASK["Flask_HOST"], port=credentials.FLASK["Flask_PORT"], debug=False)
+    #With Debug Capabilities
+    API_app.run(host=credentials.FLASK["Flask_HOST"], port=credentials.FLASK["Flask_PORT"], debug=True)
