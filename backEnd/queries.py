@@ -59,11 +59,19 @@ def getAnswer(questionID):
 def getAllQuestions():
     try:
         cursor, db = connectToDB()
-        cursor.execute("SELECT question FROM qanda")
+        cursor.execute("SELECT id, question FROM qanda")
         #cursor.execute("SELECT question FROM aqanda")
         result = cursor.fetchall()
         closeConnectionToDB(db, cursor)
-        return(result)
+        questions = [None] * len(result)
+        for index, values in enumerate(result): 
+            resp = ["id","question"]
+            resp = dict.fromkeys(resp)
+            questions[index]=resp
+            questions[index]["id"]=values[0]
+            questions[index]["question"]=values[1]
+
+        return(questions)
     except:
         print("Failure")
         return("Failure")
@@ -97,13 +105,13 @@ def getAll():
         return("Failure")
 
 # Add an entry given a tag, question, answer, and (optionally) a location
-def addEntry(tag, question, answer, location=None):
+def addEntry(tag, question, answer, location=None, alternatives=""):
     try:
         cursor, db = connectToDB()
         if location is not None:
-            cursor.execute("INSERT INTO qanda (tag, question, answer, location, count) VALUES (%s, %s, %s, %s, %s)", (tag, question, answer, "Location", 0))
+            cursor.execute("INSERT INTO qanda (tag, question, answer, location, count, alternatives) VALUES (%s, %s, %s, %s, %s, %s)", (tag, question, answer, "Location", 0, ""))
         else:
-            cursor.execute("INSERT INTO qanda (tag, question, answer, location, count) VALUES (%s, %s, %s, %s, %s)", (tag, question, answer, "", 0))
+            cursor.execute("INSERT INTO qanda (tag, question, answer, location, count, alternatives) VALUES (%s, %s, %s, %s, %s, %s)", (tag, question, answer, "", 0, ""))
         closeConnectionToDB(db, cursor)
         print("Successfully inserted to the database; please do not refresh the page")
         return("Success")

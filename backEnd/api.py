@@ -56,10 +56,18 @@ def create_app():
         tag = request.form.get('select')
         question = request.form.get('question')
         answer = request.form.get('answer')
+        #location = request.form.get('location')
+        #alternatives = request.form.get('alternatives')
         try:
-            queries.addEntry(tag,question, answer)
+            #addEntry = queries.addEntry(tag,question, answer, location, alternatives)
+            addEntry = queries.addEntry(tag,question, answer)
+            if addEntry == "Failure":
+                f_message = "Failed to add Entry to DB"
+                raise(f_message)
             return(flask.Response(status=200))
         except:
+            if f_message != "":
+                abort(500, f_message)
             abort(400)
 
     # getAllQuestions
@@ -73,13 +81,8 @@ def create_app():
                 f_message = "Database Failure"
                 raise(f_message)
             
-            allQuestionsDict = {}
-            #Convert list of tuples output from SQL into a Dictionary to be returned as JSON via jsonfy
-            for index,tuple in enumerate(allQuestions):
-                for questions in tuple:
-                    id = index+1        #match the id from the sql table, otherwise it starts from 0
-                    allQuestionsDict[id]=questions
-            return jsonify(allQuestionsDict)
+            return jsonify(allQuestions)
+            
         except:
             if f_message != "":
                 abort(500, f_message)
@@ -161,4 +164,7 @@ if __name__ == "__main__":
     API_app = create_app()
     #API_app.run(host=credentials.FLASK["Flask_HOST"], port=credentials.FLASK["Flask_PORT"], debug=False)
     #With Debug Capabilities
-    API_app.run(host=credentials.FLASK["Flask_HOST"], port=credentials.FLASK["Flask_PORT"], debug=True)
+    #API_app.run(host=credentials.FLASK["Flask_HOST"], port=credentials.FLASK["Flask_PORT"], debug=True)
+
+    #For DEV Testing purposes ONLY
+    API_app.run(host=credentials.FLASK_devTest["Flask_HOST"], port=credentials.FLASK_devTest["Flask_PORT"], debug=True)
