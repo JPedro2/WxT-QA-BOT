@@ -1,4 +1,3 @@
-from collections import OrderedDict 
 import mysql.connector
 import sys
 

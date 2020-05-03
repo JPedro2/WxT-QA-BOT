@@ -1,21 +1,28 @@
+import os
+import sys
+import time
 import queries
-from collections import OrderedDict 
-from flask import Flask, jsonify, request, abort
+import queries_user
+from flask import Flask, jsonify, request, abort, g, url_for
 import flask
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS, cross_origin
+from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
+import jwt
+from werkzeug.security import generate_password_hash, check_password_hash
 
-from pprint import pprint
-
-import sys
 # Set working directory
 sys.path.append('/home/WxT-QA-BOT')
 import credentials
 
 def create_app():
+    
     # Instantiate Flask app
     API_app = flask.Flask(__name__)
+    API_app.config['SECRET_KEY'] = credentials.FLASK["Flask_SECRET_KEY"]
+    auth = HTTPBasicAuth()
+    authToken = HTTPTokenAuth('Bearer')
     #CORS(API_app)
 
     # Instantiate limiter
@@ -30,10 +37,139 @@ def create_app():
     def default():
         return("Welcome. This is April's API Service")
 
+#======================================================= API AUTH =======================================================
+
+    #For each user a username and a password_hash will be stored.
+    def hash_password(password):
+        try: 
+            new_password_hash = generate_password_hash(password)
+            return new_password_hash
+        
+        except:
+            abort(500, "Error hashing the password")
+    
+    def verify_password_hash(user, password):
+        try:
+            password_hash = queries_user.getPasswordHash(user)
+            if not password_hash: #user doesnt exist
+                return False
+            return check_password_hash(password_hash, password)
+        
+        except:
+            abort(500, "Error verifying the password")
+
+    #AUTH Token to expire in 24h / 86400 seconds
+    def generate_auth_token(user, expires_in):
+        try:
+            authToken = jwt.encode(
+                {'id': user, 'exp': time.time() + expires_in},
+                API_app.config['SECRET_KEY'], algorithm='HS256')
+            return authToken
+        
+        except:
+            abort(500, "Error generating the Auth Token")
+
+    def verify_auth_token(token):
+        try:
+            # Make sure you query the DB with the user id that gets decoded from the token. 
+            # If user exists then it's authenticated
+            user = jwt.decode(token, API_app.config['SECRET_KEY'],algorithms=['HS256'])
+            # If the token auth is sucessful, return the user
+            return queries_user.getUser(user["id"])
+        
+        except:
+            user = None
+            return user
+    
+    @auth.verify_password
+    def verify_password(username, password):
+        # first try to authenticate by token
+        try:
+            user = queries_user.getUser(username)
+            checkPassword = verify_password_hash(username, password)
+            if not user or not checkPassword:
+                return False
+            #Set Global variable on flask to be used by other @routes
+            g.user = user
+            print("Sucessfully validated the user: "+str(user))
+            return True
+
+        except:
+            abort(400, "Error validating the user credentials")
+
+    @authToken.verify_token
+    def verify_token(token):
+        # first try to authenticate by token
+        try:
+            user = verify_auth_token(token)
+            if not user:
+                return False
+            #Set Global variable on flask to be used by other @routes
+            g.user = user
+            print("Sucessfully validated the user: "+str(user))
+            return True
+
+        except:
+            abort(400, "Error validating the token")
+
+    @API_app.route('/api/newUsers', methods=['POST'])
+    def new_user():
+        try:
+            username = request.json.get('username')
+            password = request.json.get('password')
+            if username is None or password is None: # missing arguments
+                err_missingInfo = "Information Missing! Please fill use both the username and the password fields."
+                raise(err_missingInfo)
+            if username == "" or password == "": # empty arguments
+                err_empty = "Empty credentials! Please fill in both the username and the password fields."
+                raise(err_empty)
+            if queries_user.getUser(username) is not None: # existing user
+                err_userExists = "Username: "+str(username)+" already exists. Please use a different username."
+                raise(err_userExists)    
+            
+            #hash the password
+            hashedPassword = hash_password(password)
+            #Add both user and hashed password to the DB
+            newUser_ID, newUser = queries_user.addUser(username, hashedPassword)
+            #Generate the token for the new user - this will last 24h, then it will need to be renewed
+            token = generate_auth_token(newUser,86400)
+
+            return (jsonify([{'username': queries_user.getUser(username)},
+                            {'token': token.decode('ascii'), 'duration': 86400}]), 201)
+        
+        except:
+            if "err_missingInfo" in locals():
+                abort(400, err_missingInfo)
+            if "err_empty" in locals():
+                abort(400, err_empty)
+            if "err_userExists" in locals():
+                abort(400, err_userExists)
+            else:
+                abort(400)
+    
+    @API_app.route('/api/token')
+    @auth.login_required
+    def get_auth_token():
+        try:
+            token = generate_auth_token(g.user,86400)
+            print("Sucessfully generated a token for the user: "+str(g.user)+" and it is valid for 24h.")
+            return jsonify({'token': token.decode('ascii'), 'duration': 86400})
+        
+        except:
+            abort(400, "Error generating Token")
+
+    @API_app.route('/api/resource')
+    @authToken.login_required
+    def get_resource():
+        return jsonify({'data': 'Hello, %s!' % g.user})
+
+#======================================================= API AUTH =======================================================
+
     # getAnswer by GET
     @API_app.route('/getAnswer/<questionID>', methods=['GET'])
     @cross_origin()
     @limiter.limit("200 per hour", override_defaults=False)
+    @authToken.login_required
     def _getAnswer(questionID):
         try:
             answer = queries.getAnswer(questionID)
@@ -52,6 +188,7 @@ def create_app():
     # addEntry by POST form
     @API_app.route('/addEntry', methods=['POST'])
     @cross_origin(supports_credentials=True)
+    #@authToken.login_required #Need to explore how to implement token login via the frontEnd
     # Exempt from rate limit
     @limiter.exempt
 
@@ -78,6 +215,7 @@ def create_app():
     # getAllQuestions
     @API_app.route('/getAllQuestions', methods=['GET'])
     @limiter.limit("200 per hour", override_defaults=False)
+    @authToken.login_required
     def getAllQuestions():
         try:
             allQuestions = queries.getAllQuestions()
@@ -97,6 +235,7 @@ def create_app():
     # Get all entries from the DB
     @API_app.route('/getAll', methods=['GET'])
     @limiter.limit("200 per hour", override_defaults=False)
+    @authToken.login_required
     def getAll():
         try:
             allDB = queries.getAll()
@@ -123,6 +262,7 @@ def create_app():
     @API_app.route('/appendAlternative/<questionID>', methods=['POST'])
     @cross_origin() #Potentially add alternatives field to FrontEnd
     @limiter.limit("200 per hour", override_defaults=False)
+    @authToken.login_required
     def appendAlternative(questionID):
         try:
             if request.is_json:
@@ -162,6 +302,7 @@ def create_app():
     @API_app.route('/newEscalationAnswer', methods=['POST'])
     @cross_origin() #Potentially add alternatives field to FrontEnd
     @limiter.limit("200 per hour", override_defaults=False)
+    @authToken.login_required
     def newEscalationAnswer():
         try:
             if request.is_json:
@@ -199,6 +340,7 @@ def create_app():
     @API_app.route('/updateCount', methods=['POST'])
     @cross_origin()
     @limiter.limit("200 per hour", override_defaults=False)
+    @authToken.login_required
     def updateCount():
         try:
             if request.is_json:
@@ -248,6 +390,7 @@ def create_app():
     # Update Entry on the DB **WORK IN PROGRESS**
     @API_app.route('/updateEntries', methods=['POST'])
     @limiter.limit("200 per hour", override_defaults=False)
+    @authToken.login_required
     def updateEntries():
         try:
             id = request.form.get('id')
