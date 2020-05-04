@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <nav class="navbar" role="navigation" aria-label="main navigation">
+    <nav class="navbar primaryFont" role="navigation" aria-label="main navigation">
         <!--Left Side of the Navbar-->
         <div class="navbar-brand">
             <a class="navbar-item">
@@ -31,59 +31,58 @@
             </div>
         </div>
     </nav>
-
-    <div class="section">
+    <div class="section primaryFont">
+        <div class="tabs is-centered">
+            <ul>
+                <li class="is-active"><a>Submit</a></li>
+                <li><a>Query</a></li>
+            </ul>
+        </div>
         <h3 class="is-size-4">Question</h3>
         <div class="columns">
             <div class="column is-three-quarters">
                 <!--Question Input-->
                 <div class="field">
                     <div class="control">
-                        <textarea class="textarea" placeholder="Textarea"></textarea>
+                        <textarea class="textarea" placeholder="How does a tree get on the Internet?"></textarea>
                     </div>
                 </div>
                 <!-- Answer Input -->
                 <p class="is-size-4">Answer</p>
                 <div class="field">
                     <div class="control">
-                        <textarea class="textarea" placeholder="Textarea"></textarea>
+                        <textarea class="textarea" placeholder="It logs on."></textarea>
                     </div>
                 </div>
                 <!--Submit Line-->
+                <div class="field is-grouped">
+                    <div class="field">
+                        <div class="control">
+                            <div class="select is-white">
+                                <select>
+                                    <option>Select Topic</option>
+                                    <option>With options</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="field">
-                    <div class="control">
-                        <div class="select is-primary">
-                            <select>
-                                <option>Select dropdown</option>
-                                <option>With options</option>
-                            </select>
+                    <div class="field">
+                        <div class="file is-white">
+                            <label class="file-label">
+                                <input class="file-input" type="file" name="resume">
+                                <span class="file-cta">
+                                    <span class="file-icon">
+                                        <i class="fas fa-file-upload"></i>
+                                    </span>
+                                    <span class="file-label">
+                                        Attach File
+                                    </span>
+                                </span>
+                            </label>
                         </div>
                     </div>
                 </div>
-
-                <div class="field">
-                    <div class="file is-primary">
-                        <label class="file-label">
-                            <input class="file-input" type="file" name="resume">
-                            <span class="file-cta">
-                                <span class="file-icon">
-                                    <i class="fas fa-upload"></i>
-                                </span>
-                                <span class="file-label">
-                                    Upload File
-                                </span>
-                            </span>
-                        </label>
-                    </div>
-                </div>
-
-
-                <!-- Live Preview Area -->
-                <div class="red">
-                    LIVE MARKUP HERE
-                </div>
-
             </div>
             <div class="column">
                 <div class="markdown">
@@ -91,33 +90,47 @@
                         <h2 class="title is-5 has-text-white">Markdown Cheat Sheet</h2>
                         <p class="has-text-white">Add special characters around your text to apply markup formatting</p>
                         <br>
-                        <p>Style</p>
-                        <p>**BOLD**</p>
-                        <p>_italic_</p>
-                        <p>>Blockquote</p>
+                        <p class="is-size-5 has-text-weight-semibold">Style</p>
+                        <p class="has-text-white">**BOLD**</p>
+                        <p class="has-text-white">_italic_</p>
+                        <p class="has-text-white">>Blockquote</p>
                         <br>
-                        <p>Lists</p>
-                        <p>1.   Item1</p>
-                        <p>2.   Item2</p>
-                        <p>3.   Item3</p>
+                        <p class="is-size-5 has-text-weight-semibold">Lists</p>
+                        <p class="has-text-white">1. Item1</p>
+                        <p class="has-text-white">2. Item2</p>
+                        <p class="has-text-white">3. Item3</p>
                         <br>
-                        <p>*Bullet point1</p>
-                        <p>*Bullet point2</p>
+                        <p class="has-text-white">*Bullet point1</p>
+                        <p class="has-text-white">*Bullet point2</p>
                         <br>
-                        <p>Headings</p>
-                        <p># Heading 1</p>
-                        <p># # Heading 2</p>
-                        <p># # # Heading 3</p>
-                        <p>---Horizonal Line</p>
+                        <p class="is-size-5 has-text-weight-semibold">Headings</p>
+                        <p class="has-text-white"># Heading 1</p>
+                        <p class="has-text-white"># # Heading 2</p>
+                        <p class="has-text-white"># # # Heading 3</p>
+                        <p class="has-text-white">--- Horizonal Line</p>
                         <br>
-                        <p>Links</p>
-                        <p>[link text](link)</p>
+                        <p class="is-size-5 has-text-weight-semibold">Links</p>
+                        <p class="has-text-white">[link text](link)</p>
                     </div>
                 </div>
+            </div>
+
+
+        </div>
+    </div>
+    <!-- Live Preview Area -->
+    <div class="markup-Container">
+
+        <div class="section primaryFont">
+
+            <p class="is-size-4 has-text-white has-text-weight-medium">Live Preview</p>
+            <div class="markup-Area">
+                Markup Here
             </div>
         </div>
     </div>
 </body>
+<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 <script>
     // Set up CORS
     // Create the XHR object.

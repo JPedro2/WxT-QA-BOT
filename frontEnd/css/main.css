@@ -1,33 +1,66 @@
-
-html{
-    background-color: rgb(234,238,237);
+@font-face {
+    font-family: mainFont;
+    src: url('../assets/fonts/CiscoSansTTExtraLight.woff2');
+    /* IE9 Compat Modes */
 }
-.navbar{
+
+html {
+    background-color: rgb(234, 238, 237);
+}
+
+.navbar {
     background-color: white;
 }
-.textarea{
+
+.textarea {
     border-radius: 0;
-    
-}
-textarea:focus{
-    outline: none !important;
-}
-.markdown{
-    background-color: rgb(0, 188,235);
-    padding: 10px;
+
 }
 
-.inputs{
+textarea:focus {
+    outline: none !important;
+}
+
+.markdown {
+    background-color: rgb(0, 188, 235);
+    padding: 10px;
+    height: 570px;
+    overflow: scroll;
+    overflow-x: hidden;
+}
+
+.inputs {
     height: 30%;
 }
 
-.textarea{
-    height: 22vh !important;
-}
-.red{
-    background-color: red;
+.textarea {
+    height: 260px !important;
 }
 
-.logo{
+.primaryFont {
+
+    font-family: mainFont !important;
+}
+
+.logo {
     max-height: 3rem !important;
+}
+
+.field {
+    padding-right: 10px;
+}
+
+.markup-Container {
+    background-color: rgb(26, 88, 101);
+    min-height: 30vh;
+}
+
+.markup-Area {
+    background-color: white;
+    padding: 10px;
+    height: 260px;
+}
+
+.section:first-of-type {
+    padding-top: 15px !important;
 }
