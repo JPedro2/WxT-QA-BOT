@@ -25,8 +25,7 @@ textarea:focus {
     background-color: rgb(0, 188, 235);
     padding: 10px;
     height: 570px;
-    overflow: scroll;
-    overflow-x: hidden;
+    
 }
 
 .inputs {
