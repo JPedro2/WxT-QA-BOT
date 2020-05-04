@@ -11,6 +11,7 @@
 </head>
 
 <body>
+   
     <nav class="navbar primaryFont" role="navigation" aria-label="main navigation">
         <!--Left Side of the Navbar-->
         <div class="navbar-brand">
@@ -33,6 +34,7 @@
             </div>
         </div>
     </nav>
+   
     <div class="section primaryFont">
         <div class="tabs is-centered">
             <ul>
@@ -44,17 +46,18 @@
         <h3 class="is-size-4">Question</h3>
         <div class="columns">
             <div class="column is-three-quarters">
+                <form action="http://35.242.181.193:3003/addEntry" id="submitQA" method="post" target="dummyframe">
                 <!--Question Input-->
                 <div class="field">
                     <div class="control">
-                        <textarea class="textarea" placeholder="How does a tree get on the Internet?"></textarea>
+                        <textarea class="textarea" name="question" id="question" placeholder="How does a tree get on the Internet?"></textarea>
                     </div>
                 </div>
                 <!-- Answer Input -->
                 <p class="is-size-4">Answer</p>
                 <div class="field">
                     <div class="control">
-                        <textarea class="textarea" id="ans" placeholder="It logs on."></textarea>
+                        <textarea class="textarea" id="ans" name="answer"placeholder="It logs on."></textarea>
                     </div>
                 </div>
                 <!--Submit Line-->
@@ -62,9 +65,12 @@
                     <div class="field">
                         <div class="control">
                             <div class="select">
-                                <select>
-                                    <option>Select Topic</option>
-                                    <option>With options</option>
+                                <select name="select">
+                                    <option>General</option>
+                                    <option>Volunteer Programme</option>
+                                <option>Plans and Pricing</option>
+                                <option>Controls & Features</option>
+                                <option>Quality Issues</option>
                                 </select>
                             </div>
                         </div>
@@ -78,7 +84,7 @@
                                     <span class="file-icon">
                                         <i class="fas fa-file-upload"></i>
                                     </span>
-                                    <span class="file-label">
+                                    <span name="file" class="file-label">
                                         Attach File
                                     </span>
                                 </span>
@@ -86,9 +92,9 @@
                         </div>
                     </div>
                     <div class="control is-pulled-right">
-                        <button class="button is-link">Submit</button>
+                        <button  type="submit" class="button is-link">Submit</button>
                     </div>
-
+                </form>
                 </div>
             </div>
             <div class="column">
@@ -134,6 +140,7 @@
             </div>
         </div>
     </div>
+    <iframe style="display: none;" width="0" height="0" border="0" name="dummyframe" id="dummyframe"></iframe>
 </body>
 <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js"></script>

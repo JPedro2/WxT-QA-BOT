@@ -11,6 +11,7 @@
 </head>
 
 <body>
+    <!--------- NAVBAR START -------->
     <nav class="navbar primaryFont" role="navigation" aria-label="main navigation">
         <!--Left Side of the Navbar-->
         <div class="navbar-brand">
@@ -33,6 +34,8 @@
             </div>
         </div>
     </nav>
+
+    <!----------LEFT PART OF PAGE : FORM ------------->
     <div class="section primaryFont">
         <div class="tabs is-centered">
             <ul>
@@ -47,22 +50,27 @@
                 <!--Question Input-->
                 <div class="field">
                     <div class="control">
-                        <textarea class="textarea" placeholder="Select a question on the right." readonly></textarea>
+                        <textarea id="questionField" class="textarea" placeholder="Select a question on the right."
+                            readonly></textarea>
                     </div>
                 </div>
                 <!-- Answer Input -->
                 <p class="is-size-4">Answer</p>
                 <div class="field">
                     <div class="control">
-                        <textarea class="textarea" placeholder="It logs on." readonly></textarea>
+                        <textarea id="answerField" class="textarea" placeholder="Answers will appear here."
+                            readonly></textarea>
                     </div>
                 </div>
 
             </div>
+
+            <!--------- RIGHT SIDE OF PAGE : Question search ---------->
             <div class="column">
                 <div class="markdown box">
                     <div class="container">
-                        <h2 class="title is-5">Select a question</h2>
+                        <h2 class="is-size-4">Select a question</h2>
+                        <hr>
                         <div class="field has-addons">
                             <div class="control">
                                 <input class="input" id="questionIDField" type="text" placeholder="Question ID">
@@ -73,6 +81,7 @@
                                 </a>
                             </div>
                         </div>
+                        
                         <button id="getAllQuestion" class="button is-medium is-fullwidth has-text-white">View all
                             questions</button>
                     </div>
@@ -86,7 +95,8 @@
         <div class="section primaryFont">
 
             <p class="is-size-4 has-text-white has-text-weight-medium">Alternative Question Versions</p>
-            <textarea class="textarea" placeholder="Alternative questions here" readonly></textarea>
+            <textarea id="altQuestionField" class="textarea" placeholder="Alternative questions will appear here."
+                readonly></textarea>
         </div>
     </div>
 
@@ -118,33 +128,40 @@
 <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
 <script>
+    //Called when the user presses the all questions button
     document.getElementById("getAllQuestion").addEventListener('click', function () {
+        //activates the modal by adding the active class
         document.getElementById("listModal").classList.add("is-active");
     });
-
+    //Called when the user closes the model with the x
     document.getElementById("closeQuestion").addEventListener('click', function () {
+        //closes the modal by removing the active class
         document.getElementById("listModal").classList.remove("is-active");
     });
 
     document.getElementById("searchQuestionButton").addEventListener('click', function () {
         let questionID = document.getElementById("questionIDField").value;
-        axios.get('http://35.242.181.193:3003/getAnswer/' + questionID)
+        axios.get('http://35.242.181.193:3003/getKnowledge/' + questionID)
             .then(response => {
-                console.log(response.data);
+                //Update the question field on the page with the question queried
+                document.getElementById("questionField").value = response.data.question;
+                //Update the answer field on the page with the question queried
+                document.getElementById("answerField").value = response.data.answer;
+                //Update the alternate question field
+                document.getElementById("altQuestionField").value = response.data.alternatives;
             })
     });
+    //On page load load all the questions and put them in the modal
     axios.get('http://35.242.181.193:3003/getAll')
         .then(response => {
-
-            for(let i = 0; i < response.data.items.length; i++){
-
-                console.log(response.data.items[i].id);
-                console.log(response.data.items[i].answer);
-
-                let appendedQuestion = "<tr><td>"+response.data.items[i].id+"</td><td>"+ response.data.items[i].answer+"</td></tr>";
+            //Loop through every q and a
+            for (let i = 0; i < response.data.items.length; i++) {
+                //build html with the response
+                let appendedQuestion = "<tr><td>" + response.data.items[i].id + "</td><td>" + response.data.items[i]
+                    .question + "</td></tr>";
+                //import them into the modal
                 document.getElementById("anslist").innerHTML += appendedQuestion;
             }
-            
         });
 </script>
 
