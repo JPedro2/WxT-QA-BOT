@@ -1,0 +1,33 @@
+
+html{
+    background-color: rgb(234,238,237);
+}
+.navbar{
+    background-color: white;
+}
+.textarea{
+    border-radius: 0;
+    
+}
+textarea:focus{
+    outline: none !important;
+}
+.markdown{
+    background-color: rgb(0, 188,235);
+    padding: 10px;
+}
+
+.inputs{
+    height: 30%;
+}
+
+.textarea{
+    height: 22vh !important;
+}
+.red{
+    background-color: red;
+}
+
+.logo{
+    max-height: 3rem !important;
+}

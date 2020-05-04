@@ -5,215 +5,226 @@
     <title>Q&amp;A Admin Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
-    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <link rel="stylesheet" href="css/main.css">
 </head>
 
 <body>
-    <section class="section">
-        <div class="tile is-ancestor">
-        <div class="tile is-vertical is-8">
-            <div class="tile">
-            <div class="tile is-parent">
-                <article class="tile is-child notification is-info">
-                <p class="title">Q&amp;A Dashboard</p>
-                <p class="subtitle"><strong>Cisco</strong> and <strong>IBM</strong> Partnership</p>
-                <form action="/addEntry" id="submitQA" method="post">
-                    <div class="field">
-                        <label class="label">Question</label>
-                        <div class="control">
-                            <textarea class="textarea" id="question" name="question"
-                                placeholder="How does a tree get on the internet?"></textarea>
-                        </div>
-                    </div>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <!--Left Side of the Navbar-->
+        <div class="navbar-brand">
+            <a class="navbar-item">
+                <img class="logo" src="assets/meetingsLogo.png">
+            </a>
+            <a class="navbar-item is-size-4 ">
+                Q&A Dashboard
+            </a>
+        </div>
+        <!--Right Side fo the Navbar-->
+        <div class="navbar-menu">
+            <div class="navbar-end">
+                <a class="navbar-item">
+                    <img class="logo" src="assets/ciscoLogo.png">
+                </a>
+                <a class="navbar-item">
+                    <img class="logo" src="assets/ibmLogo.png">
+                </a>
+            </div>
+        </div>
+    </nav>
 
-                    <div class="field">
-                        <label class="label">Answer</label>
-                        <div class="control">
-                            <textarea class="textarea" id="answer" name="answer" placeholder="It logs on."></textarea>
-                        </div>
+    <div class="section">
+        <h3 class="is-size-4">Question</h3>
+        <div class="columns">
+            <div class="column is-three-quarters">
+                <!--Question Input-->
+                <div class="field">
+                    <div class="control">
+                        <textarea class="textarea" placeholder="Textarea"></textarea>
                     </div>
+                </div>
+                <!-- Answer Input -->
+                <p class="is-size-4">Answer</p>
+                <div class="field">
+                    <div class="control">
+                        <textarea class="textarea" placeholder="Textarea"></textarea>
+                    </div>
+                </div>
+                <!--Submit Line-->
 
-                    <div class="field">
-                        <label class="label">Group</label>
-                        <div class="select">
-                            <select name="select">
-                                <option>General</option>
-                                <option>Volunteer Programme</option>
-                                <option>Plans and Pricing</option>
-                                <option>Controls & Features</option>
-                                <option>Quality Issues</option>
+                <div class="field">
+                    <div class="control">
+                        <div class="select is-primary">
+                            <select>
+                                <option>Select dropdown</option>
+                                <option>With options</option>
                             </select>
                         </div>
-
                     </div>
+                </div>
 
-                    <hr>
-
-                    <div class="field">
-                        <div class="control">
-                            <label class="checkbox">
-                                <input type="checkbox" required>
-                                I've checked my answer twice
-                            </label>
-                        </div>
+                <div class="field">
+                    <div class="file is-primary">
+                        <label class="file-label">
+                            <input class="file-input" type="file" name="resume">
+                            <span class="file-cta">
+                                <span class="file-icon">
+                                    <i class="fas fa-upload"></i>
+                                </span>
+                                <span class="file-label">
+                                    Upload File
+                                </span>
+                            </span>
+                        </label>
                     </div>
-                    <button type="submit" class="button is-fullwidth is-primary"><strong>Send</strong></button>
-                </form>
-                </article>
+                </div>
+
+
+                <!-- Live Preview Area -->
+                <div class="red">
+                    LIVE MARKUP HERE
+                </div>
+
             </div>
-            </div>
-            <div class="tile">
-                <div class="tile is-parent">
-                    <article class="tile is-child notification is-info">
-                        <p class="title">Live preview</p>
-                        <p class="subtitle">Question</p>
-                        <div class="control" id="preview_question"></div>
-                        <p class="subtitle">Answer</p>
-                        <div class="control" id="preview_answer"></div>
-                    </article>
+            <div class="column">
+                <div class="markdown">
+                    <div class="container">
+                        <h2 class="title is-5 has-text-white">Markdown Cheat Sheet</h2>
+                        <p class="has-text-white">Add special characters around your text to apply markup formatting</p>
+                        <br>
+                        <p>Style</p>
+                        <p>**BOLD**</p>
+                        <p>_italic_</p>
+                        <p>>Blockquote</p>
+                        <br>
+                        <p>Lists</p>
+                        <p>1.   Item1</p>
+                        <p>2.   Item2</p>
+                        <p>3.   Item3</p>
+                        <br>
+                        <p>*Bullet point1</p>
+                        <p>*Bullet point2</p>
+                        <br>
+                        <p>Headings</p>
+                        <p># Heading 1</p>
+                        <p># # Heading 2</p>
+                        <p># # # Heading 3</p>
+                        <p>---Horizonal Line</p>
+                        <br>
+                        <p>Links</p>
+                        <p>[link text](link)</p>
+                    </div>
                 </div>
             </div>
         </div>
-  <div class="tile is-parent">
-    <article class="tile is-child notification is-success">
-      <div class="content">
-        <p class="title">Markdown Formats</p>
-        <p class="subtitle">Add special characters around your text to apply formatting</p>
-        <h4>Style</h4>
-        <b>**Bold**</b><br>
-        <i>_Italic_</i><br>
-        &gt; Blockquote<br>
-        <h4>Lists</h4>
-        1. Item 1</br>
-        2. Item 2</br>
-        3. Item 3</br>
-        * Bullet point 1</br>
-        * Bullet point 2</br>
-        <h4>Headings</h4>
-        # Heading 1<br>
-        ## Heading 2<br>
-        ### Heading 3<br>
-        --- Horizontal line<br>
-        <h4>Links</h4>
-        [Link text](link)
-        <div class="content">
-          <!-- Content -->
-        </div>
-      </div>
-    </article>
-  </div>
-</div>
-    </section>
-
+    </div>
 </body>
 <script>
-
-// Set up CORS
-// Create the XHR object.
-function createCORSRequest(method, url) {
-    var xhr = new XMLHttpRequest();
-    if ("withCredentials" in xhr) {
-        // XHR for Chrome/Firefox/Opera/Safari.
-        xhr.open(method, url, true);
-    } else if (typeof XDomainRequest != "undefined") {
-        // XDomainRequest for IE.
-        xhr = new XDomainRequest();
-        xhr.open(method, url);
-    } else {
-        // CORS not supported.
-        xhr = null;
-    }
-    return xhr;
-};
-
-// Make the actual CORS request
-function makeCorsRequest(url, data) {
-    var xhr = createCORSRequest('POST', url);
-    if (!xhr) {
-        alert('CORS not supported');
-        return;
-    }
-    
-    // Response handlers
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            console.log(xhr.response);
-            alert("Success! Your question has been added to the Data Base")
+    // Set up CORS
+    // Create the XHR object.
+    function createCORSRequest(method, url) {
+        var xhr = new XMLHttpRequest();
+        if ("withCredentials" in xhr) {
+            // XHR for Chrome/Firefox/Opera/Safari.
+            xhr.open(method, url, true);
+        } else if (typeof XDomainRequest != "undefined") {
+            // XDomainRequest for IE.
+            xhr = new XDomainRequest();
+            xhr.open(method, url);
         } else {
-            console.log(`error ${xhr.status} ${xhr.statusText}`)
-            alert("Failure")
+            // CORS not supported.
+            xhr = null;
         }
+        return xhr;
     };
 
-    xhr.onerror = function() {
-        alert('Woops, there was an error making the request.');
-    };
-    xhr.send(data);
-};
-
-// form reference
-const formElem = document.querySelector('form');
-
-// Submit event handler wiht preventDefault to stop the default form submission, 
-// then invoke a FormData constructor to trigger the formdata event
-formElem.addEventListener('submit', (e) => {
-
-    // on form submission, prevent default
-    e.preventDefault();
- 
-    // construct a FormData object, which fires the formdata event
-    new FormData(formElem);
-});
-
-// When the formdata event fires the FormData object is accessed and we post it to the Flask API server
-formElem.addEventListener('formdata', (e) => {
-    console.log('formdata fired');
-    
-    // Get the form data from the event object
-    let data = e.formData;
-    
-    /* Check the value of data being sent - DEBUG Only
-    for (var value of data.values()) {
-        console.log(value);
+    // Make the actual CORS request
+    function makeCorsRequest(url, data) {
+        var xhr = createCORSRequest('POST', url);
+        if (!xhr) {
+            alert('CORS not supported');
+            return;
         }
-    */
 
-    // submit the data via XHR
-    let request = new XMLHttpRequest();
-    var url = "http://35.242.181.193:3002/addEntry";
-    makeCorsRequest(url, data);
-});
+        // Response handlers
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                console.log(xhr.response);
+                alert("Success! Your question has been added to the Data Base")
+            } else {
+                console.log(`error ${xhr.status} ${xhr.statusText}`)
+                alert("Failure")
+            }
+        };
 
-/* ==============================================Commenting for Debug==============================================
+        xhr.onerror = function () {
+            alert('Woops, there was an error making the request.');
+        };
+        xhr.send(data);
+    };
 
-    var form = document.getElementById("submitQA");
-    form.addEventListener("submit", btn, true);
+    // form reference
+    const formElem = document.querySelector('form');
 
-    var question = document.getElementById('question');
-    var answer = document.getElementById('answer');
-    var preview_question = document.getElementById('preview_question');
-    var preview_answer = document.getElementById('preview_answer');
+    // Submit event handler wiht preventDefault to stop the default form submission, 
+    // then invoke a FormData constructor to trigger the formdata event
+    formElem.addEventListener('submit', (e) => {
 
+        // on form submission, prevent default
+        e.preventDefault();
 
-    function preview() {
-        var question_text = document.getElementById('question').value;
-        var answer_text = document.getElementById('answer').value;
+        // construct a FormData object, which fires the formdata event
+        new FormData(formElem);
+    });
+
+    // When the formdata event fires the FormData object is accessed and we post it to the Flask API server
+    formElem.addEventListener('formdata', (e) => {
+        console.log('formdata fired');
+
+        // Get the form data from the event object
+        let data = e.formData;
+
+        /* Check the value of data being sent - DEBUG Only
+        for (var value of data.values()) {
+            console.log(value);
+            }
+        */
+
+        // submit the data via XHR
         let request = new XMLHttpRequest();
-        request.open("POST", "https://api.github.com/markdown/raw");
-        request.setRequestHeader("Content-Type", "text/plain");
-        request.send(question_text);
-        request.onload = () => {
-            preview_question.innerHTML = request.responseText;
-        }
-        request.send(answer_text);
-        request.onload = () => {
-            preview_question.innerHTML = request.responseText;
-        }
-    }
+        var url = "http://35.242.181.193:3002/addEntry";
+        makeCorsRequest(url, data);
+    });
 
-    question.addEventListener("change", preview);
-    answer.addEventListener("change", preview);
-    */
+    /* ==============================================Commenting for Debug==============================================
+
+        var form = document.getElementById("submitQA");
+        form.addEventListener("submit", btn, true);
+
+        var question = document.getElementById('question');
+        var answer = document.getElementById('answer');
+        var preview_question = document.getElementById('preview_question');
+        var preview_answer = document.getElementById('preview_answer');
+
+
+        function preview() {
+            var question_text = document.getElementById('question').value;
+            var answer_text = document.getElementById('answer').value;
+            let request = new XMLHttpRequest();
+            request.open("POST", "https://api.github.com/markdown/raw");
+            request.setRequestHeader("Content-Type", "text/plain");
+            request.send(question_text);
+            request.onload = () => {
+                preview_question.innerHTML = request.responseText;
+            }
+            request.send(answer_text);
+            request.onload = () => {
+                preview_question.innerHTML = request.responseText;
+            }
+        }
+
+        question.addEventListener("change", preview);
+        answer.addEventListener("change", preview);
+        */
 </script>
 
 </html>
