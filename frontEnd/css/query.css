@@ -22,7 +22,7 @@ textarea:focus {
 }
 
 .markdown {
-    background-color: rgb(0, 188, 235);
+    
     padding: 10px;
     height: 570px;
     
@@ -66,4 +66,8 @@ textarea:focus {
 
 .button{
     background-color: rgb(0, 188, 235) !important;
+}
+
+h1 {
+    font-size: 7rem !important;
 }

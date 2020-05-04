@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
     <link rel="stylesheet" href="css/query.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 
 <body>
@@ -34,8 +36,8 @@
     <div class="section primaryFont">
         <div class="tabs is-centered">
             <ul>
-                <li ><a>Submit</a></li>
-                <li class="is-active"><a>Query</a></li>
+                <li><a href="main.html">Submit</a></li>
+                <li class="is-active"><a href="query.html">Query</a></li>
                 <li><a>Update</a></li>
             </ul>
         </div>
@@ -55,18 +57,27 @@
                         <textarea class="textarea" placeholder="It logs on." readonly></textarea>
                     </div>
                 </div>
-                
+
             </div>
             <div class="column">
-                <div class="markdown">
+                <div class="markdown box">
                     <div class="container">
-                        <h2 class="title is-5 has-text-white">Select a question</h2>
-                        <button class="button is-medium is-fullwidth is-info">View all questions</button>
+                        <h2 class="title is-5">Select a question</h2>
+                        <div class="field has-addons">
+                            <div class="control">
+                                <input class="input" id="questionIDField" type="text" placeholder="Question ID">
+                            </div>
+                            <div class="control">
+                                <a id="searchQuestionButton" class="button is-info">
+                                    Find
+                                </a>
+                            </div>
+                        </div>
+                        <button id="getAllQuestion" class="button is-medium is-fullwidth has-text-white">View all
+                            questions</button>
                     </div>
                 </div>
             </div>
-
-
         </div>
     </div>
     <!-- Live Preview Area -->
@@ -78,115 +89,63 @@
             <textarea class="textarea" placeholder="Alternative questions here" readonly></textarea>
         </div>
     </div>
+
+    <div class="modal" id="listModal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">All Questions</p>
+                <button class="delete" id="closeQuestion" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+                <table class="table is-fullwidth">
+                    <thead>
+                        <tr>
+                            <th>Number</th>
+                            <th>Question</th>
+                        </tr>
+                    </thead>
+                    <tbody id="anslist">
+                        <!--List of answers pulled from the database-->
+                    </tbody>
+                </table>
+            </section>
+            <footer class="modal-card-foot">
+            </footer>
+        </div>
+    </div>
 </body>
 <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
 <script>
-    // Set up CORS
-    // Create the XHR object.
-    function createCORSRequest(method, url) {
-        var xhr = new XMLHttpRequest();
-        if ("withCredentials" in xhr) {
-            // XHR for Chrome/Firefox/Opera/Safari.
-            xhr.open(method, url, true);
-        } else if (typeof XDomainRequest != "undefined") {
-            // XDomainRequest for IE.
-            xhr = new XDomainRequest();
-            xhr.open(method, url);
-        } else {
-            // CORS not supported.
-            xhr = null;
-        }
-        return xhr;
-    };
-
-    // Make the actual CORS request
-    function makeCorsRequest(url, data) {
-        var xhr = createCORSRequest('POST', url);
-        if (!xhr) {
-            alert('CORS not supported');
-            return;
-        }
-
-        // Response handlers
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                console.log(xhr.response);
-                alert("Success! Your question has been added to the Data Base")
-            } else {
-                console.log(`error ${xhr.status} ${xhr.statusText}`)
-                alert("Failure")
-            }
-        };
-
-        xhr.onerror = function () {
-            alert('Woops, there was an error making the request.');
-        };
-        xhr.send(data);
-    };
-
-    // form reference
-    const formElem = document.querySelector('form');
-
-    // Submit event handler wiht preventDefault to stop the default form submission, 
-    // then invoke a FormData constructor to trigger the formdata event
-    formElem.addEventListener('submit', (e) => {
-
-        // on form submission, prevent default
-        e.preventDefault();
-
-        // construct a FormData object, which fires the formdata event
-        new FormData(formElem);
+    document.getElementById("getAllQuestion").addEventListener('click', function () {
+        document.getElementById("listModal").classList.add("is-active");
     });
 
-    // When the formdata event fires the FormData object is accessed and we post it to the Flask API server
-    formElem.addEventListener('formdata', (e) => {
-        console.log('formdata fired');
-
-        // Get the form data from the event object
-        let data = e.formData;
-
-        /* Check the value of data being sent - DEBUG Only
-        for (var value of data.values()) {
-            console.log(value);
-            }
-        */
-
-        // submit the data via XHR
-        let request = new XMLHttpRequest();
-        var url = "http://35.242.181.193:3002/addEntry";
-        makeCorsRequest(url, data);
+    document.getElementById("closeQuestion").addEventListener('click', function () {
+        document.getElementById("listModal").classList.remove("is-active");
     });
 
-    /* ==============================================Commenting for Debug==============================================
+    document.getElementById("searchQuestionButton").addEventListener('click', function () {
+        let questionID = document.getElementById("questionIDField").value;
+        axios.get('http://35.242.181.193:3003/getAnswer/' + questionID)
+            .then(response => {
+                console.log(response.data);
+            })
+    });
+    axios.get('http://35.242.181.193:3003/getAll')
+        .then(response => {
 
-        var form = document.getElementById("submitQA");
-        form.addEventListener("submit", btn, true);
+            for(let i = 0; i < response.data.items.length; i++){
 
-        var question = document.getElementById('question');
-        var answer = document.getElementById('answer');
-        var preview_question = document.getElementById('preview_question');
-        var preview_answer = document.getElementById('preview_answer');
+                console.log(response.data.items[i].id);
+                console.log(response.data.items[i].answer);
 
-
-        function preview() {
-            var question_text = document.getElementById('question').value;
-            var answer_text = document.getElementById('answer').value;
-            let request = new XMLHttpRequest();
-            request.open("POST", "https://api.github.com/markdown/raw");
-            request.setRequestHeader("Content-Type", "text/plain");
-            request.send(question_text);
-            request.onload = () => {
-                preview_question.innerHTML = request.responseText;
+                let appendedQuestion = "<tr><td>"+response.data.items[i].id+"</td><td>"+ response.data.items[i].answer+"</td></tr>";
+                document.getElementById("anslist").innerHTML += appendedQuestion;
             }
-            request.send(answer_text);
-            request.onload = () => {
-                preview_question.innerHTML = request.responseText;
-            }
-        }
-
-        question.addEventListener("change", preview);
-        answer.addEventListener("change", preview);
-        */
+            
+        });
 </script>
 
 </html>

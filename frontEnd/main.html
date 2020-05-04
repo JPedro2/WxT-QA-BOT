@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
     <link rel="stylesheet" href="css/main.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 
 <body>
@@ -22,10 +24,10 @@
         <!--Right Side fo the Navbar-->
         <div class="navbar-menu">
             <div class="navbar-end">
-                <a class="navbar-item">
+                <a class="navbar-item" href="https://www.cisco.com/">
                     <img class="logo" src="assets/ciscoLogo.png">
                 </a>
-                <a class="navbar-item">
+                <a class="navbar-item" href="https://www.ibm.com/uk-en">
                     <img class="logo" src="assets/ibmLogo.png">
                 </a>
             </div>
@@ -34,8 +36,8 @@
     <div class="section primaryFont">
         <div class="tabs is-centered">
             <ul>
-                <li class="is-active"><a>Submit</a></li>
-                <li><a>Query</a></li>
+                <li class="is-active"><a href="main.html">Submit</a></li>
+                <li><a href="query.html">Query</a></li>
                 <li><a>Update</a></li>
             </ul>
         </div>
@@ -52,7 +54,7 @@
                 <p class="is-size-4">Answer</p>
                 <div class="field">
                     <div class="control">
-                        <textarea class="textarea" placeholder="It logs on."></textarea>
+                        <textarea class="textarea" id="ans" placeholder="It logs on."></textarea>
                     </div>
                 </div>
                 <!--Submit Line-->
@@ -86,11 +88,11 @@
                     <div class="control is-pulled-right">
                         <button class="button is-link">Submit</button>
                     </div>
-                      
+
                 </div>
             </div>
             <div class="column">
-                <div class="markdown">
+                <div class="markdown box">
                     <div class="container">
                         <h2 class="title is-5 has-text-white">Markdown Cheat Sheet</h2>
                         <p class="has-text-white">Add special characters around your text to apply markup formatting</p>
@@ -119,8 +121,6 @@
                     </div>
                 </div>
             </div>
-
-
         </div>
     </div>
     <!-- Live Preview Area -->
@@ -129,120 +129,27 @@
         <div class="section primaryFont">
 
             <p class="is-size-4 has-text-white has-text-weight-medium">Live Preview</p>
-            <div class="markup-Area">
-                Markup Here
+            <div id="answerField" class="markup-Area content">
+                
             </div>
         </div>
     </div>
 </body>
 <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js"></script>
 <script>
-    // Set up CORS
-    // Create the XHR object.
-    function createCORSRequest(method, url) {
-        var xhr = new XMLHttpRequest();
-        if ("withCredentials" in xhr) {
-            // XHR for Chrome/Firefox/Opera/Safari.
-            xhr.open(method, url, true);
-        } else if (typeof XDomainRequest != "undefined") {
-            // XDomainRequest for IE.
-            xhr = new XDomainRequest();
-            xhr.open(method, url);
-        } else {
-            // CORS not supported.
-            xhr = null;
-        }
-        return xhr;
+    function preview() {
+        //Import an instance of showdown
+        var converter = new showdown.Converter();
+        //Get the value of answer Field
+        var text = document.getElementById('ans').value;
+        //Convert the inputted text to HTML
+        var html = converter.makeHtml(text);
+        //set answerField to the updated html
+        document.getElementById("answerField").innerHTML = html;
     };
+    document.getElementById("ans").addEventListener("keyup", preview);
 
-    // Make the actual CORS request
-    function makeCorsRequest(url, data) {
-        var xhr = createCORSRequest('POST', url);
-        if (!xhr) {
-            alert('CORS not supported');
-            return;
-        }
-
-        // Response handlers
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                console.log(xhr.response);
-                alert("Success! Your question has been added to the Data Base")
-            } else {
-                console.log(`error ${xhr.status} ${xhr.statusText}`)
-                alert("Failure")
-            }
-        };
-
-        xhr.onerror = function () {
-            alert('Woops, there was an error making the request.');
-        };
-        xhr.send(data);
-    };
-
-    // form reference
-    const formElem = document.querySelector('form');
-
-    // Submit event handler wiht preventDefault to stop the default form submission, 
-    // then invoke a FormData constructor to trigger the formdata event
-    formElem.addEventListener('submit', (e) => {
-
-        // on form submission, prevent default
-        e.preventDefault();
-
-        // construct a FormData object, which fires the formdata event
-        new FormData(formElem);
-    });
-
-    // When the formdata event fires the FormData object is accessed and we post it to the Flask API server
-    formElem.addEventListener('formdata', (e) => {
-        console.log('formdata fired');
-
-        // Get the form data from the event object
-        let data = e.formData;
-
-        /* Check the value of data being sent - DEBUG Only
-        for (var value of data.values()) {
-            console.log(value);
-            }
-        */
-
-        // submit the data via XHR
-        let request = new XMLHttpRequest();
-        var url = "http://35.242.181.193:3002/addEntry";
-        makeCorsRequest(url, data);
-    });
-
-    /* ==============================================Commenting for Debug==============================================
-
-        var form = document.getElementById("submitQA");
-        form.addEventListener("submit", btn, true);
-
-        var question = document.getElementById('question');
-        var answer = document.getElementById('answer');
-        var preview_question = document.getElementById('preview_question');
-        var preview_answer = document.getElementById('preview_answer');
-
-
-        function preview() {
-            var question_text = document.getElementById('question').value;
-            var answer_text = document.getElementById('answer').value;
-            let request = new XMLHttpRequest();
-            request.open("POST", "https://api.github.com/markdown/raw");
-            request.setRequestHeader("Content-Type", "text/plain");
-            request.send(question_text);
-            request.onload = () => {
-                preview_question.innerHTML = request.responseText;
-            }
-            request.send(answer_text);
-            request.onload = () => {
-                preview_question.innerHTML = request.responseText;
-            }
-        }
-
-        question.addEventListener("change", preview);
-        answer.addEventListener("change", preview);
-        */
 </script>
 
 </html>
