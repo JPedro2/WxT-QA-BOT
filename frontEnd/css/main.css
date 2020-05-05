@@ -68,3 +68,10 @@ textarea:focus {
 .button{
     background-color: rgb(0, 188, 235) !important;
 }
+
+#addQuestionFieldButton{
+    margin-top: 10px;
+}
+#removeQuestionFieldButton{
+    margin-top: 10px;
+}

@@ -62,17 +62,18 @@
                             readonly></textarea>
                     </div>
                 </div>
-
+                <p class="is-size-4">Question Type</p>
+                <span class="tag is-info cisco is-large" id="type">No Q&A Selected.</span>
             </div>
 
             <!--------- RIGHT SIDE OF PAGE : Question search ---------->
             <div class="column">
                 <div class="markdown box">
                     <div class="container">
-                        <h2 class="is-size-4">Select a question</h2>
+                        <h2 class="is-size-4 has-text-centered">Select a question</h2>
                         <hr>
                         <div class="field has-addons">
-                            <div class="control">
+                            <div class="control is-expanded"">
                                 <input class="input" id="questionIDField" type="text" placeholder="Question ID">
                             </div>
                             <div class="control">
@@ -81,7 +82,7 @@
                                 </a>
                             </div>
                         </div>
-                        
+                        <hr>
                         <button id="getAllQuestion" class="button is-medium is-fullwidth has-text-white">View all
                             questions</button>
                     </div>
@@ -149,6 +150,11 @@
                 document.getElementById("answerField").value = response.data.answer;
                 //Update the alternate question field
                 document.getElementById("altQuestionField").value = response.data.alternatives;
+                //Update the question type
+                document.getElementById("type").textContent = response.data.field;
+
+                console.log(response)
+
             })
     });
     //On page load load all the questions and put them in the modal

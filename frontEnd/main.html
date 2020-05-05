@@ -11,7 +11,7 @@
 </head>
 
 <body>
-   
+
     <nav class="navbar primaryFont" role="navigation" aria-label="main navigation">
         <!--Left Side of the Navbar-->
         <div class="navbar-brand">
@@ -34,7 +34,7 @@
             </div>
         </div>
     </nav>
-   
+
     <div class="section primaryFont">
         <div class="tabs is-centered">
             <ul>
@@ -46,88 +46,106 @@
         <h3 class="is-size-4">Question</h3>
         <div class="columns">
             <div class="column is-three-quarters">
-                <form action="http://35.242.181.193:3003/addEntry" id="submitQA" method="post" target="dummyframe">
-                <!--Question Input-->
-                <div class="field">
-                    <div class="control">
-                        <textarea class="textarea" name="question" id="question" placeholder="How does a tree get on the Internet?"></textarea>
+                <!--On submit of the form do the add entry, use target to prevent redirect (Sorry, should be done better)-->
+                <!--TODO: Remove the target and submit the form with ajax -->
+                <form id="form">
+                    <!--Question Input-->
+
+                    <div id="questionGroup">
+                        <div class="field">
+                            <input required class="input questionInput" type="text" placeholder="Question"></div>
                     </div>
-                </div>
-                <!-- Answer Input -->
-                <p class="is-size-4">Answer</p>
-                <div class="field">
-                    <div class="control">
-                        <textarea class="textarea" id="ans" name="answer"placeholder="It logs on."></textarea>
-                    </div>
-                </div>
-                <!--Submit Line-->
-                <div class="field is-grouped">
                     <div class="field">
-                        <div class="control">
-                            <div class="select">
-                                <select name="select">
-                                    <option>General</option>
-                                    <option>Volunteer Programme</option>
-                                <option>Plans and Pricing</option>
-                                <option>Controls & Features</option>
-                                <option>Quality Issues</option>
-                                </select>
-                            </div>
+                        <div class="buttons has-addons is-right">
+                            <button class="button has-text-white" id="addQuestionFieldButton">
+                                <span class="icon is-small">
+                                    <i class="fas fa-plus"></i>
+                                </span>
+                            </button>
+                            <button class="button has-text-white" id="removeQuestionFieldButton">
+                                <span class="icon is-small">
+                                    <i class="fas fa-minus"></i>
+                                </span>
+                            </button>
                         </div>
                     </div>
 
+                    <!-- Answer Input -->
+                    <p class="is-size-4">Answer</p>
                     <div class="field">
-                        <div class="file is-white">
-                            <label class="file-label">
-                                <input class="file-input" type="file" name="resume">
-                                <span class="file-cta">
-                                    <span class="file-icon">
-                                        <i class="fas fa-file-upload"></i>
-                                    </span>
-                                    <span name="file" class="file-label">
-                                        Attach File
-                                    </span>
-                                </span>
-                            </label>
+                        <div class="control">
+                            <textarea required class="textarea" id="ans" name="answer"
+                                placeholder="It logs on."></textarea>
                         </div>
                     </div>
-                    <div class="control is-pulled-right">
-                        <button  type="submit" class="button is-link">Submit</button>
-                    </div>
+                    <!--Submit Line-->
+                    <div class="field is-grouped">
+                        <div class="field">
+                            <div class="control">
+                                <div class="select">
+                                    <select id='select' name="select" required>
+                                        <option>General</option>
+                                        <option>Volunteer Programme</option>
+                                        <option>Plans and Pricing</option>
+                                        <option>Controls & Features</option>
+                                        <option>Quality Issues</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="file is-white">
+                                <label class="file-label">
+                                    <input class="file-input" type="file" name="resume">
+                                    <span class="file-cta">
+                                        <span class="file-icon">
+                                            <i class="fas fa-file-upload"></i>
+                                        </span>
+                                        <span name="file" class="file-label">
+                                            Attach File
+                                        </span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="control is-pulled-right">
+                            <button id="submitQA" class="button is-link">Submit</button>
+                        </div>
                 </form>
-                </div>
             </div>
-            <div class="column">
-                <div class="markdown box">
-                    <div class="container">
-                        <h2 class="title is-5 has-text-white">Markdown Cheat Sheet</h2>
-                        <p class="has-text-white">Add special characters around your text to apply markup formatting</p>
-                        <br>
-                        <p class="is-size-5 has-text-weight-semibold">Style</p>
-                        <p class="has-text-white">**BOLD**</p>
-                        <p class="has-text-white">_italic_</p>
-                        <p class="has-text-white">>Blockquote</p>
-                        <br>
-                        <p class="is-size-5 has-text-weight-semibold">Lists</p>
-                        <p class="has-text-white">1. Item1</p>
-                        <p class="has-text-white">2. Item2</p>
-                        <p class="has-text-white">3. Item3</p>
-                        <br>
-                        <p class="has-text-white">*Bullet point1</p>
-                        <p class="has-text-white">*Bullet point2</p>
-                        <br>
-                        <p class="is-size-5 has-text-weight-semibold">Headings</p>
-                        <p class="has-text-white"># Heading 1</p>
-                        <p class="has-text-white"># # Heading 2</p>
-                        <p class="has-text-white"># # # Heading 3</p>
-                        <p class="has-text-white">--- Horizonal Line</p>
-                        <br>
-                        <p class="is-size-5 has-text-weight-semibold">Links</p>
-                        <p class="has-text-white">[link text](link)</p>
-                    </div>
+        </div>
+        <div class="column">
+            <div class="markdown box">
+                <div class="container">
+                    <h2 class="title is-5 has-text-white">Markdown Cheat Sheet</h2>
+                    <p class="has-text-white">Add special characters around your text to apply markup formatting</p>
+                    <br>
+                    <p class="is-size-5 has-text-weight-semibold">Style</p>
+                    <p class="has-text-white">**BOLD**</p>
+                    <p class="has-text-white">_italic_</p>
+                    <p class="has-text-white">>Blockquote</p>
+                    <br>
+                    <p class="is-size-5 has-text-weight-semibold">Lists</p>
+                    <p class="has-text-white">1. Item1</p>
+                    <p class="has-text-white">2. Item2</p>
+                    <p class="has-text-white">3. Item3</p>
+                    <br>
+                    <p class="has-text-white">*Bullet point1</p>
+                    <p class="has-text-white">*Bullet point2</p>
+                    <br>
+                    <p class="is-size-5 has-text-weight-semibold">Headings</p>
+                    <p class="has-text-white"># Heading 1</p>
+                    <p class="has-text-white"># # Heading 2</p>
+                    <p class="has-text-white"># # # Heading 3</p>
+                    <p class="has-text-white">--- Horizonal Line</p>
+                    <br>
+                    <p class="is-size-5 has-text-weight-semibold">Links</p>
+                    <p class="has-text-white">[link text](link)</p>
                 </div>
             </div>
         </div>
+    </div>
     </div>
     <!-- Live Preview Area -->
     <div class="markup-Container">
@@ -136,15 +154,21 @@
 
             <p class="is-size-4 has-text-white has-text-weight-medium">Live Preview</p>
             <div id="answerField" class="markup-Area content">
-                
+
             </div>
         </div>
     </div>
     <iframe style="display: none;" width="0" height="0" border="0" name="dummyframe" id="dummyframe"></iframe>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
 <script>
+    //When a user types in the answer box call the preview function
+    document.getElementById("ans").addEventListener("keyup", preview);
+
+    //Generates markdown with showdown
     function preview() {
         //Import an instance of showdown
         var converter = new showdown.Converter();
@@ -155,7 +179,81 @@
         //set answerField to the updated html
         document.getElementById("answerField").innerHTML = html;
     };
-    document.getElementById("ans").addEventListener("keyup", preview);
+
+    function generateQuestionFormat() {
+        let listOfQuestions = document.getElementsByClassName('questionInput');
+        let appendedQuestions = "";
+
+        //loop through all the questions and generate the alternative questions 
+        for (let i = 1; i < listOfQuestions.length; i++) {
+            if (listOfQuestions.length - 1 == i) {
+                appendedQuestions += listOfQuestions[i].value
+            } else {
+                appendedQuestions += listOfQuestions[i].value + " ; ";
+            }
+        }
+
+        //If no alternative questions asked, return as "" as alternatives
+        if (listOfQuestions.length == 1) {
+            return ""
+        }
+        //returns the appended questions
+        return appendedQuestions;
+    }
+
+    // Grab the forms id
+    var form = document.getElementById('form');
+    // Adds a listener for the "submit" event.
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+    });
+
+    //On click of the submit button
+    document.getElementById("submitQA").addEventListener('click', submitQA);
+    //
+    function submitQA() {
+        var formdata = new FormData();
+        formdata.append("question", document.getElementsByClassName('questionInput')[0].value);
+        console.log(document.getElementsByClassName('questionInput')[0].value);
+        formdata.append("answer", document.getElementById('ans').value);
+        formdata.append("select", document.getElementById('select').value);
+        formdata.append("alternatives", generateQuestionFormat());
+
+        var requestOptions = {
+            method: 'POST',
+            body: formdata,
+            redirect: 'follow',
+            mode: 'cors'
+        };
+
+        fetch("http://35.242.181.193:3003/addEntry", requestOptions)
+            .then(response => response.text())
+            .then(result => console.log(result))
+            .then(
+                Swal.fire(
+                    'Thank you',
+                    'Submitted successfully',
+                    'success'
+                )
+            )
+            .catch(error => console.log('error', error));
+    }
+
+    //If add is clicked append a new input box to the page
+    document.getElementById("addQuestionFieldButton").addEventListener('click', function () {
+        document.getElementById("questionGroup").innerHTML +=
+            '<div class="field"><input class="input questionInput" type="text" placeholder="Alternate Question"></div>'
+    })
+    //If remove is clicked remove a input box unless theres only 1
+    document.getElementById("removeQuestionFieldButton").addEventListener('click', function () {
+        var questionInputs = document.getElementsByClassName('questionInput');
+
+        if (questionInputs.length > 1) {
+            questionInputs[questionInputs.length - 1].remove();
+        } else {
+            alert("You must provide atleast one question.")
+        }
+    })
 
 </script>
 

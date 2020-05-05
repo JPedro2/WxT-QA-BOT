@@ -24,7 +24,7 @@ textarea:focus {
 .markdown {
     
     padding: 10px;
-    height: 570px;
+    height: 260px;
     
 }
 
@@ -68,6 +68,11 @@ textarea:focus {
     background-color: rgb(0, 188, 235) !important;
 }
 
+.cisco{
+    background-color: rgb(0, 188, 235) !important;
+}
+
 h1 {
     font-size: 7rem !important;
 }
+
