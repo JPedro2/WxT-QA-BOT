@@ -36,9 +36,13 @@ def getAnswer(questionID):
     try:
         cursor, db = connectToDB()
         cursor.execute("SELECT answer, location FROM qanda WHERE id=%s", (questionID,))
-        result = cursor.fetchall()[0]
-        answer, location = result[0], result[1]
-        cursor.execute("UPDATE qanda SET count=count+1 WHERE id=%s", (questionID,))
+        result = cursor.fetchall()
+        # Check that the entry exists
+        if not result:
+            err_questionID = False
+            raise(err_questionID)
+        answer, location = result[0][0], result[0][1]
+        #cursor.execute("UPDATE qanda SET count=count+1 WHERE id=%s", (questionID,))
         closeConnectionToDB(db, cursor)
         #convert the response into a dictionary to then be easily jsonfied
         answer_resp = ["answer", "location"]
@@ -52,7 +56,44 @@ def getAnswer(questionID):
         return(answer_resp)
     
     except:
-        print("No answer matching that question could be found")
+        if "err_questionID" in locals():
+            print("Error, Question ID does not exist")
+            return err_questionID
+        else:
+            print("No answer matching that question could be found")
+            return("Failure")
+
+# Get an question, answer, alternatives and locatioon given a question ID
+def getKnowledge(questionID):
+    try:
+        cursor, db = connectToDB()
+        cursor.execute("SELECT question, answer, alternatives, location FROM qanda WHERE id=%s", (questionID,))
+        result = cursor.fetchall()[0]
+        question, answer, alternatives, location = result[0], result[1], result[2], result[3]
+        closeConnectionToDB(db, cursor)
+        #convert the response into a dictionary to then be easily jsonfied
+        answer_resp = ["question", "answer", "alternatives", "location"]
+        answer_resp = dict.fromkeys(answer_resp)
+        answer_resp["question"]=question
+        answer_resp["answer"]=answer
+        answer_resp["alternatives"]=[]
+        #Check if alternatives and/or location are empty. If so, they will be null/none
+        if alternatives != "" and location != "":
+            strOfAlternatives = alternatives
+            listOfAlternatives=strOfAlternatives.split(" ; ")
+            answer_resp["alternatives"]=listOfAlternatives
+            answer_resp["location"]=location
+        elif alternatives != "":
+            strOfAlternatives = alternatives
+            listOfAlternatives=strOfAlternatives.split(" ; ")
+            answer_resp["alternatives"]=listOfAlternatives
+        elif location != "":
+            answer_resp["location"]=location
+        
+        return(answer_resp)
+    
+    except:
+        print("No entries matching that ID could be found.")
         return("Failure")
 
 # Get all questions
@@ -152,7 +193,7 @@ def appendAlternative(questionID, alternative):
             print("Error addding question alternative to Question ID:", questionID)
             return("Failure")
 
-def updateEntry(id, tag, question, answer, location, alternatives, count):
+def updateEntries(id, tag, question, answer, location, alternatives, count):
     try:
         cursor, db = connectToDB()
         if id == "":
@@ -164,28 +205,32 @@ def updateEntry(id, tag, question, answer, location, alternatives, count):
         if not result:
             err_questionID = False
             raise(err_questionID)
-        elif count != "": #update the count
-            cursor.execute("UPDATE qanda SET count=%s WHERE id=%s", (count, id,))
-            print("Successfully updated the count field on the database")
-        elif tag != "" or question != "" or answer != "" or alternatives != "":
-            if  tag != "" and question != "" and answer != "" and alternatives != "":
+        # Update entire row if all fields are populated
+        elif tag != "" and question != "" and answer != "" and alternatives != "" and count != "" and location != "":
+            cursor.execute("UPDATE qanda SET tag=%s, question=%s, answer=%s, alternatives=%s, location=%s, count=%s WHERE id=%s", (tag, question, answer, alternatives, location, count, id,))
+            print("Successfully updated the entire row on the database, ID: "+str(id))
+        else:
+            if tag != "" and question != "" and answer != "" and alternatives != "" and location != "":
+                cursor.execute("UPDATE qanda SET tag=%s, question=%s, answer=%s, alternatives=%s, location=%s WHERE id=%s", (tag, question, answer, alternatives, location, id,))
+                print("Successfully updated the tag, the question, the answer, the alternatives and the location fields on the database")
+            elif tag != "" and question != "" and answer != "" and alternatives != "":
                 cursor.execute("UPDATE qanda SET tag=%s, question=%s, answer=%s, alternatives=%s WHERE id=%s", (tag, question, answer, alternatives, id,))
                 print("Successfully updated the tag, the question, the answer and the alternatives fields on the database")
-            if question != "" and answer != "":
+            elif tag != "" and question != "" and answer != "":
                 cursor.execute("UPDATE qanda SET question=%s, answer=%s WHERE id=%s", (question, answer, id,))
-                print("Successfully updated both the question and the answer fields on the database")
-            if question != "":
+                print("Successfully updated the tag, the question and the answer fields on the database")
+            elif question != "":
                 cursor.execute("UPDATE qanda SET question=%s WHERE id=%s", (question, id,))
                 print("Successfully updated the question field on the database")
-            if answer != "":
+            elif answer != "":
                 cursor.execute("UPDATE qanda SET answer=%s WHERE id=%s", (answer, id,))
                 print("Successfully updated the answer field on the database")
-            if alternatives != "":
+            elif alternatives != "":
                 cursor.execute("UPDATE qanda SET alternatives=%s WHERE id=%s", (alternatives, id,))
                 print("Successfully updated the alternatives field on the database")
-        else:
-            cursor.execute("UPDATE qanda SET tag=%s, question=%s, answer=%s, location=%s, alternatives=% WHERE id=%s", (tag, question, answer, location, alternatives, id,))
-            print("Successfully updated the entire row on the database with ID: "+str(id))
+            elif count != "": #update the count
+                cursor.execute("UPDATE qanda SET count=%s WHERE id=%s", (count, id,))
+                print("Successfully updated the count field on the database")
         closeConnectionToDB(db, cursor)
         print("Successfully updated the database")
         return("Success")
@@ -197,5 +242,3 @@ def updateEntry(id, tag, question, answer, location, alternatives, count):
         else:
             print("Error addding question alternative to Question ID:", questionID)
             return("Failure")
-
-# ************************************************ WORK IN PROGRESS ************************************************

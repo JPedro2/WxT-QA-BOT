@@ -184,36 +184,20 @@ formElem.addEventListener('formdata', (e) => {
     makeCorsRequest(url, data);
 });
 
-/* ==============================================Commenting for Debug==============================================
+var form = document.getElementById("submitQA");
+form.addEventListener("submit", btn, true);
+var question = document.getElementById('question');
+var answer = document.getElementById('answer');
+var preview_question = document.getElementById('preview_question');
+var preview_answer = document.getElementById('preview_answer');
 
-    var form = document.getElementById("submitQA");
-    form.addEventListener("submit", btn, true);
-
-    var question = document.getElementById('question');
-    var answer = document.getElementById('answer');
-    var preview_question = document.getElementById('preview_question');
-    var preview_answer = document.getElementById('preview_answer');
-
-
-    function preview() {
-        var question_text = document.getElementById('question').value;
-        var answer_text = document.getElementById('answer').value;
-        let request = new XMLHttpRequest();
-        request.open("POST", "https://api.github.com/markdown/raw");
-        request.setRequestHeader("Content-Type", "text/plain");
-        request.send(question_text);
-        request.onload = () => {
-            preview_question.innerHTML = request.responseText;
-        }
-        request.send(answer_text);
-        request.onload = () => {
-            preview_question.innerHTML = request.responseText;
-        }
-    }
-
-    question.addEventListener("change", preview);
-    answer.addEventListener("change", preview);
-    */
+function preview() {        
+    var converter = new showdown.Converter();
+    var text = document.getElementById('answer').value;
+    html = converter.makeHtml(text);
+    preview_answer.innertHTML = html;
+}
+answer.addEventListener("change", preview);
 </script>
 
 </html>

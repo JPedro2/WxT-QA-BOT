@@ -3,7 +3,7 @@ import sys
 import time
 import queries
 import queries_user
-from flask import Flask, jsonify, request, abort, g, url_for
+from flask import Flask, jsonify, request, abort, g, url_for, flash, redirect
 import flask
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -11,6 +11,7 @@ from flask_cors import CORS, cross_origin
 from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
 import jwt
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 
 # Set working directory
 sys.path.append('/home/WxT-QA-BOT')
@@ -20,6 +21,13 @@ def create_app():
     
     # Instantiate Flask app
     API_app = flask.Flask(__name__)
+    
+    # Instantiate API config for uploads
+    ALLOWED_EXTENSIONS = credentials.FLASK["ALLOWED_EXTENSIONS"]
+    API_app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 #16MB maximum allowed file size to be uploaded                    
+    API_app.config['UPLOAD_FOLDER'] = credentials.FLASK["UPLOAD_FOLDER"]
+
+    # Instantiate API config for Auth
     API_app.config['SECRET_KEY'] = credentials.FLASK["Flask_SECRET_KEY"]
     auth = HTTPBasicAuth()
     authToken = HTTPTokenAuth('Bearer')
@@ -112,40 +120,40 @@ def create_app():
         except:
             abort(400, "Error validating the token")
 
-    @API_app.route('/api/newUsers', methods=['POST'])
-    def new_user():
-        try:
-            username = request.json.get('username')
-            password = request.json.get('password')
-            if username is None or password is None: # missing arguments
-                err_missingInfo = "Information Missing! Please fill use both the username and the password fields."
-                raise(err_missingInfo)
-            if username == "" or password == "": # empty arguments
-                err_empty = "Empty credentials! Please fill in both the username and the password fields."
-                raise(err_empty)
-            if queries_user.getUser(username) is not None: # existing user
-                err_userExists = "Username: "+str(username)+" already exists. Please use a different username."
-                raise(err_userExists)    
+    # @API_app.route('/api/newUsers', methods=['POST'])
+    # def new_user():
+    #     try:
+    #         username = request.json.get('username')
+    #         password = request.json.get('password')
+    #         if username is None or password is None: # missing arguments
+    #             err_missingInfo = "Information Missing! Please fill use both the username and the password fields."
+    #             raise(err_missingInfo)
+    #         if username == "" or password == "": # empty arguments
+    #             err_empty = "Empty credentials! Please fill in both the username and the password fields."
+    #             raise(err_empty)
+    #         if queries_user.getUser(username) is not None: # existing user
+    #             err_userExists = "Username: "+str(username)+" already exists. Please use a different username."
+    #             raise(err_userExists)    
             
-            #hash the password
-            hashedPassword = hash_password(password)
-            #Add both user and hashed password to the DB
-            newUser_ID, newUser = queries_user.addUser(username, hashedPassword)
-            #Generate the token for the new user - this will last 24h, then it will need to be renewed
-            token = generate_auth_token(newUser,86400)
+    #         #hash the password
+    #         hashedPassword = hash_password(password)
+    #         #Add both user and hashed password to the DB
+    #         newUser_ID, newUser = queries_user.addUser(username, hashedPassword)
+    #         #Generate the token for the new user - this will last 24h, then it will need to be renewed
+    #         token = generate_auth_token(newUser,86400)
 
-            return (jsonify([{'username': queries_user.getUser(username)},
-                            {'token': token.decode('ascii'), 'duration': 86400}]), 201)
+    #         return (jsonify([{'username': queries_user.getUser(username)},
+    #                         {'token': token.decode('ascii'), 'duration': 86400}]), 201)
         
-        except:
-            if "err_missingInfo" in locals():
-                abort(400, err_missingInfo)
-            if "err_empty" in locals():
-                abort(400, err_empty)
-            if "err_userExists" in locals():
-                abort(400, err_userExists)
-            else:
-                abort(400)
+    #     except:
+    #         if "err_missingInfo" in locals():
+    #             abort(400, err_missingInfo)
+    #         if "err_empty" in locals():
+    #             abort(400, err_empty)
+    #         if "err_userExists" in locals():
+    #             abort(400, err_userExists)
+    #         else:
+    #             abort(400)
     
     @API_app.route('/api/token')
     @auth.login_required
@@ -158,26 +166,101 @@ def create_app():
         except:
             abort(400, "Error generating Token")
 
-    @API_app.route('/api/resource')
-    @authToken.login_required
-    def get_resource():
-        return jsonify({'data': 'Hello, %s!' % g.user})
-
 #======================================================= API AUTH =======================================================
 
-    # getAnswer by GET
-    @API_app.route('/getAnswer/<questionID>', methods=['GET'])
-    @cross_origin()
+#=================================================== API File Upload ====================================================
+    def allowed_file(filename):
+        return '.' in filename and \
+            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+    #URL needs to contain the questionID that the file needs to be associated with 
+    # /uploads/<path:filename>/?questionID=
+    @API_app.route('/uploads/<path:filename>/', methods=['POST'])
+    def upload_file(filename):
+        try:
+            if not request.args.get('questionID'):
+                err_IDrequired = "No question ID provided. Please provide a questionID"
+                raise(err_IDrequired)
+
+            if queries.getAnswer(questionID) == False:
+                err_questionID = "Error! Question ID: "+str(questionID)+" does not exist!"
+                raise(err_questionID)
+
+            # check if the post request has the file part
+            if 'file' not in request.files:
+                err_noFile = "No file submitted"
+                raise(err_noFile)
+                #flash('No file part')
+                #return redirect(request.url)
+            file = request.files['file']
+            # if user does not select file, browser also
+            # submit an empty part without filename
+            #if file.filename == '':
+            #    flash('No selected file')
+            #    return redirect(request.url)
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(API_app.config['UPLOAD_FOLDER'], filename))
+                filePath = url_for('uploaded_file',filename=filename)
+                #add filePath to the location column on the DB
+
+                return ("File Sucefully Uploaded to Knowledge Base", 201)
+                #return redirect(url_for('uploaded_file',filename=filename))
+
+            else:
+                err_fileExtension = "File extentions is not allowed. Please only submit allowed file extensions."
+                raise(err_fileExtension)
+        
+        except:
+            if "err_IDrequired" in locals():
+                abort(404, err_IDrequired)
+            if "err_questionID" in locals():
+                abort(404, err_questionID)
+            if "err_noFile" in locals():
+                abort(400, err_noFile)
+            if "err_fileExtension" in locals():
+                abort(400, err_fileExtension)
+            else:
+                abort(400)
+#=================================================== API File Upload ====================================================
+
+#==================================================== API Endpoints =====================================================
+    # getAnswer for the Bot to grab answers based on Question ID
+    @API_app.route('/getAnswer/<int:questionID>', methods=['GET'])
+    @cross_origin(supports_credentials=True)
     @limiter.limit("200 per hour", override_defaults=False)
-    @authToken.login_required
+    #@authToken.login_required
     def _getAnswer(questionID):
         try:
             answer = queries.getAnswer(questionID)
+            if answer == False:
+                err_questionID = "Error! Question ID: "+str(questionID)+" does not exist!"
+                raise(err_questionID)
             if answer == "Failure":
-                f_message = "No entry found. Question ID is not valid."
+                f_message = "Error, database failure whilst retrieving the answer."
                 raise(f_message)
-
             return jsonify(answer)
+        
+        except:
+            if "err_questionID" in locals():
+                abort(404, err_questionID)
+            if "f_message" in locals():
+                abort(500, f_message)
+            else:
+                abort(400)
+    
+    # get question, answer, alternatives and location for the FrontEnd to use this knowledge: Query and Update tabs
+    @API_app.route('/getKnowledge/<int:questionID>', methods=['GET'])
+    @cross_origin(supports_credentials=True)
+    @limiter.limit("200 per hour", override_defaults=False)
+    #@authToken.login_required
+    def getKnowledge(questionID):
+        try:
+            knowledge = queries.getKnowledge(questionID)
+            if knowledge == "Failure":
+                f_message = "No entries have been found. Question ID is not valid."
+                raise(f_message)
+            return jsonify(knowledge)
         
         except:
             if "f_message" in locals():
@@ -185,7 +268,7 @@ def create_app():
             else:
                 abort(400)
 
-    # addEntry by POST form
+    # addEntry to add Questions, Answers and Alternative Questions from the FrontEnd: Submit tab
     @API_app.route('/addEntry', methods=['POST'])
     @cross_origin(supports_credentials=True)
     #@authToken.login_required #Need to explore how to implement token login via the frontEnd
@@ -212,10 +295,11 @@ def create_app():
                 abort(500, f_message)
             abort(400)
 
-    # getAllQuestions
+    # getAllQuestions to be used by the Bot and the FE: Update and Query Tabs
     @API_app.route('/getAllQuestions', methods=['GET'])
+    @cross_origin(supports_credentials=True)
     @limiter.limit("200 per hour", override_defaults=False)
-    @authToken.login_required
+    #@authToken.login_required
     def getAllQuestions():
         try:
             allQuestions = queries.getAllQuestions()
@@ -232,10 +316,11 @@ def create_app():
             else:
                 abort(400)
     
-    # Get all entries from the DB
+    # Get all entries from the Knowledge Base
     @API_app.route('/getAll', methods=['GET'])
+    @cross_origin(supports_credentials=True)
     @limiter.limit("200 per hour", override_defaults=False)
-    @authToken.login_required
+    #@authToken.login_required
     def getAll():
         try:
             allDB = queries.getAll()
@@ -258,11 +343,11 @@ def create_app():
             else:
                 abort(400)
 
-    # Add alternatives to a question 
-    @API_app.route('/appendAlternative/<questionID>', methods=['POST'])
-    @cross_origin() #Potentially add alternatives field to FrontEnd
+    # Allows the Boot (via escalation) to add alternatives to an existing question. Used as a feedback mechanism for NLP. 
+    # Adds valid questions that people ask the BOT (and the bot wrongly classifies) as alternativate questions. 
+    @API_app.route('/appendAlternative/<int:questionID>', methods=['POST'])
     @limiter.limit("200 per hour", override_defaults=False)
-    @authToken.login_required
+    #@authToken.login_required
     def appendAlternative(questionID):
         try:
             if request.is_json:
@@ -298,11 +383,10 @@ def create_app():
             else:
                 abort(400)
 
-    # Add alternatives to a question 
+    # Allows the BOT (via escalation) to add new Questions and Answers to the Knowledge Base 
     @API_app.route('/newEscalationAnswer', methods=['POST'])
-    @cross_origin() #Potentially add alternatives field to FrontEnd
     @limiter.limit("200 per hour", override_defaults=False)
-    @authToken.login_required
+    #@authToken.login_required
     def newEscalationAnswer():
         try:
             if request.is_json:
@@ -337,10 +421,10 @@ def create_app():
             else:
                 abort(400)
     
+    # Allows the BOT to update the count on which Q&As have been handled every 12h
     @API_app.route('/updateCount', methods=['POST'])
-    @cross_origin()
     @limiter.limit("200 per hour", override_defaults=False)
-    @authToken.login_required
+    #@authToken.login_required
     def updateCount():
         try:
             if request.is_json:
@@ -350,7 +434,7 @@ def create_app():
                     questionID = item["id"]
                     count = item["count"]
                     # updateEntry(id, tag, question, answer, location, alternatives, count):
-                    updateCount = queries.updateEntry(questionID, "", "", "", "", "", count)
+                    updateCount = queries.updateEntries(questionID, "", "", "", "", "", count)
                     
                     if updateCount == "id required":
                         err_IDrequired = "Error! Question ID was not provided. Please provide Question ID"
@@ -385,39 +469,53 @@ def create_app():
             else:
                 abort(400)
 
-
-    # ************************************************ WORK IN PROGRESS ************************************************
-    # Update Entry on the DB **WORK IN PROGRESS**
-    @API_app.route('/updateEntries', methods=['POST'])
+    # Update entries on the DB, to be used by the FrontEnd - Update Tab
+    @API_app.route('/updateEntries/<int:questionID>', methods=['POST'])
+    @cross_origin(supports_credentials=True)
     @limiter.limit("200 per hour", override_defaults=False)
-    @authToken.login_required
-    def updateEntries():
+    #@authToken.login_required
+    def updateEntries(questionID):
         try:
-            id = request.form.get('id')
+            id = questionID
             tag = request.form.get('tag')
             question = request.form.get('question')
             answer = request.form.get('answer')
-            
-            allQuestions = queries.getAllQuestions()
-            allQuestionsDict = {}
-            #Convert list of tuples output from SQL into a Dictionary to be returned as JSON via jsonfy
-            for index,tuple in enumerate(allQuestions):
-                for questions in tuple:
-                    id = index+1        #match the id from the sql table, otherwise it starts from 0
-                    allQuestionsDict[id]=questions
-            return jsonify(allQuestionsDict)
+            location = request.form.get('location')
+            alternatives = request.form.get('alternatives')
+            count = request.form.get('count')
+            if location is None:
+                location = ""
+            if count is None:
+                count = ""
+            if alternatives is None:
+                alternatives = ""
+
+            addEntries = queries.updateEntries(id, tag, question, answer, location, alternatives, count)     
+            #Check questionID is valid
+            if addEntries == False:
+                err_questionID = "Error! Question ID: "+str(questionID)+" does not exist!"
+                raise(err_questionID)
+            #Check if there was a DB failure when updating entries
+            if addEntries == "Failure":
+                f_message = "Failed to update entries on the DB"
+                raise(f_message)
+            return("Sucessfully updated the entries on the DB, ID: "+str(id))
+        
         except:
-            abort(status=400)
-    
-    # ************************************************ WORK IN PROGRESS ************************************************
-    
+            if "err_questionID" in locals():
+                abort(404, err_questionID)
+            if "f_message" in locals():
+                abort(500, f_message)
+            else:
+                abort(400)
+#==================================================== API Endpoints =====================================================
+
     return API_app
 
 # Main
 if __name__ == "__main__":
     API_app = create_app()
-    #API_app.run(host=credentials.FLASK["Flask_HOST"], port=credentials.FLASK["Flask_PORT"], debug=False)
-    #With Debug Capabilities
+    #Production
     #API_app.run(host=credentials.FLASK["Flask_HOST"], port=credentials.FLASK["Flask_PORT"], debug=True)
 
     #For DEV Testing purposes ONLY
