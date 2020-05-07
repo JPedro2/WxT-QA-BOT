@@ -16,3 +16,4 @@ Werkzeug==1.0.1
 wheel==0.34.2
 gunicorn[gevent]
 flask-cors==3.0.8
+google-cloud-storage==1.28.1

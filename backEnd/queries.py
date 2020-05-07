@@ -2,7 +2,7 @@ import mysql.connector
 import sys
 
 # Set working directory
-sys.path.append('/home/WxT-QA-BOT')
+sys.path.append('/home/WxT-QA-BOT/credentials')
 import credentials
 
 # Connect to MySQL database
@@ -60,20 +60,24 @@ def getAnswer(questionID):
             print("Error, Question ID does not exist")
             return err_questionID
         else:
-            print("No answer matching that question could be found")
+            print("Database failure whilst trying to retrieve the answer")
             return("Failure")
 
 # Get an question, answer, alternatives and locatioon given a question ID
 def getKnowledge(questionID):
     try:
         cursor, db = connectToDB()
-        cursor.execute("SELECT question, answer, alternatives, location FROM qanda WHERE id=%s", (questionID,))
-        result = cursor.fetchall()[0]
-        question, answer, alternatives, location = result[0], result[1], result[2], result[3]
+        cursor.execute("SELECT tag, question, answer, alternatives, location FROM qanda WHERE id=%s", (questionID,))
+        result = cursor.fetchall()
+        if not result:
+            err_questionID = False
+            raise(err_questionID)
+        tag, question, answer, alternatives, location = result[0][0], result[0][1], result[0][2], result[0][3], result[0][4]
         closeConnectionToDB(db, cursor)
         #convert the response into a dictionary to then be easily jsonfied
-        answer_resp = ["question", "answer", "alternatives", "location"]
+        answer_resp = ["tag", "question", "answer", "alternatives", "location"]
         answer_resp = dict.fromkeys(answer_resp)
+        answer_resp["tag"]=tag
         answer_resp["question"]=question
         answer_resp["answer"]=answer
         answer_resp["alternatives"]=[]
@@ -93,8 +97,12 @@ def getKnowledge(questionID):
         return(answer_resp)
     
     except:
-        print("No entries matching that ID could be found.")
-        return("Failure")
+        if "err_questionID" in locals():
+            print("Error, Question ID does not exist")
+            return err_questionID
+        else:
+            print("Database failure whilst trying to retrieve the information")
+            return("Failure")
 
 # Get all questions
 def getAllQuestions():
@@ -155,12 +163,15 @@ def addEntry(tag, question, answer, location, alternatives):
     try:
         cursor, db = connectToDB()
         cursor.execute("INSERT INTO qanda (tag, question, answer, location, count, alternatives) VALUES (%s, %s, %s, %s, %s, %s)", (tag, question, answer, location, 0, alternatives))
+        cursor.execute("SELECT LAST_INSERT_ID()")
+        result=cursor.fetchall()
+        questionID=result[0][0]
         closeConnectionToDB(db, cursor)
-        print("Successfully inserted to the database; please do not refresh the page")
-        return("Success")
+        print("Successfully inserted new entry to the database.")
+        return(str(questionID))
     
     except:
-        print("Error inserting into database")
+        print("Error inserting new intro into the database")
         return("Failure")
 
 def appendAlternative(questionID, alternative):
@@ -175,9 +186,13 @@ def appendAlternative(questionID, alternative):
             raise(err_questionID)
         
         #Check if alternatives is already populated: This avoids initially appending a white space if alternatives is empty
-        alternatives = result[0][1]
-        if alternatives == "":
+        alternativesQuery = result[0][1]
+        if alternativesQuery == "":
             cursor.execute("UPDATE qanda SET alternatives=%s WHERE id=%s", (alternative, questionID,))
+        #Check if the alternative already exists
+        elif alternative in alternativesQuery:
+            err_duplicate = "Duplicate"
+            raise(err_duplicate)
         else:
             cursor.execute("UPDATE qanda SET alternatives=CONCAT(IFNULL(alternatives,''),' ; ',%s) WHERE id=%s", (alternative, questionID,))
         
@@ -186,6 +201,9 @@ def appendAlternative(questionID, alternative):
         return("Success")
     
     except:
+        if "err_duplicate" in locals():
+            print("Error, question alternative already exists")
+            return err_duplicate
         if "err_questionID" in locals():
             print("Error, Question ID does not exist")
             return err_questionID
@@ -217,7 +235,7 @@ def updateEntries(id, tag, question, answer, location, alternatives, count):
                 cursor.execute("UPDATE qanda SET tag=%s, question=%s, answer=%s, alternatives=%s WHERE id=%s", (tag, question, answer, alternatives, id,))
                 print("Successfully updated the tag, the question, the answer and the alternatives fields on the database")
             elif tag != "" and question != "" and answer != "":
-                cursor.execute("UPDATE qanda SET question=%s, answer=%s WHERE id=%s", (question, answer, id,))
+                cursor.execute("UPDATE qanda SET tag=%s, question=%s, answer=%s WHERE id=%s", (tag, question, answer, id,))
                 print("Successfully updated the tag, the question and the answer fields on the database")
             elif question != "":
                 cursor.execute("UPDATE qanda SET question=%s WHERE id=%s", (question, id,))
@@ -228,7 +246,10 @@ def updateEntries(id, tag, question, answer, location, alternatives, count):
             elif alternatives != "":
                 cursor.execute("UPDATE qanda SET alternatives=%s WHERE id=%s", (alternatives, id,))
                 print("Successfully updated the alternatives field on the database")
-            elif count != "": #update the count
+            elif location != "": #update the location, mainly used by the /uploadFile API
+                cursor.execute("UPDATE qanda SET location=%s WHERE id=%s", (location, id,))
+                print("Successfully updated the location field on the database")
+            elif count != "": #update the count, mainly used by the /updateCount API
                 cursor.execute("UPDATE qanda SET count=%s WHERE id=%s", (count, id,))
                 print("Successfully updated the count field on the database")
         closeConnectionToDB(db, cursor)
@@ -242,3 +263,30 @@ def updateEntries(id, tag, question, answer, location, alternatives, count):
         else:
             print("Error addding question alternative to Question ID:", questionID)
             return("Failure")
+
+def incrementCount(id, count):
+    try:
+        cursor, db = connectToDB()
+        if id == "":
+            return("id required")
+        
+        #Check if questionID exists in the DB
+        cursor.execute("SELECT * FROM qanda WHERE id=%s", (id,))
+        result = cursor.fetchall()
+        if not result:
+            err_questionID = False
+            raise(err_questionID)
+        # Increment the existing counter
+        cursor.execute("UPDATE qanda SET count=count+%s WHERE id=%s", (count, id,))
+        closeConnectionToDB(db, cursor)
+        print("Successfully incremented the count field on the database")
+        return("Success")
+    
+    except:
+        if "err_questionID" in locals():
+            print("Error, Question ID does not exist")
+            return err_questionID
+        else:
+            print("Error incrementing the count field of question ID:", questionID)
+            return("Failure")
+    

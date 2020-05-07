@@ -3,7 +3,7 @@ import sys
 import time
 import queries
 import queries_user
-from flask import Flask, jsonify, request, abort, g, url_for, flash, redirect
+from flask import Flask, jsonify, request, abort, g
 import flask
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -12,9 +12,10 @@ from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
 import jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from google.cloud import storage
 
 # Set working directory
-sys.path.append('/home/WxT-QA-BOT')
+sys.path.append('/home/WxT-QA-BOT/credentials')
 import credentials
 
 def create_app():
@@ -24,7 +25,7 @@ def create_app():
     
     # Instantiate API config for uploads
     ALLOWED_EXTENSIONS = credentials.FLASK["ALLOWED_EXTENSIONS"]
-    API_app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 #16MB maximum allowed file size to be uploaded                    
+    API_app.config['MAX_CONTENT_LENGTH'] = 300 * 1024 * 1024 #300MB maximum allowed file size to be uploaded                    
     API_app.config['UPLOAD_FOLDER'] = credentials.FLASK["UPLOAD_FOLDER"]
 
     # Instantiate API config for Auth
@@ -32,6 +33,10 @@ def create_app():
     auth = HTTPBasicAuth()
     authToken = HTTPTokenAuth('Bearer')
     #CORS(API_app)
+
+    # Instantiate GCP Storage Credentials
+    bucket_name = credentials.GCP["storage_bucket_name"]
+    GCP_Service_Acct = credentials.GCP["GCP_Service_Acct"]
 
     # Instantiate limiter
     limiter = Limiter(
@@ -120,6 +125,18 @@ def create_app():
         except:
             abort(400, "Error validating the token")
 
+    @API_app.route('/api/token')
+    @auth.login_required
+    def get_auth_token():
+        try:
+            token = generate_auth_token(g.user,86400)
+            print("Sucessfully generated a token for the user: "+str(g.user)+" and it is valid for 24h.")
+            return jsonify({'token': token.decode('ascii'), 'duration': 86400})
+        
+        except:
+            abort(400, "Error generating Token")
+
+
     # @API_app.route('/api/newUsers', methods=['POST'])
     # def new_user():
     #     try:
@@ -155,17 +172,6 @@ def create_app():
     #         else:
     #             abort(400)
     
-    @API_app.route('/api/token')
-    @auth.login_required
-    def get_auth_token():
-        try:
-            token = generate_auth_token(g.user,86400)
-            print("Sucessfully generated a token for the user: "+str(g.user)+" and it is valid for 24h.")
-            return jsonify({'token': token.decode('ascii'), 'duration': 86400})
-        
-        except:
-            abort(400, "Error generating Token")
-
 #======================================================= API AUTH =======================================================
 
 #=================================================== API File Upload ====================================================
@@ -173,16 +179,48 @@ def create_app():
         return '.' in filename and \
             filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-    #URL needs to contain the questionID that the file needs to be associated with 
-    # /uploads/<path:filename>/?questionID=
-    @API_app.route('/uploads/<path:filename>/', methods=['POST'])
-    def upload_file(filename):
+    def upload_blob(source_file_name, destination_blob_name):
         try:
-            if not request.args.get('questionID'):
-                err_IDrequired = "No question ID provided. Please provide a questionID"
-                raise(err_IDrequired)
+            # destination_blob_name is "/atttachmentDoc-for-<questionID>.<file_extension>"
+            # source_file_name is "/tmp-uploadFiles/<file>"
+            storage_client = storage.Client.from_service_account_json(GCP_Service_Acct)
+            bucket = storage_client.bucket(bucket_name)
+            
+            blob = bucket.blob(destination_blob_name)
+            blob.upload_from_filename(source_file_name)
 
-            if queries.getAnswer(questionID) == False:
+            location = "https://storage.googleapis.com/"+bucket_name+"/"+destination_blob_name
+
+            print("Sucessfully uploaded a file to GCP Cloud Storage, URL: "+location)
+            return location
+        
+        except:
+            return None
+            print("Error uploading file to GCP Cloud Storage")
+
+    def delete_blob(blob_name):
+        try:
+            # Deletes the object/attachment-file stored on GCP Storage
+            storage_client = storage.Client.from_service_account_json(GCP_Service_Acct)
+
+            bucket = storage_client.bucket(bucket_name)
+            blob = bucket.blob(blob_name)
+            blob.delete()
+            return True
+
+        except:
+            return None
+            print("Error deleting file from GCP Cloud Storage")
+
+    #URL needs to contain the questionID that the file needs to be associated with 
+    @API_app.route('/uploadFile/<int:questionID>', methods=['POST'])
+    @cross_origin(supports_credentials=True)
+    @limiter.limit("200 per hour", override_defaults=False)
+    #@authToken.login_required
+    def upload_file(questionID):
+        try:
+            checkQuestionID = queries.getAnswer(questionID)
+            if checkQuestionID == False:
                 err_questionID = "Error! Question ID: "+str(questionID)+" does not exist!"
                 raise(err_questionID)
 
@@ -190,36 +228,59 @@ def create_app():
             if 'file' not in request.files:
                 err_noFile = "No file submitted"
                 raise(err_noFile)
-                #flash('No file part')
-                #return redirect(request.url)
+            
             file = request.files['file']
-            # if user does not select file, browser also
-            # submit an empty part without filename
-            #if file.filename == '':
-            #    flash('No selected file')
-            #    return redirect(request.url)
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(API_app.config['UPLOAD_FOLDER'], filename))
-                filePath = url_for('uploaded_file',filename=filename)
-                #add filePath to the location column on the DB
-
-                return ("File Sucefully Uploaded to Knowledge Base", 201)
-                #return redirect(url_for('uploaded_file',filename=filename))
-
+                file_extension = filename.rsplit('.', 1)[1].lower()
+                source_file_name = os.path.join(API_app.config['UPLOAD_FOLDER'], filename) 
+                file.save(source_file_name)
+                print("File temporarily Uploaded from the FrontEnd to the backEnd")
             else:
                 err_fileExtension = "File extentions is not allowed. Please only submit allowed file extensions."
                 raise(err_fileExtension)
-        
+
+            # Before submiting the file to GCP Storage check if a question-attachment file already exists
+            # If so, delete it and update it with the new one (this fits the Update workflow)
+            checkUrl = queries.getKnowledge(questionID)
+            location = checkUrl["location"]
+            if location:
+                #grab the part of the URL that specifies the path to the file on GCP
+                deleteFilePath=location.split('/')[-2]+"/"+location.split('/')[-1]
+                #deleteFilePath=location.split('/')[-2]+"/*"              
+                if delete_blob(deleteFilePath):
+                    print("Attached file for question ID: "+str(questionID)+" has been deleted from GCP.")
+                else:
+                    #delete temporarily uploaded file
+                    delete_tmpFile = os.remove(source_file_name)
+                    ErrDelGCPfile = "Error deleting current file from GCP on Question ID: "+str(questionID)
+                    raise(ErrDelGCPfile)
+            
+            destination_blob_name = "QuestionID-"+str(questionID)+"/atttachment-QuestionID-"+str(questionID)+"."+str(file_extension)
+            #Submit file to GCP Cloud Storage to be used by the BOT
+            location = upload_blob(source_file_name, destination_blob_name)
+            if location:
+                #add the file's URL for download to the location on the database base
+                addLocation = queries.updateEntries(questionID, "", "", "", location, "", "")
+                #delete temporarily uploaded file
+                delete_tmpFile = os.remove(source_file_name)
+                return("Sucessfully uploaded a file to GCP Cloud Storage. URL: "+str(location), 201)
+            else:
+                delete_tmpFile = os.remove(source_file_name)
+                ErrUploadGCPfile = "Error uploading file to GCP for Question ID: "+str(questionID)
+                raise(ErrUploadGCPfile)
+            
         except:
-            if "err_IDrequired" in locals():
-                abort(404, err_IDrequired)
             if "err_questionID" in locals():
                 abort(404, err_questionID)
             if "err_noFile" in locals():
                 abort(400, err_noFile)
             if "err_fileExtension" in locals():
                 abort(400, err_fileExtension)
+            if "ErrDeletingGCPobject" in locals():
+                abort(500, ErrDeletingGCPobject)
+            if "ErrUploadGCPfile" in locals():
+                abort(500, ErrUploadGCPfile)
             else:
                 abort(400)
 #=================================================== API File Upload ====================================================
@@ -257,12 +318,17 @@ def create_app():
     def getKnowledge(questionID):
         try:
             knowledge = queries.getKnowledge(questionID)
+            if knowledge == False:
+                err_questionID = "Error! Question ID: "+str(questionID)+" does not exist!"
+                raise(err_questionID)
             if knowledge == "Failure":
-                f_message = "No entries have been found. Question ID is not valid."
+                f_message = "Error! Failure whilst retrieving the information from the database"
                 raise(f_message)
             return jsonify(knowledge)
         
         except:
+            if "err_questionID" in locals():
+                abort(404, err_questionID)
             if "f_message" in locals():
                 abort(404, f_message)
             else:
@@ -276,19 +342,20 @@ def create_app():
     @limiter.exempt
 
     def addEntry():
-        tag = request.form.get('select')
+        tag = request.form.get('tag')
         question = request.form.get('question')
         answer = request.form.get('answer')
         location = ""
         #location = request.form.get('location')
-        alternatives = ""
-        #alternatives = request.form.get('alternatives')
+        #alternatives = ""
+        alternatives = request.form.get('alternatives')
         try:
-            addEntry = queries.addEntry(tag,question, answer, location, alternatives)
-            if addEntry == "Failure":
+            newQuestionID = queries.addEntry(tag,question, answer, location, alternatives)
+            if newQuestionID == "Failure":
                 f_message = "Failed to add Entry to DB"
                 raise(f_message)
-            return(flask.Response(status=200))
+            return (newQuestionID, 201)
+            #return(flask.Response(status=200))
         
         except:
             if "f_message" in locals():
@@ -354,9 +421,15 @@ def create_app():
                 #Consume JSON payload {"question": "Here is an additional question"}
                 jsonPayload = request.get_json()
                 alternative = jsonPayload["question"]
-                
+                if alternative == "":
+                    err_alternativeRequired = "Error! The alternative question is empty."
+                    raise(err_alternativeRequired)
                 appendAlternative = queries.appendAlternative(questionID, alternative)
                 
+                if appendAlternative == "Duplicate":
+                    err_duplicate = "Error! Question alternative already exists"
+                    raise(err_duplicate)
+
                 if appendAlternative == False:
                     err_questionID = "Error! Question ID: "+str(questionID)+" does not exist!"
                     raise(err_questionID)
@@ -366,12 +439,16 @@ def create_app():
                     raise(f_message)
                 
                 print("Successfully added question alternative to Question ID:", questionID)
-                return("Successfully added question alternative to Question ID: "+str(questionID))
+                return("Successfully added question alternative to Question ID: "+str(questionID), 201)
             else:
                 request_isNotJSON = "Error appending alternative to Question ID: "+str(questionID)+". The request POSTed is NOT in JSON format."
                 raise(request_isNotJSON)
         
         except:
+            if "err_duplicate" in locals():
+                abort(400, err_duplicate)
+            if "err_alternativeRequired" in locals():
+                abort(400, err_alternativeRequired)
             if "err_questionID" in locals():
                 abort(404, err_questionID)
             if "f_message" in locals():
@@ -407,7 +484,7 @@ def create_app():
                     raise(f_message)
                 
                 print("Successfully added a question and answer from the Escalation Webex Warriors workflow")
-                return("Successfully added a question and answer from the Escalation Webex Warriors workflow")
+                return("Successfully added a question and answer from the Escalation Webex Warriors workflow", 201)
             else:
                 request_isNotJSON = "Error adding a new question and answer from the Escalation Webex Warriors workflow. The request POSTed is NOT in JSON format."
                 raise(request_isNotJSON)
@@ -422,7 +499,7 @@ def create_app():
                 abort(400)
     
     # Allows the BOT to update the count on which Q&As have been handled every 12h
-    @API_app.route('/updateCount', methods=['POST'])
+    @API_app.route('/updateCount', methods=['PUT'])
     @limiter.limit("200 per hour", override_defaults=False)
     #@authToken.login_required
     def updateCount():
@@ -433,8 +510,16 @@ def create_app():
                 for item in jsonPayload["items"]:
                     questionID = item["id"]
                     count = item["count"]
+                    
+                    if type(questionID) != int or type(count) != int:
+                        err_type = "Error! Both the Question ID and the Count need to be integers."
+                        raise(err_type)
+                    if count == "":
+                        err_COUNTrequired = "Error! Both the Question ID and the Count fields need to be populated."
+                        raise(err_COUNTrequired)
+
                     # updateEntry(id, tag, question, answer, location, alternatives, count):
-                    updateCount = queries.updateEntries(questionID, "", "", "", "", "", count)
+                    updateCount = queries.incrementCount(questionID, count)
                     
                     if updateCount == "id required":
                         err_IDrequired = "Error! Question ID was not provided. Please provide Question ID"
@@ -448,14 +533,18 @@ def create_app():
                         f_message = "Error updating count on Question ID: "+str(questionID)
                         raise(f_message)
                 
-                print("Successfully updated the count field on the database")
-                return("Successfully updated the count field on the database")
+                print("Successfully incremented the count field on the database")
+                return("Successfully incremented the count field on the database")
             
             else:
-                request_isNotJSON = "Error adding a new question and answer from the Escalation Webex Warriors workflow. The request POSTed is NOT in JSON format."
+                request_isNotJSON = "Error incrementing the count. The request is NOT in JSON format."
                 raise(request_isNotJSON)
         
         except:
+            if "err_type" in locals():
+                abort(400, err_type)
+            if "err_COUNTrequired" in locals():
+                abort(404, err_COUNTrequired)
             if "err_IDrequired" in locals():
                 abort(404, err_IDrequired)
             if "err_questionID" in locals():
@@ -470,7 +559,7 @@ def create_app():
                 abort(400)
 
     # Update entries on the DB, to be used by the FrontEnd - Update Tab
-    @API_app.route('/updateEntries/<int:questionID>', methods=['POST'])
+    @API_app.route('/updateEntries/<int:questionID>', methods=['PUT'])
     @cross_origin(supports_credentials=True)
     @limiter.limit("200 per hour", override_defaults=False)
     #@authToken.login_required
