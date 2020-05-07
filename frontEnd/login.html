@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>April Knowledge Base Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+
+    <nav class="navbar primaryFont" role="navigation" aria-label="main navigation">
+        <!--Left Side of the Navbar-->
+        <div class="navbar-brand">
+            <a class="navbar-item">
+                <img class="logo" src="assets/meetingsLogo.png">
+            </a>
+            <a class="navbar-item is-size-4 ">
+                April Knowledge Base Dashboard
+            </a>
+        </div>
+        <!--Right Side fo the Navbar-->
+        <div class="navbar-menu">
+            <div class="navbar-end">
+                <a class="navbar-item" href="https://www.cisco.com/">
+                    <img class="logo" src="assets/ciscoLogo.png">
+                </a>
+                <a class="navbar-item" href="https://www.ibm.com/uk-en">
+                    <img class="logo" src="assets/ibmLogo.png">
+                </a>
+            </div>
+        </div>
+    </nav>
+    <div class="loginbox">
+        <h2>Login</h2>
+        <hr>
+        <div class="loginform">
+            <form id="login" method="post">
+                <div class="logincontent">
+                    <p>
+                        <label for="username">Email</label>
+                        <input id="username" name="username" type="email" placeholder="email@address.com"></input>
+                    </p>
+                    <p>
+                        <label for="password">Password</label>
+                        <input id="password" name="password" type="password" placeholder="password"></input>
+                    </p>
+                </div>
+                <div class="loginbutton">
+                    <button class="button" id="loginbtn">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+<iframe style="display: none;" width="0" height="0" border="0" name="dummyframe" id="dummyframe"></iframe>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#loginbtn').click(function(e) {
+            e.preventDefault();
+            var credentials = $('#login').serializeArray();
+            var username = credentials[0].value;
+            var password = credentials[1].value;
+            var duration;
+            var token;
+
+            var myHeaders = new Headers();
+            var to_encode = username+":"+password;
+            var base64_encoded = btoa(to_encode);
+            myHeaders.append("Authorization", "Basic "+base64_encoded);
+            myHeaders.append("Access-Control-Allow-Origin", "*");
+
+            var requestOptions = {
+                // mode: 'no-cors',
+                method: 'GET',
+                headers: myHeaders,
+                redirect: 'follow'
+            };
+
+            fetch("http://35.242.181.193:3003/api/token", requestOptions)
+            .then(function(response) {
+                if(response.status === 200) {
+                    response.json().then(function(data) {
+                        duration = data.duration;
+                        token = data.token;
+                        sessionStorage.setItem('duration', duration);
+                        sessionStorage.setItem('token', token);
+                    }).then(location.href="main.html");
+                }
+            }).catch(err => {
+                alert("Invalid credentials");
+            });
+        });
+    });
+</script>
+</html>

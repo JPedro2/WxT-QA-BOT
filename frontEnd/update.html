@@ -120,7 +120,7 @@
                 <br><br>
             </div>
             <p class="is-size-4">Attached Files</p>
-                <a href="" id="linkButton" class="button has-text-white linkButton">No Files</a>
+            <a href="" id="linkButton" class="button has-text-white linkButton">No Files</a>
         </div>
         <div class="column">
             <div class="searchBox box">
@@ -188,7 +188,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
-
     //File input 
     const fileInput = document.getElementById('fileInput');
     fileInput.onchange = () => {
@@ -299,7 +298,7 @@
     document.getElementById("addQuestionFieldButton").addEventListener('click', function () {
         $("#questionGroup").append(
             '<div class="field altQuestionInput"><input class="input questionInput" type="text" placeholder="Alternate Question"></div>'
-            );
+        );
         let currentHeight = $(".markdown").height()
         $(".markdown").height(currentHeight + 52)
     })
@@ -334,10 +333,8 @@
                     $("#questionGroup").append('<div class="field altQuestionInput"><input value=' +
                         response.data.alternatives[0] +
                         ' class="input questionInput" type="text" placeholder="Alternate Question"></div>'
-                        );
+                    );
                 }
-
-
                 //update the value of the question field
                 document.getElementById("questionField").value = response.data.question;
 
