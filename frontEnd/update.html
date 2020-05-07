@@ -117,10 +117,9 @@
             </div>
         </div>
         <div class="column">
-            <div class="markdown box">
+            <div class="searchBox box">
                 <div class="container">
-                    <h2 class="is-size-4 has-text-centered">Select a question</h2>
-                    <hr>
+                    <h2 class="is-size-4">Select a question</h2>
                     <div class="field has-addons">
                         <div class="control is-expanded"">
                             <input class=" input" id="questionIDField" type="text" placeholder="Question ID">
@@ -131,9 +130,34 @@
                             </a>
                         </div>
                     </div>
-                    <hr>
-                    <button id="getAllQuestion" class="button is-medium is-fullwidth has-text-white">View all
-                        questions</button>
+                </div>
+            </div>
+            <div class="markdown box">
+                <div class="container">
+                    <h2 class="title is-5 has-text-white">Markdown Cheat Sheet</h2>
+                    <p class="has-text-white">Add special characters around your text to apply markup formatting</p>
+                    <br>
+                    <p class="is-size-5 has-text-weight-semibold">Style</p>
+                    <p class="has-text-white">**BOLD**</p>
+                    <p class="has-text-white">_italic_</p>
+                    <p class="has-text-white">>Blockquote</p>
+                    <br>
+                    <p class="is-size-5 has-text-weight-semibold">Lists</p>
+                    <p class="has-text-white">1. Item1</p>
+                    <p class="has-text-white">2. Item2</p>
+                    <p class="has-text-white">3. Item3</p>
+                    <br>
+                    <p class="has-text-white">*Bullet point1</p>
+                    <p class="has-text-white">*Bullet point2</p>
+                    <br>
+                    <p class="is-size-5 has-text-weight-semibold">Headings</p>
+                    <p class="has-text-white"># Heading 1</p>
+                    <p class="has-text-white"># # Heading 2</p>
+                    <p class="has-text-white"># # # Heading 3</p>
+                    <p class="has-text-white">--- Horizonal Line</p>
+                    <br>
+                    <p class="is-size-5 has-text-weight-semibold">Links</p>
+                    <p class="has-text-white">[link text](link)</p>
                 </div>
             </div>
         </div>
@@ -235,6 +259,8 @@
     //If add is clicked append a new input box to the page
     document.getElementById("addQuestionFieldButton").addEventListener('click', function () {
         $("#questionGroup").append('<div class="field altQuestionInput"><input class="input questionInput" type="text" placeholder="Alternate Question"></div>');
+        let currentHeight = $(".markdown").height()
+        $(".markdown").height(currentHeight + 52)
     })
 
     //If remove is clicked remove a input box unless theres only 1
@@ -243,9 +269,14 @@
 
         if (questionInputs.length > 1) {
             questionInputs[questionInputs.length - 1].remove();
+
+            let currentHeight = $(".markdown").height()
+            $(".markdown").height(currentHeight - 52)
         } else {
             alert("You must provide atleast one question.")
         }
+
+        
     })
 
     //Called when use searches a question ID

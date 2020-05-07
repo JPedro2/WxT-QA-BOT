@@ -97,7 +97,7 @@
                         <div class="field">
                             <div class="file is-white">
                                 <label class="file-label">
-                                    <input class="file-input" type="file" name="resume">
+                                    <input class="file-input" type="file" id="fileInput">
                                     <span class="file-cta">
                                         <span class="file-icon">
                                             <i class="fas fa-file-upload"></i>
@@ -215,7 +215,7 @@
     function submitQA() {
         var formdata = new FormData();
         formdata.append("question", document.getElementsByClassName('questionInput')[0].value);
-        console.log(document.getElementsByClassName('questionInput')[0].value);
+
         formdata.append("answer", document.getElementById('ans').value);
         formdata.append("tag", document.getElementById('select').value);
         formdata.append("alternatives", generateQuestionFormat());
@@ -228,21 +228,54 @@
         };
 
         fetch("http://35.242.181.193:3003/addEntry", requestOptions)
-            .then(response => response.text())
-            .then(result => console.log(result))
-            .then(
-                Swal.fire(
+            .then(response => {
+                if (response.ok){
+                    return response.text()
+                }
+                else {
+                    return Promise.reject(response);
+                }
+            })
+            .then(result => {
+                //grab file from input using jquery because js didnt work for some reason 
+                var uploadedFile = $('#fileInput').prop('files')[0];
+                //build a form
+                var fileformdata = new FormData();
+                //add the file into the form
+                fileformdata.append("file", uploadedFile);
+
+                //build request options
+                var fileRequestOptions = {
+                    method: 'POST',
+                    body: fileformdata,
+                    redirect: 'follow',
+                    mode: 'cors'
+                };
+
+                //Send an API call to the url with the ID
+                fetch("http://35.242.181.193:3003/uploadFile/" + result, fileRequestOptions);
+            })
+            .then(response => {
+                if (response.ok){
+                    Swal.fire(
                     'Thank you',
                     'Submitted successfully',
                     'success'
                 )
-            )
+                    return response
+                }
+                else {
+                    return Promise.reject(response);
+                }
+            })
             .catch(error => console.log('error', error));
     }
 
-     //If add is clicked append a new input box to the page
-     document.getElementById("addQuestionFieldButton").addEventListener('click', function () {
-        $("#questionGroup").append('<div class="field altQuestionInput"><input class="input questionInput" type="text" placeholder="Alternate Question"></div>');
+    //If add is clicked append a new input box to the page
+    document.getElementById("addQuestionFieldButton").addEventListener('click', function () {
+        $("#questionGroup").append(
+            '<div class="field altQuestionInput"><input class="input questionInput" type="text" placeholder="Alternate Question"></div>'
+        );
     })
 
     //If remove is clicked remove a input box unless theres only 1
@@ -255,7 +288,6 @@
             alert("You must provide atleast one question.")
         }
     })
-
 </script>
 
 </html>

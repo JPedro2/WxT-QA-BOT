@@ -21,11 +21,18 @@ textarea:focus {
     outline: none !important;
 }
 
-.markdown {
+.searchBox {
     
     padding: 10px;
-    height: 260px;
+    height: 110px;
     
+}
+.markdown {
+    background-color: rgb(0, 188, 235);
+    padding: 10px;
+    height: 265px;
+    overflow: scroll;
+    overflow-x: hidden;
 }
 
 .inputs {

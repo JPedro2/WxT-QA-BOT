@@ -148,10 +148,15 @@
                 document.getElementById("questionField").value = response.data.question;
                 //Update the answer field on the page with the question queried
                 document.getElementById("answerField").value = response.data.answer;
-                //Update the alternate question field
-                document.getElementById("altQuestionField").value = response.data.alternatives;
+
                 //Update the question type
                 document.getElementById("type").textContent = response.data.tag;
+
+
+                for(let i = 0; i < response.data.alternatives.length; i++){
+                    console.log(response.data.alternatives[i])
+                    document.getElementById("altQuestionField").value += response.data.alternatives[i] + '\n' + '\n';
+                }
 
                 console.log(response)
 
