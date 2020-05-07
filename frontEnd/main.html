@@ -241,7 +241,10 @@
             method: 'POST',
             body: formdata,
             redirect: 'follow',
-            mode: 'cors'
+            mode: 'cors',
+            headers: {
+                "Authorization" : 'Bearer ' + sessionStorage.getItem('token')
+            }
         };
         //Execute POST
         fetch("http://35.242.181.193:3003/addEntry", requestOptions)
