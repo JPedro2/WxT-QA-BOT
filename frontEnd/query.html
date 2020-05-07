@@ -129,6 +129,7 @@
         </div>
     </div>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
 <script>
@@ -143,34 +144,40 @@
         document.getElementById("listModal").classList.remove("is-active");
     });
 
+    //When the search button is clicked
     document.getElementById("searchQuestionButton").addEventListener('click', function () {
+        //Grab the question ID value and assign it
         let questionID = document.getElementById("questionIDField").value;
+
+        //Get request the question ID 
         axios.get('http://35.242.181.193:3003/getKnowledge/' + questionID)
             .then(response => {
                 //Update the question field on the page with the question queried
                 document.getElementById("questionField").value = response.data.question;
                 //Update the answer field on the page with the question queried
                 document.getElementById("answerField").value = response.data.answer;
-
                 //Update the question type
                 document.getElementById("type").textContent = response.data.tag;
 
+                //Toggles button on the page
                 if (response.data.location != null) {
                     document.getElementById("linkButton").href = response.data.location;
                     document.getElementById("linkButton").classList.remove("linkButton");
                     document.getElementById("linkButton").textContent = "Open File"
+                } else {
+                    document.getElementById("linkButton").classList.add("linkButton");
+                    document.getElementById("linkButton").textContent = "No Files"
                 }
-                console.log(response.data);
+
+                //prints the alt questions at the bottom of the page
                 for (let i = 0; i < response.data.alternatives.length; i++) {
-                    console.log(response.data.alternatives[i])
                     document.getElementById("altQuestionField").value += response.data.alternatives[i] +
                         '\n' + '\n';
                 }
-
-                console.log(response)
-
             })
     });
+
+
     //On page load load all the questions and put them in the modal
     axios.get('http://35.242.181.193:3003/getAll')
         .then(response => {

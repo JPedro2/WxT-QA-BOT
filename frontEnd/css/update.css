@@ -81,3 +81,9 @@ textarea:focus {
 #removeQuestionFieldButton{
     margin-top: 10px;
 }
+
+.linkButton {
+    pointer-events: none;
+    cursor: not-allowed;
+    background-color: #b8b8b8 !important;
+}
