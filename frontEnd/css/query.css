@@ -76,3 +76,8 @@ h1 {
     font-size: 7rem !important;
 }
 
+.linkButton {
+    pointer-events: none;
+    cursor: not-allowed;
+    background-color: #b8b8b8 !important;
+}
