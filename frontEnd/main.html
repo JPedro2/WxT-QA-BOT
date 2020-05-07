@@ -95,16 +95,19 @@
                         </div>
 
                         <div class="field">
-                            <div class="file is-white">
+                            <div class="file has-name is-fullwidth">
                                 <label class="file-label">
-                                    <input class="file-input" type="file" id="fileInput">
+                                    <input class="file-input" id="fileInput" type="file" name="resume">
                                     <span class="file-cta">
                                         <span class="file-icon">
-                                            <i class="fas fa-file-upload"></i>
+                                            <i class="fas fa-upload"></i>
                                         </span>
-                                        <span name="file" class="file-label">
-                                            Attach File
+                                        <span class="file-label">
+                                            Choose a file…
                                         </span>
+                                    </span>
+                                    <span class="file-name" id="fileName">
+                                        No File Selected
                                     </span>
                                 </label>
                             </div>
@@ -166,6 +169,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
+
+    //grab the file input 
+    const fileInput = document.getElementById('fileInput');
+    //when the file input changes
+    fileInput.onchange = () => {
+        if (fileInput.files.length > 0) {
+            //get the file name field
+            const fileName = document.getElementById('fileName');
+            //update the file name field
+            fileName.textContent = fileInput.files[0].name;
+        }
+    }
+
     //When a user types in the answer box call the preview function
     document.getElementById("ans").addEventListener("keyup", preview);
 
@@ -213,26 +229,26 @@
     document.getElementById("submitQA").addEventListener('click', submitQA);
     //
     function submitQA() {
+        //create a form for the updated QA
         var formdata = new FormData();
+        //fill in the form details with the input values
         formdata.append("question", document.getElementsByClassName('questionInput')[0].value);
-
         formdata.append("answer", document.getElementById('ans').value);
         formdata.append("tag", document.getElementById('select').value);
         formdata.append("alternatives", generateQuestionFormat());
-
+        //set the requests settings
         var requestOptions = {
             method: 'POST',
             body: formdata,
             redirect: 'follow',
             mode: 'cors'
         };
-
+        //Execute POST
         fetch("http://35.242.181.193:3003/addEntry", requestOptions)
             .then(response => {
-                if (response.ok){
+                if (response.ok) {
                     return response.text()
-                }
-                else {
+                } else {
                     return Promise.reject(response);
                 }
             })
@@ -254,19 +270,16 @@
 
                 //Send an API call to the url with the ID
                 fetch("http://35.242.181.193:3003/uploadFile/" + result, fileRequestOptions);
+
             })
             .then(response => {
-                if (response.ok){
-                    Swal.fire(
+                //fire a successful
+                //TODO: Check if actually successful
+                Swal.fire(
                     'Thank you',
                     'Submitted successfully',
                     'success'
                 )
-                    return response
-                }
-                else {
-                    return Promise.reject(response);
-                }
             })
             .catch(error => console.log('error', error));
     }

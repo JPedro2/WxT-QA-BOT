@@ -96,16 +96,19 @@
                         </div>
 
                         <div class="field">
-                            <div class="file is-white">
+                            <div class="file has-name is-fullwidth">
                                 <label class="file-label">
-                                    <input class="file-input" type="file" name="resume">
+                                    <input class="file-input" id="fileInput" type="file" name="resume">
                                     <span class="file-cta">
                                         <span class="file-icon">
-                                            <i class="fas fa-file-upload"></i>
+                                            <i class="fas fa-upload"></i>
                                         </span>
-                                        <span name="file" class="file-label">
-                                            Attach File
+                                        <span class="file-label">
+                                            Choose a file…
                                         </span>
+                                    </span>
+                                    <span class="file-name" id="fileName">
+                                        No File Loaded
                                     </span>
                                 </label>
                             </div>
@@ -182,6 +185,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
+
+    //File input 
+    const fileInput = document.getElementById('fileInput');
+    fileInput.onchange = () => {
+        if (fileInput.files.length > 0) {
+            const fileName = document.getElementById('fileName');
+            fileName.textContent = fileInput.files[0].name;
+        }
+    }
+
     //When a user types in the answer box call the preview function
     document.getElementById("ans").addEventListener("keyup", preview);
 
@@ -227,6 +240,7 @@
 
     //On click of the submit button
     document.getElementById("submitQA").addEventListener('click', submitQA);
+
     function submitQA() {
         var url = "http://35.242.181.193:3003/updateEntries/" + document.getElementById('questionIDField').value
 
@@ -245,20 +259,44 @@
 
         fetch(url, requestOptions)
             .then(response => response.text())
-            .then(result => console.log(result))
-            .then(
+            .then(result => {
+
+                //grab file from input using jquery because js didnt work for some reason 
+                var uploadedFile = $('#fileInput').prop('files')[0];
+
+                //build a form
+                var fileformdata = new FormData();
+
+                //add the file into the form
+                fileformdata.append("file", uploadedFile);
+
+                //build request options
+                var fileRequestOptions = {
+                    method: 'POST',
+                    body: fileformdata,
+                    redirect: 'follow',
+                    mode: 'cors'
+                };
+
+                //Send an API call to the url with the ID
+                fetch("http://35.242.181.193:3003/uploadFile/" + result, fileRequestOptions);
+
+            })
+            .then(function () {
                 Swal.fire(
                     'Thank you',
                     'Submitted successfully',
                     'success'
                 )
-            )
+            })
             .catch(error => console.log('error', error));
     }
 
     //If add is clicked append a new input box to the page
     document.getElementById("addQuestionFieldButton").addEventListener('click', function () {
-        $("#questionGroup").append('<div class="field altQuestionInput"><input class="input questionInput" type="text" placeholder="Alternate Question"></div>');
+        $("#questionGroup").append(
+            '<div class="field altQuestionInput"><input class="input questionInput" type="text" placeholder="Alternate Question"></div>'
+            );
         let currentHeight = $(".markdown").height()
         $(".markdown").height(currentHeight + 52)
     })
@@ -275,8 +313,6 @@
         } else {
             alert("You must provide atleast one question.")
         }
-
-        
     })
 
     //Called when use searches a question ID
@@ -292,9 +328,12 @@
                 //Update the alternate question fields on the page with the question queried
                 //Have to do this first or it wipes the other fields
                 for (let i = 0; i < response.data.alternatives.length; i++) {
-                    $( "#questionGroup" ).append( '<div class="field altQuestionInput"><input value=' + response.data.alternatives[0] +
-                        ' class="input questionInput" type="text" placeholder="Alternate Question"></div>' );
+                    $("#questionGroup").append('<div class="field altQuestionInput"><input value=' +
+                        response.data.alternatives[0] +
+                        ' class="input questionInput" type="text" placeholder="Alternate Question"></div>'
+                        );
                 }
+
 
                 //update the value of the question field
                 document.getElementById("questionField").value = response.data.question;
@@ -303,7 +342,10 @@
                 document.getElementById("ans").value = response.data.answer;
 
                 //Update the question type
-                document.getElementById("select").value= response.data.tag;
+                document.getElementById("select").value = response.data.tag;
+
+                document.getElementById('fileName').textContent = response.data.location
+
 
                 //send the answer for rendering
                 preview();
