@@ -127,6 +127,7 @@ def create_app():
 
     @API_app.route('/api/token')
     @auth.login_required
+    @cross_origin()
     def get_auth_token():
         try:
             token = generate_auth_token(g.user,86400)
@@ -195,28 +196,28 @@ def create_app():
             return location
         
         except:
-            return None
             print("Error uploading file to GCP Cloud Storage")
+            return None
 
     def delete_blob(blob_name):
         try:
             # Deletes the object/attachment-file stored on GCP Storage
             storage_client = storage.Client.from_service_account_json(GCP_Service_Acct)
-
             bucket = storage_client.bucket(bucket_name)
             blob = bucket.blob(blob_name)
-            blob.delete()
+            blob.delete(blob_name)
             return True
 
         except:
-            return None
             print("Error deleting file from GCP Cloud Storage")
+            return None
 
     #URL needs to contain the questionID that the file needs to be associated with 
     @API_app.route('/uploadFile/<int:questionID>', methods=['POST'])
-    @cross_origin(supports_credentials=True)
+    #@cross_origin(supports_credentials=True)
+    @cross_origin()
     @limiter.limit("200 per hour", override_defaults=False)
-    #@authToken.login_required
+    @authToken.login_required
     def upload_file(questionID):
         try:
             checkQuestionID = queries.getAnswer(questionID)
@@ -235,28 +236,28 @@ def create_app():
                 file_extension = filename.rsplit('.', 1)[1].lower()
                 source_file_name = os.path.join(API_app.config['UPLOAD_FOLDER'], filename) 
                 file.save(source_file_name)
-                print("File temporarily Uploaded from the FrontEnd to the backEnd")
+                print("File temporarily Uploaded from the FrontEnd to the BackEnd")
             else:
                 err_fileExtension = "File extentions is not allowed. Please only submit allowed file extensions."
                 raise(err_fileExtension)
 
             # Before submiting the file to GCP Storage check if a question-attachment file already exists
             # If so, delete it and update it with the new one (this fits the Update workflow)
-            checkUrl = queries.getKnowledge(questionID)
-            location = checkUrl["location"]
-            if location:
-                #grab the part of the URL that specifies the path to the file on GCP
-                deleteFilePath=location.split('/')[-2]+"/"+location.split('/')[-1]
-                #deleteFilePath=location.split('/')[-2]+"/*"              
-                if delete_blob(deleteFilePath):
-                    print("Attached file for question ID: "+str(questionID)+" has been deleted from GCP.")
-                else:
-                    #delete temporarily uploaded file
-                    delete_tmpFile = os.remove(source_file_name)
-                    ErrDelGCPfile = "Error deleting current file from GCP on Question ID: "+str(questionID)
-                    raise(ErrDelGCPfile)
+            # checkUrl = queries.getKnowledge(questionID)
+            # location = checkUrl["location"]
+            # if location:
+            #     #grab the part of the URL that specifies the path to the file on GCP
+            #     deleteFilePath=location.split('/')[-2]+"/"+location.split('/')[-1]
+            #     #deleteFilePath=location.split('/')[-2]+"/*"              
+            #     if delete_blob(deleteFilePath):
+            #         print("Attached file for question ID: "+str(questionID)+" has been deleted from GCP.")
+            #     else:
+            #         #delete temporarily uploaded file
+            #         delete_tmpFile = os.remove(source_file_name)
+            #         ErrDelGCPfile = "Error deleting current file from GCP on Question ID: "+str(questionID)
+            #         raise(ErrDelGCPfile)
             
-            destination_blob_name = "QuestionID-"+str(questionID)+"/atttachment-QuestionID-"+str(questionID)+"."+str(file_extension)
+            destination_blob_name = "QuestionID-"+str(questionID)+"/attachment-QuestionID-"+str(questionID)+"."+str(file_extension)
             #Submit file to GCP Cloud Storage to be used by the BOT
             location = upload_blob(source_file_name, destination_blob_name)
             if location:
@@ -277,8 +278,8 @@ def create_app():
                 abort(400, err_noFile)
             if "err_fileExtension" in locals():
                 abort(400, err_fileExtension)
-            if "ErrDeletingGCPobject" in locals():
-                abort(500, ErrDeletingGCPobject)
+            if "ErrDelGCPfile" in locals():
+                abort(500, ErrDelGCPfile)
             if "ErrUploadGCPfile" in locals():
                 abort(500, ErrUploadGCPfile)
             else:
@@ -288,9 +289,8 @@ def create_app():
 #==================================================== API Endpoints =====================================================
     # getAnswer for the Bot to grab answers based on Question ID
     @API_app.route('/getAnswer/<int:questionID>', methods=['GET'])
-    @cross_origin(supports_credentials=True)
+    @cross_origin()
     @limiter.limit("200 per hour", override_defaults=False)
-    #@authToken.login_required
     def _getAnswer(questionID):
         try:
             answer = queries.getAnswer(questionID)
@@ -312,9 +312,8 @@ def create_app():
     
     # get question, answer, alternatives and location for the FrontEnd to use this knowledge: Query and Update tabs
     @API_app.route('/getKnowledge/<int:questionID>', methods=['GET'])
-    @cross_origin(supports_credentials=True)
+    @cross_origin()
     @limiter.limit("200 per hour", override_defaults=False)
-    #@authToken.login_required
     def getKnowledge(questionID):
         try:
             knowledge = queries.getKnowledge(questionID)
@@ -336,26 +335,22 @@ def create_app():
 
     # addEntry to add Questions, Answers and Alternative Questions from the FrontEnd: Submit tab
     @API_app.route('/addEntry', methods=['POST'])
-    @cross_origin(supports_credentials=True)
-    #@authToken.login_required #Need to explore how to implement token login via the frontEnd
+    @cross_origin()
+    @authToken.login_required
     # Exempt from rate limit
+    #@limiter.limit("200 per hour", override_defaults=False)
     @limiter.exempt
-
     def addEntry():
         tag = request.form.get('tag')
         question = request.form.get('question')
         answer = request.form.get('answer')
-        location = ""
-        #location = request.form.get('location')
-        #alternatives = ""
         alternatives = request.form.get('alternatives')
         try:
-            newQuestionID = queries.addEntry(tag,question, answer, location, alternatives)
+            newQuestionID = queries.addEntry(tag, question, answer, alternatives)
             if newQuestionID == "Failure":
                 f_message = "Failed to add Entry to DB"
                 raise(f_message)
             return (newQuestionID, 201)
-            #return(flask.Response(status=200))
         
         except:
             if "f_message" in locals():
@@ -364,9 +359,8 @@ def create_app():
 
     # getAllQuestions to be used by the Bot and the FE: Update and Query Tabs
     @API_app.route('/getAllQuestions', methods=['GET'])
-    @cross_origin(supports_credentials=True)
+    @cross_origin()
     @limiter.limit("200 per hour", override_defaults=False)
-    #@authToken.login_required
     def getAllQuestions():
         try:
             allQuestions = queries.getAllQuestions()
@@ -385,9 +379,8 @@ def create_app():
     
     # Get all entries from the Knowledge Base
     @API_app.route('/getAll', methods=['GET'])
-    @cross_origin(supports_credentials=True)
+    @cross_origin()
     @limiter.limit("200 per hour", override_defaults=False)
-    #@authToken.login_required
     def getAll():
         try:
             allDB = queries.getAll()
@@ -414,7 +407,7 @@ def create_app():
     # Adds valid questions that people ask the BOT (and the bot wrongly classifies) as alternativate questions. 
     @API_app.route('/appendAlternative/<int:questionID>', methods=['POST'])
     @limiter.limit("200 per hour", override_defaults=False)
-    #@authToken.login_required
+    @authToken.login_required
     def appendAlternative(questionID):
         try:
             if request.is_json:
@@ -422,13 +415,13 @@ def create_app():
                 jsonPayload = request.get_json()
                 alternative = jsonPayload["question"]
                 if alternative == "":
-                    err_alternativeRequired = "Error! The alternative question is empty."
+                    err_alternativeRequired = "Error! The alternative question field is empty."
                     raise(err_alternativeRequired)
                 appendAlternative = queries.appendAlternative(questionID, alternative)
                 
-                if appendAlternative == "Duplicate":
-                    err_duplicate = "Error! Question alternative already exists"
-                    raise(err_duplicate)
+                #if appendAlternative == "Duplicate":
+                #    err_duplicate = "Error! Question alternative already exists"
+                #    raise(err_duplicate)
 
                 if appendAlternative == False:
                     err_questionID = "Error! Question ID: "+str(questionID)+" does not exist!"
@@ -445,8 +438,8 @@ def create_app():
                 raise(request_isNotJSON)
         
         except:
-            if "err_duplicate" in locals():
-                abort(400, err_duplicate)
+            #if "err_duplicate" in locals():
+            #    abort(400, err_duplicate)
             if "err_alternativeRequired" in locals():
                 abort(400, err_alternativeRequired)
             if "err_questionID" in locals():
@@ -463,7 +456,7 @@ def create_app():
     # Allows the BOT (via escalation) to add new Questions and Answers to the Knowledge Base 
     @API_app.route('/newEscalationAnswer', methods=['POST'])
     @limiter.limit("200 per hour", override_defaults=False)
-    #@authToken.login_required
+    @authToken.login_required
     def newEscalationAnswer():
         try:
             if request.is_json:
@@ -471,24 +464,36 @@ def create_app():
                 jsonPayload = request.get_json()
                 question = jsonPayload["question"]
                 answer = jsonPayload["answer"]
+                
+                if question == "" or answer == "":
+                    err_emptyParameters = "Error! 'question' AND 'answer' parameters cannot be empty"
+                    raise(err_emptyParameters)
+                elif type(question) != str or type(answer) != str:
+                    err_notString = "Error! 'question' AND 'answer' parameters MUST be strings"
+                    raise(err_notString)
+                
                 #This API endpoint is only handled by the BOT when the Question gets escalated and it's added by the Webex Warriors
                 tag = "Escalation: Webex Warriors"
                 #alternatives are empty as it is not possible to populate these via the escalation workflow
                 alternatives = ""
-                #location is empty as it is not possible to attach files via the escalation workflow
-                location = ""
-                addNewQandA = queries.addEntry(tag, question, answer, location, alternatives)
+                NewEscalationQAid = queries.addEntry(tag, question, answer, alternatives)
                 
-                if addNewQandA == "Failure":
+                if NewEscalationQAid == "Failure":
                     f_message = "Failed to add a new question and answer from the Escalation Webex Warriors workflow"
                     raise(f_message)
                 
-                print("Successfully added a question and answer from the Escalation Webex Warriors workflow")
-                return("Successfully added a question and answer from the Escalation Webex Warriors workflow", 201)
+                print("Successfully added a question and answer from the Escalation Webex Warriors workflow, ID: "+NewEscalationQAid)
+                return(NewEscalationQAid, 201)
             else:
                 request_isNotJSON = "Error adding a new question and answer from the Escalation Webex Warriors workflow. The request POSTed is NOT in JSON format."
                 raise(request_isNotJSON)
         except:
+            if "err_emptyParameters" in locals():
+                print(err_emptyParameters)
+                abort(400, err_emptyParameters)
+            if "err_notString" in locals():
+                print(err_notString)
+                abort(400, err_notString)
             if "f_message" in locals():
                 print(f_message)
                 abort(500, f_message)
@@ -501,7 +506,7 @@ def create_app():
     # Allows the BOT to update the count on which Q&As have been handled every 12h
     @API_app.route('/updateCount', methods=['PUT'])
     @limiter.limit("200 per hour", override_defaults=False)
-    #@authToken.login_required
+    @authToken.login_required
     def updateCount():
         try:
             if request.is_json:
@@ -512,17 +517,17 @@ def create_app():
                     count = item["count"]
                     
                     if type(questionID) != int or type(count) != int:
-                        err_type = "Error! Both the Question ID and the Count need to be integers."
+                        err_type = "Error! The 'questionID' AND 'count' MUST be integers."
                         raise(err_type)
                     if count == "":
-                        err_COUNTrequired = "Error! Both the Question ID and the Count fields need to be populated."
+                        err_COUNTrequired = "Error! Both the 'questionID' AND 'count' fields need to be populated."
                         raise(err_COUNTrequired)
 
                     # updateEntry(id, tag, question, answer, location, alternatives, count):
                     updateCount = queries.incrementCount(questionID, count)
                     
                     if updateCount == "id required":
-                        err_IDrequired = "Error! Question ID was not provided. Please provide Question ID"
+                        err_IDrequired = "Error! 'questionID' was not provided."
                         raise(err_IDrequired)
                     
                     if updateCount == False:
@@ -560,9 +565,9 @@ def create_app():
 
     # Update entries on the DB, to be used by the FrontEnd - Update Tab
     @API_app.route('/updateEntries/<int:questionID>', methods=['PUT'])
-    @cross_origin(supports_credentials=True)
+    @cross_origin()
     @limiter.limit("200 per hour", override_defaults=False)
-    #@authToken.login_required
+    @authToken.login_required
     def updateEntries(questionID):
         try:
             id = questionID
@@ -571,29 +576,35 @@ def create_app():
             answer = request.form.get('answer')
             location = request.form.get('location')
             alternatives = request.form.get('alternatives')
-            count = request.form.get('count')
+            #Make sure count is an int 
+            #count will be 'None' if the field is not present in the form OR if it cannot be converted to an integer
+            count = request.form.get('count', type=int)
             if location is None:
                 location = ""
-            if count is None:
-                count = ""
             if alternatives is None:
                 alternatives = ""
-
-            addEntries = queries.updateEntries(id, tag, question, answer, location, alternatives, count)     
+            if count is None:
+                count = ""
+            
+            updateEntries = queries.updateEntries(id, tag, question, answer, location, alternatives, count)     
             #Check questionID is valid
-            if addEntries == False:
+            if updateEntries == False:
                 err_questionID = "Error! Question ID: "+str(questionID)+" does not exist!"
                 raise(err_questionID)
             #Check if there was a DB failure when updating entries
-            if addEntries == "Failure":
+            if updateEntries == "Failure":
                 f_message = "Failed to update entries on the DB"
                 raise(f_message)
-            return("Sucessfully updated the entries on the DB, ID: "+str(id))
+            
+            print("Sucessfully updated the entries on the DB, ID: "+str(id))
+            return(str(id), 200)
         
         except:
             if "err_questionID" in locals():
+                print(err_questionID)
                 abort(404, err_questionID)
             if "f_message" in locals():
+                print(f_message)
                 abort(500, f_message)
             else:
                 abort(400)

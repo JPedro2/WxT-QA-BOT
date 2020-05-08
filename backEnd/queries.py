@@ -159,10 +159,11 @@ def getAll():
         return("Failure")
 
 # Add an entry given a tag, question, answer, and (optionally) a location and question alternatives
-def addEntry(tag, question, answer, location, alternatives):
+def addEntry(tag, question, answer, alternatives):
     try:
+        count = 0
         cursor, db = connectToDB()
-        cursor.execute("INSERT INTO qanda (tag, question, answer, location, count, alternatives) VALUES (%s, %s, %s, %s, %s, %s)", (tag, question, answer, location, 0, alternatives))
+        cursor.execute("INSERT INTO qanda (tag, question, answer, count, alternatives) VALUES (%s, %s, %s, %s, %s)", (tag, question, answer, count, alternatives))
         cursor.execute("SELECT LAST_INSERT_ID()")
         result=cursor.fetchall()
         questionID=result[0][0]
@@ -190,9 +191,9 @@ def appendAlternative(questionID, alternative):
         if alternativesQuery == "":
             cursor.execute("UPDATE qanda SET alternatives=%s WHERE id=%s", (alternative, questionID,))
         #Check if the alternative already exists
-        elif alternative in alternativesQuery:
-            err_duplicate = "Duplicate"
-            raise(err_duplicate)
+        #elif alternative in alternativesQuery:
+        #    err_duplicate = "Duplicate"
+        #    raise(err_duplicate)
         else:
             cursor.execute("UPDATE qanda SET alternatives=CONCAT(IFNULL(alternatives,''),' ; ',%s) WHERE id=%s", (alternative, questionID,))
         
