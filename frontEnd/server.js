@@ -16,6 +16,9 @@ app.get('/query.html', function(req, res) {
 app.get('/update.html', function(req, res) {
     res.sendFile(path.join(__dirname + '/update.html'));
 });
+app.get('/login.html', function(req, res){
+    res.sendFile(path.join(__dirname + '/login.html'));
+})
 
-app.listen(8080, '0.0.0.0');
+app.listen(3006, '0.0.0.0');
 console.log('Server started');

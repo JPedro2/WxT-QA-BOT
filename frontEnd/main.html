@@ -246,7 +246,7 @@
             }
         };
         //Execute POST
-        fetch("http://35.242.181.193:3003/addEntry", requestOptions)
+        fetch("http://35.242.181.193:3002/addEntry", requestOptions)
             .then(response => {
                 if (response.ok) {
                     return response.text()
@@ -275,12 +275,13 @@
                     };
 
                     //Send an API call to the url with the ID
-                    return fetch("http://35.242.181.193:3003/uploadFile/" + result, fileRequestOptions);
+                    return fetch("http://35.242.181.193:3002/uploadFile/" + result, fileRequestOptions);
                 }
             })
             .catch(error => {
+                console.log(error)
                 if (error.status === 401) {
-                    location.href = "login.html"
+                    //location.href = "login.html"
                 }
                 if (error.status === 400) {
                     wal.fire({

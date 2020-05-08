@@ -150,7 +150,7 @@
         let questionID = document.getElementById("questionIDField").value;
 
         //Get request the question ID 
-        axios.get('http://35.242.181.193:3003/getKnowledge/' + questionID)
+        axios.get('http://35.242.181.193:3002/getKnowledge/' + questionID)
             .then(response => {
                 //Update the question field on the page with the question queried
                 document.getElementById("questionField").value = response.data.question;
@@ -179,7 +179,7 @@
 
 
     //On page load load all the questions and put them in the modal
-    axios.get('http://35.242.181.193:3003/getAll')
+    axios.get('http://35.242.181.193:3002/getAll')
         .then(response => {
             //Loop through every q and a
             for (let i = 0; i < response.data.items.length; i++) {
