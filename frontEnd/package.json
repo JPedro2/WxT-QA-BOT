@@ -4,6 +4,7 @@
   "description": "Front end admin for the webex bot ",
   "main": "server.js",
   "dependencies": {
+    "@google-cloud/storage": "^4.7.0",
     "express": "^4.17.1"
   },
   "devDependencies": {},

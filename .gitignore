@@ -132,9 +132,10 @@ dmypy.json
 .vscode/
 
 # Custom credentials, shell scripts and guides
-credentials.py
+credentials/
 tmux-guide.md
 start-up-guide.md
+tmp-uploadFiles/
 
 # Front-end modules
 frontEnd/node_modules/
