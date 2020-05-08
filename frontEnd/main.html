@@ -19,7 +19,7 @@
                 <img class="logo" src="assets/meetingsLogo.png">
             </a>
             <a class="navbar-item is-size-4 ">
-                Q&A Dashboard
+                April's Knowledge Base
             </a>
         </div>
         <!--Right Side fo the Navbar-->
@@ -169,7 +169,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
-
     //grab the file input 
     const fileInput = document.getElementById('fileInput');
     //when the file input changes
@@ -243,7 +242,7 @@
             redirect: 'follow',
             mode: 'cors',
             headers: {
-                "Authorization" : 'Bearer ' + sessionStorage.getItem('token')
+                "Authorization": 'Bearer ' + sessionStorage.getItem('token')
             }
         };
         //Execute POST
@@ -258,22 +257,38 @@
             .then(result => {
                 //grab file from input using jquery because js didnt work for some reason 
                 var uploadedFile = $('#fileInput').prop('files')[0];
-                //build a form
-                var fileformdata = new FormData();
-                //add the file into the form
-                fileformdata.append("file", uploadedFile);
+                if (uploadedFile !== undefined) {
+                    //build a form
+                    var fileformdata = new FormData();
+                    //add the file into the form
+                    fileformdata.append("file", uploadedFile);
 
-                //build request options
-                var fileRequestOptions = {
-                    method: 'POST',
-                    body: fileformdata,
-                    redirect: 'follow',
-                    mode: 'cors'
-                };
+                    //build request options
+                    var fileRequestOptions = {
+                        method: 'POST',
+                        body: fileformdata,
+                        redirect: 'follow',
+                        mode: 'cors',
+                        headers: {
+                            "Authorization": 'Bearer ' + sessionStorage.getItem('token')
+                        }
+                    };
 
-                //Send an API call to the url with the ID
-                fetch("http://35.242.181.193:3003/uploadFile/" + result, fileRequestOptions);
-
+                    //Send an API call to the url with the ID
+                    return fetch("http://35.242.181.193:3003/uploadFile/" + result, fileRequestOptions);
+                }
+            })
+            .catch(error => {
+                if (error.status === 401) {
+                    location.href = "login.html"
+                }
+                if (error.status === 400) {
+                    wal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Bad Request',
+                    })
+                }
             })
             .then(response => {
                 //fire a successful
@@ -283,8 +298,7 @@
                     'Submitted successfully',
                     'success'
                 )
-            })
-            .catch(error => console.log('error', error));
+            });
     }
 
     //If add is clicked append a new input box to the page

@@ -19,7 +19,7 @@
                 <img class="logo" src="assets/meetingsLogo.png">
             </a>
             <a class="navbar-item is-size-4 ">
-                Q&A Dashboard
+                April's Knowledge Base
             </a>
         </div>
         <!--Right Side fo the Navbar-->
@@ -120,7 +120,7 @@
                 <br><br>
             </div>
             <p class="is-size-4">Attached Files</p>
-            <a href="" id="linkButton" class="button has-text-white linkButton">No Files</a>
+            <a href="" id="linkButton" class="button has-text-white linkButton">No File Attached</a>
         </div>
         <div class="column">
             <div class="searchBox box">
@@ -256,7 +256,10 @@
             method: 'PUT',
             body: formdata,
             redirect: 'follow',
-            mode: 'cors'
+            mode: 'cors',
+            headers: {
+                "Authorization": 'Bearer ' + sessionStorage.getItem('token')
+            }
         };
 
         fetch(url, requestOptions)
@@ -265,7 +268,7 @@
 
                 //grab file from input using jquery because js didnt work for some reason 
                 var uploadedFile = $('#fileInput').prop('files')[0];
-
+                if (uploadedFile !== undefined) {
                 //build a form
                 var fileformdata = new FormData();
 
@@ -277,13 +280,29 @@
                     method: 'POST',
                     body: fileformdata,
                     redirect: 'follow',
-                    mode: 'cors'
+                    mode: 'cors',
+                    headers: {
+                        "Authorization": 'Bearer ' + sessionStorage.getItem('token')
+                    }
                 };
 
                 //Send an API call to the url with the ID
-                fetch("http://35.242.181.193:3003/uploadFile/" + result, fileRequestOptions);
-
+                return fetch("http://35.242.181.193:3003/uploadFile/" + result, fileRequestOptions);
+                }
             })
+            .catch(error => {
+                if (error.status === 401) {
+                    location.href = "login.html"
+                }
+                if (error.status === 400) {
+                    wal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Bad Request',
+                    })
+                }
+                }
+                )
             .then(function () {
                 Swal.fire(
                     'Thank you',
@@ -291,7 +310,7 @@
                     'success'
                 )
             })
-            .catch(error => console.log('error', error));
+            
     }
 
     //If add is clicked append a new input box to the page
@@ -350,7 +369,7 @@
                 if (response.data.location != null) {
                     document.getElementById("linkButton").href = response.data.location;
                     document.getElementById("linkButton").classList.remove("linkButton");
-                    document.getElementById("linkButton").textContent = "Open File"
+                    document.getElementById("linkButton").textContent = "File Loaded - Open File"
                 } else {
                     document.getElementById("linkButton").classList.add("linkButton");
                     document.getElementById("linkButton").textContent = "No Files"

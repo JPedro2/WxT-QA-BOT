@@ -19,7 +19,7 @@
                 <img class="logo" src="assets/meetingsLogo.png">
             </a>
             <a class="navbar-item is-size-4 ">
-                Q&A Dashboard
+                April's Knowledge Base
             </a>
         </div>
         <!--Right Side fo the Navbar-->
@@ -66,7 +66,7 @@
                 <span class="tag is-info cisco is-large" id="type">No Q&A Selected.</span>
                 <br><br>
                 <p class="is-size-4">Attached Files</p>
-                <a href="" id="linkButton" class="button has-text-white linkButton">No Files</a>
+                <a href="" id="linkButton" class="button has-text-white linkButton">No File Attached</a>
             </div>
 
             <!--------- RIGHT SIDE OF PAGE : Question search ---------->
@@ -163,7 +163,7 @@
                 if (response.data.location != null) {
                     document.getElementById("linkButton").href = response.data.location;
                     document.getElementById("linkButton").classList.remove("linkButton");
-                    document.getElementById("linkButton").textContent = "Open File"
+                    document.getElementById("linkButton").textContent = "File Loaded - Open File"
                 } else {
                     document.getElementById("linkButton").classList.add("linkButton");
                     document.getElementById("linkButton").textContent = "No Files"
