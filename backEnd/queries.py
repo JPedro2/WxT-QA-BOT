@@ -162,8 +162,10 @@ def getAll():
 def addEntry(tag, question, answer, alternatives):
     try:
         count = 0
+        # the location is only set by the upload file API
+        location = ""
         cursor, db = connectToDB()
-        cursor.execute("INSERT INTO qanda (tag, question, answer, count, alternatives) VALUES (%s, %s, %s, %s, %s)", (tag, question, answer, count, alternatives))
+        cursor.execute("INSERT INTO qanda (tag, question, answer, count, alternatives, location) VALUES (%s, %s, %s, %s, %s, %s)", (tag, question, answer, count, alternatives, location))
         cursor.execute("SELECT LAST_INSERT_ID()")
         result=cursor.fetchall()
         questionID=result[0][0]

@@ -198,18 +198,20 @@ def create_app():
         except:
             print("Error uploading file to GCP Cloud Storage")
             return None
-
-    def delete_blob(blob_name):
+    
+    def rename_blob(blob_name):
         try:
             # Deletes the object/attachment-file stored on GCP Storage
             storage_client = storage.Client.from_service_account_json(GCP_Service_Acct)
             bucket = storage_client.bucket(bucket_name)
             blob = bucket.blob(blob_name)
-            blob.delete(blob_name)
+            #stats = storage.Blob(bucket=bucket, name=blob_name).exists(storage_client)
+            new_name=blob_name.split('/')[-2]+"/"+"old_UploadedFile"
+            new_blob = bucket.rename_blob(blob, new_name)
             return True
 
         except:
-            print("Error deleting file from GCP Cloud Storage")
+            print("Error renaming file from GCP Cloud Storage")
             return None
 
     #URL needs to contain the questionID that the file needs to be associated with 
@@ -241,23 +243,23 @@ def create_app():
                 err_fileExtension = "File extentions is not allowed. Please only submit allowed file extensions."
                 raise(err_fileExtension)
 
-            # Before submiting the file to GCP Storage check if a question-attachment file already exists
-            # If so, delete it and update it with the new one (this fits the Update workflow)
-            # checkUrl = queries.getKnowledge(questionID)
-            # location = checkUrl["location"]
-            # if location:
-            #     #grab the part of the URL that specifies the path to the file on GCP
-            #     deleteFilePath=location.split('/')[-2]+"/"+location.split('/')[-1]
-            #     #deleteFilePath=location.split('/')[-2]+"/*"              
-            #     if delete_blob(deleteFilePath):
-            #         print("Attached file for question ID: "+str(questionID)+" has been deleted from GCP.")
-            #     else:
-            #         #delete temporarily uploaded file
-            #         delete_tmpFile = os.remove(source_file_name)
-            #         ErrDelGCPfile = "Error deleting current file from GCP on Question ID: "+str(questionID)
-            #         raise(ErrDelGCPfile)
+            #Before submiting the file to GCP Storage check if a question-attachment file already exists
+            #If so, submit a new one with (n+1) in the name (this fits the Update workflow and overcomes a GCP bug)
+            checkUrl = queries.getKnowledge(questionID)
+            location = checkUrl["location"]
+            if location:
+                #grab the part of the URL that specifies the path to the file on GCP
+                renameFilePath=location.split('/')[-2]+"/"+location.split('/')[-1]
+                if rename_blob(renameFilePath):
+                    print("Attached file for question ID: "+str(questionID)+" has been renamed from GCP.")
+                else:
+                    #delete temporarily uploaded file
+                    delete_tmpFile = os.remove(source_file_name)
+                    ErrDelGCPfile = "Error renaming file from GCP on Question ID: "+str(questionID)
+                    raise(ErrDelGCPfile)
             
-            destination_blob_name = "QuestionID-"+str(questionID)+"/attachment-QuestionID-"+str(questionID)+"."+str(file_extension)
+            #destination_blob_name = "QuestionID-"+str(questionID)+"/attachment-QuestionID-"+str(questionID)+"."+str(file_extension)
+            destination_blob_name = "QuestionID-"+str(questionID)+"/"+filename
             #Submit file to GCP Cloud Storage to be used by the BOT
             location = upload_blob(source_file_name, destination_blob_name)
             if location:
