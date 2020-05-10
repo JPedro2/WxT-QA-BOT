@@ -51,7 +51,7 @@ def create_app():
         return("Welcome. This is April's API Service")
 
 #======================================================= API AUTH =======================================================
-
+    
     #For each user a username and a password_hash will be stored.
     def hash_password(password):
         try: 
@@ -93,7 +93,21 @@ def create_app():
         except:
             user = None
             return user
-    
+
+    @auth.get_user_roles
+    def get_user_roles(user):
+        try:
+            user=user.username
+            userRole = queries_user.getRole(user)
+            if userRole == "Failure":
+                f_message = "Error getting role from the DB with Username: "+str(user)
+                raise(f_message)
+            return userRole
+        
+        except:
+            if "f_message" in locals():
+                abort(500, f_message)
+
     @auth.verify_password
     def verify_password(username, password):
         # first try to authenticate by token
@@ -138,40 +152,42 @@ def create_app():
             abort(400, "Error generating Token")
 
 
-    # @API_app.route('/api/newUsers', methods=['POST'])
-    # def new_user():
-    #     try:
-    #         username = request.json.get('username')
-    #         password = request.json.get('password')
-    #         if username is None or password is None: # missing arguments
-    #             err_missingInfo = "Information Missing! Please fill use both the username and the password fields."
-    #             raise(err_missingInfo)
-    #         if username == "" or password == "": # empty arguments
-    #             err_empty = "Empty credentials! Please fill in both the username and the password fields."
-    #             raise(err_empty)
-    #         if queries_user.getUser(username) is not None: # existing user
-    #             err_userExists = "Username: "+str(username)+" already exists. Please use a different username."
-    #             raise(err_userExists)    
+    @API_app.route('/api/newUsers', methods=['POST'])
+    @auth.login_required(role='admin')
+    def new_user():
+        try:
+            username = request.json.get('username')
+            password = request.json.get('password')
+            role = request.json.get('role')
+            if username is None or password is None or role is None: # missing arguments
+                err_missingInfo = "Information Missing! Please fill use both the username and the password fields."
+                raise(err_missingInfo)
+            if username == "" or password == "" or role =="": # empty arguments
+                err_empty = "Empty credentials! Please fill in both the username and the password fields."
+                raise(err_empty)
+            if queries_user.getUser(username) is not None: # existing user
+                err_userExists = "Username: "+str(username)+" already exists. Please use a different username."
+                raise(err_userExists)    
             
-    #         #hash the password
-    #         hashedPassword = hash_password(password)
-    #         #Add both user and hashed password to the DB
-    #         newUser_ID, newUser = queries_user.addUser(username, hashedPassword)
-    #         #Generate the token for the new user - this will last 24h, then it will need to be renewed
-    #         token = generate_auth_token(newUser,86400)
+            #hash the password
+            hashedPassword = hash_password(password)
+            #Add both user and hashed password to the DB
+            newUser_ID, newUser = queries_user.addUser(username, hashedPassword, role)
+            #Generate the token for the new user - this will last 24h, then it will need to be renewed
+            token = generate_auth_token(newUser,86400)
 
-    #         return (jsonify([{'username': queries_user.getUser(username)},
-    #                         {'token': token.decode('ascii'), 'duration': 86400}]), 201)
+            return (jsonify([{'username': queries_user.getUser(username)},
+                            {'token': token.decode('ascii'), 'duration': 86400}]), 201)
         
-    #     except:
-    #         if "err_missingInfo" in locals():
-    #             abort(400, err_missingInfo)
-    #         if "err_empty" in locals():
-    #             abort(400, err_empty)
-    #         if "err_userExists" in locals():
-    #             abort(400, err_userExists)
-    #         else:
-    #             abort(400)
+        except:
+            if "err_missingInfo" in locals():
+                abort(400, err_missingInfo)
+            if "err_empty" in locals():
+                abort(400, err_empty)
+            if "err_userExists" in locals():
+                abort(400, err_userExists)
+            else:
+                abort(400)
     
 #======================================================= API AUTH =======================================================
 

@@ -140,7 +140,7 @@ tmux-guide.md
 start-up-guide.md
 tmp-uploadFiles/
 
-# Front-end modules
+# frontEnd modules
 frontEnd/node_modules/
-# Encrypted front-end
-frontEnd/index.html
+# frontEnd PM2 prod config
+frontEnd/ecosystem.config.js

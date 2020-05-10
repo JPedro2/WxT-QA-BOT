@@ -1,0 +1,15 @@
+module.exports = {
+  apps : [
+    {
+      name: <app_name>,
+      script: <server.js>,
+      watch: <true-or-false>
+      ignore_watch : <files-to-ignore>,
+      instances : <for-cluster-mode>,
+      exec_mode : "cluster",
+      env: {
+        "NODE_ENV": <'production'-or-'development'>,
+      }
+    }
+  ]
+};

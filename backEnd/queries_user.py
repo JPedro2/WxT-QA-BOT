@@ -32,10 +32,10 @@ def closeConnectionToDB(db, cursor):
         print("Failed to close connection to DB")
 
 # Add a user and the hashed Password to the DB
-def addUser(user, hashedPassword):
+def addUser(user, hashedPassword, role):
     try:
         cursor, db = connectToDB()
-        cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (user, hashedPassword))
+        cursor.execute("INSERT INTO users (username, password, role) VALUES (%s, %s, %s)", (user, hashedPassword, role))
         cursor.execute("SELECT id FROM users WHERE username=%s", (user,))
         userID = cursor.fetchall()[0][0]
         closeConnectionToDB(db, cursor)
@@ -109,4 +109,26 @@ def getPasswordHash(user):
             return None
         else:
             print("Error getting hashed password from Username: "+str(id)+" from the database.")
+            return("Failure")
+
+def getRole(user):
+    try:
+        cursor, db = connectToDB()
+        cursor.execute("SELECT role FROM users WHERE username=%s", (user,))
+        result = cursor.fetchall()
+        if not result:
+            err_userNotFound = True
+            closeConnectionToDB(db, cursor)
+            raise(err_user)
+        
+        role = result[0][0]
+        closeConnectionToDB(db, cursor)
+        return role
+    
+    except:
+        if "err_userNotFound" in locals():
+            print("Error! Username: "+str(user)+" does not exist.")
+            return None
+        else:
+            print("Error getting role from Username: "+str(user))
             return("Failure")
