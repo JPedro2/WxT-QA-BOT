@@ -301,7 +301,7 @@
                     location.href = "login.html"
                 }
                 if (error.status === 400) {
-                    wal.fire({
+                    Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
                         text: 'Bad Request',
@@ -346,7 +346,7 @@
         //Grab the question ID num
         let questionID = document.getElementById("questionIDField").value;
         //Get request the Question Num for details
-        axios.get('http://35.242.181.193:3002/getKnowledge/' + questionID)
+        axios.get('http://35.242.181.193:3003/getKnowledge/' + questionID)
             .then(response => {
                 //remove all alternative question fields and reset questions
                 resetFields();
@@ -384,6 +384,15 @@
 
                 //send the answer for rendering
                 preview();
+            }).catch(error => {
+
+                if (error.response.status === 404) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Question ID: '.concat(questionID).concat(' Not Found!')
+                    })
+                }
             })
     });
 
