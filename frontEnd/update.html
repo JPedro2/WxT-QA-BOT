@@ -120,7 +120,7 @@
                 <br><br>
             </div>
             <p class="is-size-4">Attached Files</p>
-            <a href="" id="linkButton" class="button has-text-white linkButton">No File Attached</a>
+            <a href="" target="_blank" id="linkButton" class="button has-text-white linkButton">No File Attached</a>
         </div>
         <div class="column">
             <div class="searchBox box">
@@ -349,9 +349,10 @@
                 //Update the alternate question fields on the page with the question queried
                 //Have to do this first or it wipes the other fields
                 for (let i = 0; i < response.data.alternatives.length; i++) {
-                    $("#questionGroup").append('<div class="field altQuestionInput"><input value=' +
+                
+                    $("#questionGroup").append("<div class='field altQuestionInput'><input value=" +
                         response.data.alternatives[0] +
-                        ' class="input questionInput" type="text" placeholder="Alternate Question"></div>'
+                        " class='input questionInput' type='text' placeholder='Alternate Question'></div>"
                     );
                 }
                 //update the value of the question field
