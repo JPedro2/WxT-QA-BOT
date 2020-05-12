@@ -114,6 +114,9 @@
                             </div>
                         </div>
                         <div class="control is-pulled-right">
+                            <button onclick="deleteFile()" class="button is-danger">Delete File</button>
+                        </div>
+                        <div class="control is-pulled-right">
                             <button id="submitQA" class="button is-link">Submit</button>
                         </div>
                 </form>
@@ -268,26 +271,29 @@
 
                 //grab file from input using jquery because js didnt work for some reason 
                 var uploadedFile = $('#fileInput').prop('files')[0];
+
+                //check if a file as been inputted 
                 if (uploadedFile !== undefined) {
-                //build a form
-                var fileformdata = new FormData();
+                    //check if a file has been deleted
+                    if (uploadedFile !== "") {
+                        //build a form
+                        var fileformdata = new FormData();
+                        //add the file into the form
+                        fileformdata.append("file", uploadedFile);
 
-                //add the file into the form
-                fileformdata.append("file", uploadedFile);
-
-                //build request options
-                var fileRequestOptions = {
-                    method: 'POST',
-                    body: fileformdata,
-                    redirect: 'follow',
-                    mode: 'cors',
-                    headers: {
-                        "Authorization": 'Bearer ' + sessionStorage.getItem('token')
+                        //build request options
+                        var fileRequestOptions = {
+                            method: 'POST',
+                            body: fileformdata,
+                            redirect: 'follow',
+                            mode: 'cors',
+                            headers: {
+                                "Authorization": 'Bearer ' + sessionStorage.getItem('token')
+                            }
+                        };
+                        //Send an API call to the url with the ID
+                        return fetch("http://35.242.181.193:3002/uploadFile/" + result, fileRequestOptions);
                     }
-                };
-
-                //Send an API call to the url with the ID
-                return fetch("http://35.242.181.193:3002/uploadFile/" + result, fileRequestOptions);
                 }
             })
             .catch(error => {
@@ -301,8 +307,7 @@
                         text: 'Bad Request',
                     })
                 }
-                }
-                )
+            })
             .then(function () {
                 Swal.fire(
                     'Thank you',
@@ -310,7 +315,7 @@
                     'success'
                 )
             })
-            
+
     }
 
     //If add is clicked append a new input box to the page
@@ -350,7 +355,10 @@
                 //Have to do this first or it wipes the other fields
                 for (let i = 0; i < response.data.alternatives.length; i++) {
                     console.log(response.data.alternatives[0])
-                    $("#questionGroup").append('<div class="field altQuestionInput"><input value=" ' + response.data.alternatives[i] + '" class="input questionInput" type="text" placeholder="Alternate Question"></div>');
+                    $("#questionGroup").append('<div class="field altQuestionInput"><input value=" ' +
+                        response.data.alternatives[i] +
+                        '" class="input questionInput" type="text" placeholder="Alternate Question"></div>'
+                        );
                 }
                 //update the value of the question field
                 document.getElementById("questionField").value = response.data.question;
@@ -394,6 +402,13 @@
             elements[0].parentNode.removeChild(elements[0]);
         }
 
+
+    }
+
+    function deleteFile() {
+        //get the file input and set value to undefined so it doesnt get uploaded
+        document.getElementById('fileInput').value = "";
+        document.getElementById('fileName').textContent = "No File Selected"
 
     }
 </script>
