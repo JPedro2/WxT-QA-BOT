@@ -5,9 +5,9 @@
     <title>Q&amp;A Admin Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
-    <link rel="stylesheet" href="/css/main.css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/update.css">
+    <link rel="shortcut icon" href="./public/assets/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="./public/assets/favicon.ico" type="image/x-icon">
 </head>
 
 <body>
@@ -38,9 +38,9 @@
     <div class="section primaryFont">
         <div class="tabs is-centered">
             <ul>
-                <li class="is-active"><a href="main.html">Submit</a></li>
+                <li><a href="main.html">Submit</a></li>
                 <li><a href="query.html">Query</a></li>
-                <li><a href="update.html">Update</a></li>
+                <li class="is-active"><a href="update.html">Update</a></li>
             </ul>
         </div>
         <h3 class="is-size-4">Question</h3>
@@ -53,7 +53,8 @@
 
                     <div id="questionGroup">
                         <div class="field">
-                            <input required class="input questionInput" type="text" placeholder="Question"></div>
+                            <input required class="input questionInput" id="questionField" type="text"
+                                placeholder="Question"></div>
                     </div>
                     <div class="field">
                         <div class="buttons has-addons is-right">
@@ -95,7 +96,7 @@
                         </div>
 
                         <div class="field">
-                            <div class="file has-name">
+                            <div class="file has-name is-fullwidth">
                                 <label class="file-label">
                                     <input class="file-input" id="fileInput" type="file" name="resume">
                                     <span class="file-cta">
@@ -103,11 +104,11 @@
                                             <i class="fas fa-upload"></i>
                                         </span>
                                         <span class="file-label">
-                                            Choose a file...
+                                            Choose a file
                                         </span>
                                     </span>
                                     <span class="file-name" id="fileName">
-                                        No File Selected
+                                        No File Loaded
                                     </span>
                                 </label>
                             </div>
@@ -119,35 +120,53 @@
                             <button id="submitQA" class="button is-link">Submit</button>
                         </div>
                 </form>
+                <br><br>
             </div>
+            <p class="is-size-4">Attached Files</p>
+            <a href="" target="_blank" id="linkButton" class="button has-text-white linkButton">No File Attached</a>
         </div>
         <div class="column">
+            <div class="searchBox box">
+                <div class="container">
+                    <h2 class="is-size-4">Select a question</h2>
+                    <div class="field has-addons">
+                        <div class="control is-expanded"">
+                            <input class=" input" id="questionIDField" type="text" placeholder="Question ID">
+                        </div>
+                        <div class="control">
+                            <a id="searchQuestionButton" class="button is-info">
+                                Find
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="markdown box">
                 <div class="container">
                     <h2 class="title is-5 has-text-white">Markdown Cheat Sheet</h2>
+                    <p class="has-text-white">Add special characters around your text to apply markup formatting</p>
                     <br>
                     <p class="is-size-5 has-text-weight-semibold">Style</p>
                     <p class="has-text-white">**BOLD**</p>
                     <p class="has-text-white">_italic_</p>
-                    <p class="has-text-white">> Blockquote</p>
-                    <p class="has-text-white">`unformatted text`</p>
-                    <br>
-                    <p class="is-size-5 has-text-weight-semibold">Links</p>
-                    <p class="has-text-white">Example: [Cisco Website](www.cisco.com)</p>
+                    <p class="has-text-white">>Blockquote</p>
                     <br>
                     <p class="is-size-5 has-text-weight-semibold">Lists</p>
                     <p class="has-text-white">1. Item1</p>
                     <p class="has-text-white">2. Item2</p>
                     <p class="has-text-white">3. Item3</p>
                     <br>
-                    <p class="has-text-white">* Bullet point1</p>
-                    <p class="has-text-white">* Bullet point2</p>
+                    <p class="has-text-white">*Bullet point1</p>
+                    <p class="has-text-white">*Bullet point2</p>
                     <br>
                     <p class="is-size-5 has-text-weight-semibold">Headings</p>
                     <p class="has-text-white"># Heading 1</p>
-                    <p class="has-text-white">## Heading 2</p>
-                    <p class="has-text-white">### Heading 3</p>
-                    <p class="has-text-white">--- Horizontal Line</p>
+                    <p class="has-text-white"># # Heading 2</p>
+                    <p class="has-text-white"># # # Heading 3</p>
+                    <p class="has-text-white">--- Horizonal Line</p>
+                    <br>
+                    <p class="is-size-5 has-text-weight-semibold">Links</p>
+                    <p class="has-text-white">[link text](link)</p>
                 </div>
             </div>
         </div>
@@ -158,7 +177,7 @@
 
         <div class="section primaryFont">
 
-            <p class="is-size-4 has-text-white has-text-weight-medium">Markdown Preview</p>
+            <p class="is-size-4 has-text-white has-text-weight-medium">Live Preview</p>
             <div id="answerField" class="markup-Area content">
 
             </div>
@@ -172,14 +191,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
-    //grab the file input 
+    //File input 
     const fileInput = document.getElementById('fileInput');
-    //when the file input changes
     fileInput.onchange = () => {
         if (fileInput.files.length > 0) {
-            //get the file name field
             const fileName = document.getElementById('fileName');
-            //update the file name field
             fileName.textContent = fileInput.files[0].name;
         }
     }
@@ -205,12 +221,10 @@
 
         //loop through all the questions and generate the alternative questions 
         for (let i = 1; i < listOfQuestions.length; i++) {
-            if (listOfQuestions[i].value != "") {
-                if (listOfQuestions.length - 1 == i) {
-                    appendedQuestions += listOfQuestions[i].value
-                } else {
-                    appendedQuestions += listOfQuestions[i].value + " ; ";
-                }
+            if (listOfQuestions.length - 1 == i) {
+                appendedQuestions += listOfQuestions[i].value
+            } else {
+                appendedQuestions += listOfQuestions[i].value + " ; ";
             }
         }
 
@@ -231,18 +245,18 @@
 
     //On click of the submit button
     document.getElementById("submitQA").addEventListener('click', submitQA);
-    //
+
     function submitQA() {
-        //create a form for the updated QA
+        var url = "http://35.242.181.193:3002/updateEntries/" + document.getElementById('questionIDField').value
+
         var formdata = new FormData();
-        //fill in the form details with the input values
         formdata.append("question", document.getElementsByClassName('questionInput')[0].value);
         formdata.append("answer", document.getElementById('ans').value);
         formdata.append("tag", document.getElementById('select').value);
         formdata.append("alternatives", generateQuestionFormat());
-        //set the requests settings
+
         var requestOptions = {
-            method: 'POST',
+            method: 'PUT',
             body: formdata,
             redirect: 'follow',
             mode: 'cors',
@@ -250,71 +264,57 @@
                 "Authorization": 'Bearer ' + sessionStorage.getItem('token')
             }
         };
-        //Execute POST
-        fetch("http://35.242.181.193:3002/addEntry", requestOptions)
-            .then(response => {
-                if (response.ok) {
-                    return response.text()
-                } else {
-                    return Promise.reject(response);
-                }
-            })
+
+        fetch(url, requestOptions)
+            .then(response => response.text())
             .then(result => {
+
                 //grab file from input using jquery because js didnt work for some reason 
                 var uploadedFile = $('#fileInput').prop('files')[0];
+
+                //check if a file as been inputted 
                 if (uploadedFile !== undefined) {
+                    //check if a file has been deleted
                     if (uploadedFile !== "") {
+                        //build a form
+                        var fileformdata = new FormData();
+                        //add the file into the form
+                        fileformdata.append("file", uploadedFile);
 
-                    //build a form
-                    var fileformdata = new FormData();
-                    //add the file into the form
-                    fileformdata.append("file", uploadedFile);
-
-                    //build request options
-                    var fileRequestOptions = {
-                        method: 'POST',
-                        body: fileformdata,
-                        redirect: 'follow',
-                        mode: 'cors',
-                        headers: {
-                            "Authorization": 'Bearer ' + sessionStorage.getItem('token')
-                        }
-                    };
-
-                    //Send an API call to the url with the ID
-                    return fetch("http://35.242.181.193:3002/uploadFile/" + result, fileRequestOptions);
+                        //build request options
+                        var fileRequestOptions = {
+                            method: 'POST',
+                            body: fileformdata,
+                            redirect: 'follow',
+                            mode: 'cors',
+                            headers: {
+                                "Authorization": 'Bearer ' + sessionStorage.getItem('token')
+                            }
+                        };
+                        //Send an API call to the url with the ID
+                        return fetch("http://35.242.181.193:3002/uploadFile/" + result, fileRequestOptions);
                     }
                 }
             })
             .catch(error => {
-                console.log(error)
                 if (error.status === 401) {
-                    //location.href = "login.html"
+                    location.href = "login.html"
                 }
                 if (error.status === 400) {
-                    wal.fire({
+                    Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
                         text: 'Bad Request',
                     })
                 }
             })
-            .then(response => {
-                //fire a successful
-                //TODO: Check if actually successful
+            .then(function () {
                 Swal.fire(
                     'Thank you',
                     'Submitted successfully',
                     'success'
                 )
-            });
-    }
-
-
-    function deleteFile(){
-        //get the file input and set value to undefined so it doesnt get uploaded
-        document.getElementById('fileInput').value = "";
-        document.getElementById('fileName').textContent = "No File Selected"
+            })
 
     }
 
@@ -323,6 +323,8 @@
         $("#questionGroup").append(
             '<div class="field altQuestionInput"><input class="input questionInput" type="text" placeholder="Alternate Question"></div>'
         );
+        let currentHeight = $(".markdown").height()
+        $(".markdown").height(currentHeight + 52)
     })
 
     //If remove is clicked remove a input box unless theres only 1
@@ -331,10 +333,93 @@
 
         if (questionInputs.length > 1) {
             questionInputs[questionInputs.length - 1].remove();
+
+            let currentHeight = $(".markdown").height()
+            $(".markdown").height(currentHeight - 52)
         } else {
             alert("You must provide atleast one question.")
         }
     })
+
+    //Called when use searches a question ID
+    document.getElementById("searchQuestionButton").addEventListener('click', function () {
+        //Grab the question ID num
+        let questionID = document.getElementById("questionIDField").value;
+        //Get request the Question Num for details
+        axios.get('http://35.242.181.193:3002/getKnowledge/' + questionID)
+            .then(response => {
+                //remove all alternative question fields and reset questions
+                resetFields();
+
+                //Update the alternate question fields on the page with the question queried
+                //Have to do this first or it wipes the other fields
+                for (let i = 0; i < response.data.alternatives.length; i++) {
+                    console.log(response.data.alternatives[0])
+                    $("#questionGroup").append('<div class="field altQuestionInput"><input value=" ' +
+                        response.data.alternatives[i] +
+                        '" class="input questionInput" type="text" placeholder="Alternate Question"></div>'
+                        );
+                }
+                //update the value of the question field
+                document.getElementById("questionField").value = response.data.question;
+
+                //Update the answer field on the page with the question queried
+                document.getElementById("ans").value = response.data.answer;
+
+                //Update the question type
+                document.getElementById("select").value = response.data.tag;
+
+                document.getElementById('fileName').textContent = response.data.location
+
+                //Toggles button on the page
+                if (response.data.location != null) {
+                    document.getElementById("linkButton").href = response.data.location;
+                    document.getElementById("linkButton").classList.remove("linkButton");
+                    document.getElementById("linkButton").textContent = "File Loaded - Open File"
+                } else {
+                    document.getElementById("linkButton").classList.add("linkButton");
+                    document.getElementById("linkButton").textContent = "No Files"
+                }
+
+
+                //send the answer for rendering
+                preview();
+            }).catch(error => {
+
+                if (error.response.status === 404) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Question ID: '.concat(questionID).concat(' Not Found!')
+                    })
+                }
+            })
+    });
+
+    //reset all the fields to null
+    function resetFields() {
+        //set question field to null
+        document.getElementById("questionField").value = null;
+
+        //set answer field to null
+        document.getElementById("ans").value = null;
+
+        //remove all alternative question input boxes
+        var elements = document.getElementsByClassName('altQuestionInput');
+        while (elements.length > 0) {
+            //delete each input box
+            elements[0].parentNode.removeChild(elements[0]);
+        }
+
+
+    }
+
+    function deleteFile() {
+        //get the file input and set value to undefined so it doesnt get uploaded
+        document.getElementById('fileInput').value = "";
+        document.getElementById('fileName').textContent = "No File Selected"
+
+    }
 </script>
 
 </html>
