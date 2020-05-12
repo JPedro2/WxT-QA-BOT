@@ -136,11 +136,11 @@ dmypy.json
 
 # Custom credentials, shell scripts and guides
 credentials/
-tmux-guide.md
 start-up-guide.md
 tmp-uploadFiles/
+fixPermissions.sh
 
 # frontEnd modules
 frontEnd/node_modules/
 # frontEnd PM2 prod config
-frontEnd/ecosystem.config.js
+frontEnd/frontEnd.config.js
