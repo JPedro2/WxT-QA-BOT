@@ -202,10 +202,12 @@
 
         //loop through all the questions and generate the alternative questions 
         for (let i = 1; i < listOfQuestions.length; i++) {
-            if (listOfQuestions.length - 1 == i) {
-                appendedQuestions += listOfQuestions[i].value
-            } else {
-                appendedQuestions += listOfQuestions[i].value + " ; ";
+            if (listOfQuestions[i].value != "") {
+                if (listOfQuestions.length - 1 == i) {
+                    appendedQuestions += listOfQuestions[i].value
+                } else {
+                    appendedQuestions += listOfQuestions[i].value + " ; ";
+                }
             }
         }
 

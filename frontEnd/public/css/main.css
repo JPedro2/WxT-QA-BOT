@@ -75,3 +75,7 @@ textarea:focus {
 #removeQuestionFieldButton{
     margin-top: 10px;
 }
+#answerField{
+    overflow: scroll;
+    word-wrap: break-word;
+}
