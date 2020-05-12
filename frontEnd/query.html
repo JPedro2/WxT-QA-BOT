@@ -64,12 +64,16 @@
                 </div>
                 <div class='columns'>
                     <div class='column'>
-                <p class="is-size-4">Question Type</p>
-                <span class="tag is-info cisco is-large" id="type">No Q&A Selected.</span>
-                </div><div class='column'>
-                <p class="is-size-4">Attached Files</p>
-                <a href="" target="_blank" id="linkButton" class="button has-text-white linkButton">No File Attached</a>
-            </div></div></div>
+                        <p class="is-size-4">Question Type</p>
+                        <span class="tag is-info cisco is-large" id="type">No Q&A Selected.</span>
+                    </div>
+                    <div class='column'>
+                        <p class="is-size-4">Attached Files</p>
+                        <a href="" target="_blank" id="linkButton" class="button has-text-white linkButton">No File
+                            Attached</a>
+                    </div>
+                </div>
+            </div>
 
             <!--------- RIGHT SIDE OF PAGE : Question search ---------->
             <div class="column">
@@ -152,7 +156,7 @@
         let questionID = document.getElementById("questionIDField").value;
 
         //Get request the question ID 
-        axios.get('http://35.242.181.193:3002/getKnowledge/' + questionID)
+        axios.get('http://35.242.181.193:3003/getKnowledge/' + questionID)
             .then(response => {
                 //Update the question field on the page with the question queried
                 document.getElementById("questionField").value = response.data.question;
@@ -172,12 +176,20 @@
                 }
 
                 //clear the alt question field 
-                document.getElementById("altQuestionField").value ="";
-                
+                document.getElementById("altQuestionField").value = "";
+
                 //prints the alt questions at the bottom of the page
                 for (let i = 0; i < response.data.alternatives.length; i++) {
                     document.getElementById("altQuestionField").value += response.data.alternatives[i] +
                         '\n' + '\n';
+                }
+            }).catch(error => {
+                if (error.response.status === 404) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Question ID: '.concat(questionID).concat(' Not Found!')
+                    })
                 }
             })
     });

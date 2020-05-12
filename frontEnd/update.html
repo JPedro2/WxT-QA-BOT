@@ -385,11 +385,12 @@
                 //send the answer for rendering
                 preview();
             }).catch(error => {
-                if (error.status === 404) {
+
+                if (error.response.status === 404) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
-                        text: 'Question ID '.concat(questionID).concat(' not found!')
+                        text: 'Question ID: '.concat(questionID).concat(' Not Found!')
                     })
                 }
             })
