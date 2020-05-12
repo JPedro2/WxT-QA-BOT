@@ -23,6 +23,9 @@ def create_app():
     # Instantiate Flask app
     API_app = flask.Flask(__name__)
     
+    # Instantiate Flask-CORS middleware
+    CORS(API_app)
+
     # Instantiate API config for uploads
     ALLOWED_EXTENSIONS = credentials.FLASK["ALLOWED_EXTENSIONS"]
     API_app.config['MAX_CONTENT_LENGTH'] = 300 * 1024 * 1024 #300MB maximum allowed file size to be uploaded                    
@@ -141,7 +144,6 @@ def create_app():
 
     @API_app.route('/api/token')
     @auth.login_required
-    @cross_origin()
     def get_auth_token():
         try:
             token = generate_auth_token(g.user,86400)
@@ -232,8 +234,6 @@ def create_app():
 
     #URL needs to contain the questionID that the file needs to be associated with 
     @API_app.route('/uploadFile/<int:questionID>', methods=['POST'])
-    #@cross_origin(supports_credentials=True)
-    @cross_origin()
     @limiter.limit("200 per hour", override_defaults=False)
     @authToken.login_required
     def upload_file(questionID):
@@ -307,7 +307,6 @@ def create_app():
 #==================================================== API Endpoints =====================================================
     # getAnswer for the Bot to grab answers based on Question ID
     @API_app.route('/getAnswer/<int:questionID>', methods=['GET'])
-    @cross_origin()
     @limiter.limit("200 per hour", override_defaults=False)
     def _getAnswer(questionID):
         try:
@@ -330,7 +329,6 @@ def create_app():
     
     # get question, answer, alternatives and location for the FrontEnd to use this knowledge: Query and Update tabs
     @API_app.route('/getKnowledge/<int:questionID>', methods=['GET'])
-    @cross_origin()
     @limiter.limit("200 per hour", override_defaults=False)
     def getKnowledge(questionID):
         try:
@@ -347,13 +345,12 @@ def create_app():
             if "err_questionID" in locals():
                 abort(404, err_questionID)
             if "f_message" in locals():
-                abort(404, f_message)
+                abort(500, f_message)
             else:
                 abort(400)
 
     # addEntry to add Questions, Answers and Alternative Questions from the FrontEnd: Submit tab
     @API_app.route('/addEntry', methods=['POST'])
-    @cross_origin()
     @authToken.login_required
     # Exempt from rate limit
     #@limiter.limit("200 per hour", override_defaults=False)
@@ -377,7 +374,6 @@ def create_app():
 
     # getAllQuestions to be used by the Bot and the FE: Update and Query Tabs
     @API_app.route('/getAllQuestions', methods=['GET'])
-    @cross_origin()
     @limiter.limit("200 per hour", override_defaults=False)
     def getAllQuestions():
         try:
@@ -397,7 +393,6 @@ def create_app():
     
     # Get all entries from the Knowledge Base
     @API_app.route('/getAll', methods=['GET'])
-    @cross_origin()
     @limiter.limit("200 per hour", override_defaults=False)
     def getAll():
         try:
@@ -583,7 +578,6 @@ def create_app():
 
     # Update entries on the DB, to be used by the FrontEnd - Update Tab
     @API_app.route('/updateEntries/<int:questionID>', methods=['PUT'])
-    @cross_origin()
     @limiter.limit("200 per hour", override_defaults=False)
     @authToken.login_required
     def updateEntries(questionID):
@@ -633,8 +627,6 @@ def create_app():
 # Main
 if __name__ == "__main__":
     API_app = create_app()
-    #Production
-    #API_app.run(host=credentials.FLASK["Flask_HOST"], port=credentials.FLASK["Flask_PORT"], debug=True)
 
     #For DEV Testing purposes ONLY
-    API_app.run(host=credentials.FLASK_devTest["Flask_HOST"], port=credentials.FLASK_devTest["Flask_PORT"], debug=True)
+    API_app.run(host=credentials.FLASK["Flask_HOST"], port=credentials.FLASK["Flask_PORT_TEST_ENV"], debug=True)
