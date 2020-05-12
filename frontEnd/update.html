@@ -349,11 +349,8 @@
                 //Update the alternate question fields on the page with the question queried
                 //Have to do this first or it wipes the other fields
                 for (let i = 0; i < response.data.alternatives.length; i++) {
-                
-                    $("#questionGroup").append("<div class='field altQuestionInput'><input value=" +
-                        response.data.alternatives[0] +
-                        " class='input questionInput' type='text' placeholder='Alternate Question'></div>"
-                    );
+                    console.log(response.data.alternatives[0])
+                    $("#questionGroup").append('<div class="field altQuestionInput"><input value=" ' + response.data.alternatives[0] + '" class="input questionInput" type="text" placeholder="Alternate Question"></div>');
                 }
                 //update the value of the question field
                 document.getElementById("questionField").value = response.data.question;
