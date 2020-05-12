@@ -24,7 +24,7 @@ textarea:focus {
 .markdown {
     background-color: rgb(0, 188, 235);
     padding: 10px;
-    height: 570px;
+    height: 398px;
     overflow: scroll;
     overflow-x: hidden;
 }
@@ -78,4 +78,8 @@ textarea:focus {
 #answerField{
     overflow: scroll;
     word-wrap: break-word;
+}
+
+.buttons.is-right {
+    height: 58px;
 }
