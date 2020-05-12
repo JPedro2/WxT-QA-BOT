@@ -79,3 +79,7 @@ textarea:focus {
     overflow: scroll;
     word-wrap: break-word;
 }
+
+.is-danger{
+    background-color: hsl(348, 100%, 61%) !important;
+}
