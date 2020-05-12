@@ -87,3 +87,7 @@ textarea:focus {
     cursor: not-allowed;
     background-color: #b8b8b8 !important;
 }
+
+.is-danger{
+    background-color: hsl(348, 100%, 61%) !important;
+}
