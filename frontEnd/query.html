@@ -171,6 +171,9 @@
                     document.getElementById("linkButton").textContent = "No Files"
                 }
 
+                //clear the alt question field 
+                document.getElementById("altQuestionField").value ="";
+                
                 //prints the alt questions at the bottom of the page
                 for (let i = 0; i < response.data.alternatives.length; i++) {
                     document.getElementById("altQuestionField").value += response.data.alternatives[i] +
