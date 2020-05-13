@@ -177,6 +177,16 @@ def addEntry(tag, question, answer, alternatives):
         print("Error inserting new intro into the database")
         return("Failure")
 
+def deleteQuestion(questionID):
+    try:
+        cursor, db = connectToDB()
+        cursor.execute("DELETE FROM qanda WHERE id=%s", (questionID,))
+        closeConnectionToDB(db, cursor)
+        return True
+    
+    except:
+        return False
+
 def appendAlternative(questionID, alternative):
     try:
         cursor, db = connectToDB()

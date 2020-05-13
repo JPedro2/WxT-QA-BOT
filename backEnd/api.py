@@ -41,7 +41,7 @@ def create_app():
     bucket_name = credentials.GCP["storage_bucket_name"]
     GCP_Service_Acct = credentials.GCP["GCP_Service_Acct"]
 
-    # Instantiate limiter
+    # Instantiate default rate limit of 10000 per day, and 1000 per hour applied to all routes for API service
     limiter = Limiter(
         API_app,
         key_func=get_remote_address,
@@ -121,7 +121,7 @@ def create_app():
                 return False
             #Set Global variable on flask to be used by other @routes
             g.user = user
-            print("Sucessfully validated the user: "+str(user))
+            API_app.logger.info("Sucessfully validated the user: "+str(user))
             return True
 
         except:
@@ -136,7 +136,7 @@ def create_app():
                 return False
             #Set Global variable on flask to be used by other @routes
             g.user = user
-            print("Sucessfully validated the user: "+str(user))
+            API_app.logger.info("Sucessfully validated the user: "+str(user))
             return True
 
         except:
@@ -147,7 +147,7 @@ def create_app():
     def get_auth_token():
         try:
             token = generate_auth_token(g.user,86400)
-            print("Sucessfully generated a token for the user: "+str(g.user)+" and it is valid for 24h.")
+            API_app.logger.info("Sucessfully generated a token for the user: "+str(g.user)+" and it is valid for 24h.")
             return jsonify({'token': token.decode('ascii'), 'duration': 86400})
         
         except:
@@ -210,11 +210,11 @@ def create_app():
 
             location = "https://storage.googleapis.com/"+bucket_name+"/"+destination_blob_name
 
-            print("Sucessfully uploaded a file to GCP Cloud Storage, URL: "+location)
+            API_app.logger.info("Sucessfully uploaded a file to GCP Cloud Storage, URL: "+location)
             return location
         
         except:
-            print("Error uploading file to GCP Cloud Storage")
+            API_app.logger.info("Error uploading file to GCP Cloud Storage")
             return None
     
     def rename_blob(blob_name):
@@ -229,12 +229,11 @@ def create_app():
             return True
 
         except:
-            print("Error renaming file from GCP Cloud Storage")
+            API_app.logger.debug("Error renaming file from GCP Cloud Storage")
             return None
 
     #URL needs to contain the questionID that the file needs to be associated with 
     @API_app.route('/uploadFile/<int:questionID>', methods=['POST'])
-    @limiter.limit("200 per hour", override_defaults=False)
     @authToken.login_required
     def upload_file(questionID):
         try:
@@ -254,7 +253,7 @@ def create_app():
                 file_extension = filename.rsplit('.', 1)[1].lower()
                 source_file_name = os.path.join(API_app.config['UPLOAD_FOLDER'], filename) 
                 file.save(source_file_name)
-                print("File temporarily Uploaded from the FrontEnd to the BackEnd")
+                API_app.logger.info("File temporarily Uploaded from the FrontEnd to the BackEnd")
             else:
                 err_fileExtension = "File extentions is not allowed. Please only submit allowed file extensions."
                 raise(err_fileExtension)
@@ -267,7 +266,7 @@ def create_app():
                 #grab the part of the URL that specifies the path to the file on GCP
                 renameFilePath=location.split('/')[-2]+"/"+location.split('/')[-1]
                 if rename_blob(renameFilePath):
-                    print("Attached file for question ID: "+str(questionID)+" has been renamed from GCP.")
+                    API_app.logger.info("Attached file for question ID: "+str(questionID)+" has been renamed from GCP.")
                 else:
                     #delete temporarily uploaded file
                     delete_tmpFile = os.remove(source_file_name)
@@ -283,7 +282,8 @@ def create_app():
                 addLocation = queries.updateEntries(questionID, "", "", "", location, "", "")
                 #delete temporarily uploaded file
                 delete_tmpFile = os.remove(source_file_name)
-                return("Sucessfully uploaded a file to GCP Cloud Storage. URL: "+str(location), 201)
+                API_app.logger.info("Sucessfully uploaded a file to GCP Cloud Storage. URL: "+str(location))
+                return("",201)
             else:
                 delete_tmpFile = os.remove(source_file_name)
                 ErrUploadGCPfile = "Error uploading file to GCP for Question ID: "+str(questionID)
@@ -307,7 +307,6 @@ def create_app():
 #==================================================== API Endpoints =====================================================
     # getAnswer for the Bot to grab answers based on Question ID
     @API_app.route('/getAnswer/<int:questionID>', methods=['GET'])
-    @limiter.limit("200 per hour", override_defaults=False)
     def _getAnswer(questionID):
         try:
             answer = queries.getAnswer(questionID)
@@ -329,7 +328,6 @@ def create_app():
     
     # get question, answer, alternatives and location for the FrontEnd to use this knowledge: Query and Update tabs
     @API_app.route('/getKnowledge/<int:questionID>', methods=['GET'])
-    @limiter.limit("200 per hour", override_defaults=False)
     def getKnowledge(questionID):
         try:
             knowledge = queries.getKnowledge(questionID)
@@ -352,9 +350,6 @@ def create_app():
     # addEntry to add Questions, Answers and Alternative Questions from the FrontEnd: Submit tab
     @API_app.route('/addEntry', methods=['POST'])
     @authToken.login_required
-    # Exempt from rate limit
-    #@limiter.limit("200 per hour", override_defaults=False)
-    @limiter.exempt
     def addEntry():
         tag = request.form.get('tag')
         question = request.form.get('question')
@@ -372,9 +367,32 @@ def create_app():
                 abort(500, f_message)
             abort(400)
 
+    @API_app.route('/deleteQuestion/<int:questionID>', methods=['DELETE'])
+    @authToken.login_required
+    def deleteQuestion(questionID):
+        try:
+            questionExists = queries.getKnowledge(questionID)
+            if not questionExists:
+                err_questionID = "Error! Question ID: "+str(questionID)+" does not exist!"
+                raise(err_questionID)
+            _deleteQuestion = queries.deleteQuestion(questionID)
+            if not _deleteQuestion:
+                API_app.logger.debug("Error deleting entries of Question ID: "+str(questionID)+" from the database.")
+                f_message = "Error deleting entries of Question ID: "+str(questionID)+" from the database."
+                raise(f_message)
+            API_app.logger.info("Successfully deleted all entries of Question ID: "+str(questionID)+" from the database.")
+            return("",204)
+        
+        except:
+            if "err_questionID" in locals():
+                abort(404, err_questionID)
+            if "f_message" in locals():
+                abort(500, f_message)
+            else:
+                abort(400)
+
     # getAllQuestions to be used by the Bot and the FE: Update and Query Tabs
     @API_app.route('/getAllQuestions', methods=['GET'])
-    @limiter.limit("200 per hour", override_defaults=False)
     def getAllQuestions():
         try:
             allQuestions = queries.getAllQuestions()
@@ -393,7 +411,6 @@ def create_app():
     
     # Get all entries from the Knowledge Base
     @API_app.route('/getAll', methods=['GET'])
-    @limiter.limit("200 per hour", override_defaults=False)
     def getAll():
         try:
             allDB = queries.getAll()
@@ -419,7 +436,6 @@ def create_app():
     # Allows the Boot (via escalation) to add alternatives to an existing question. Used as a feedback mechanism for NLP. 
     # Adds valid questions that people ask the BOT (and the bot wrongly classifies) as alternativate questions. 
     @API_app.route('/appendAlternative/<int:questionID>', methods=['POST'])
-    @limiter.limit("200 per hour", override_defaults=False)
     @authToken.login_required
     def appendAlternative(questionID):
         try:
@@ -444,8 +460,8 @@ def create_app():
                     f_message = "Error appending alternative to Question ID: "+str(questionID)
                     raise(f_message)
                 
-                print("Successfully added question alternative to Question ID:", questionID)
-                return("Successfully added question alternative to Question ID: "+str(questionID), 201)
+                API_app.logger.info("Successfully added question alternative to Question ID:", questionID)
+                return("",201)
             else:
                 request_isNotJSON = "Error appending alternative to Question ID: "+str(questionID)+". The request POSTed is NOT in JSON format."
                 raise(request_isNotJSON)
@@ -458,17 +474,14 @@ def create_app():
             if "err_questionID" in locals():
                 abort(404, err_questionID)
             if "f_message" in locals():
-                print(f_message)
                 abort(500, f_message)
             if "request_isNotJSON" in locals():
-                print(request_isNotJSON)
                 abort(415, request_isNotJSON)
             else:
                 abort(400)
 
     # Allows the BOT (via escalation) to add new Questions and Answers to the Knowledge Base 
     @API_app.route('/newEscalationAnswer', methods=['POST'])
-    @limiter.limit("200 per hour", override_defaults=False)
     @authToken.login_required
     def newEscalationAnswer():
         try:
@@ -495,30 +508,25 @@ def create_app():
                     f_message = "Failed to add a new question and answer from the Escalation Webex Warriors workflow"
                     raise(f_message)
                 
-                print("Successfully added a question and answer from the Escalation Webex Warriors workflow, ID: "+NewEscalationQAid)
+                API_app.logger.info("Successfully added a question and answer from the Escalation Webex Warriors workflow, ID: "+NewEscalationQAid)
                 return(NewEscalationQAid, 201)
             else:
                 request_isNotJSON = "Error adding a new question and answer from the Escalation Webex Warriors workflow. The request POSTed is NOT in JSON format."
                 raise(request_isNotJSON)
         except:
             if "err_emptyParameters" in locals():
-                print(err_emptyParameters)
                 abort(400, err_emptyParameters)
             if "err_notString" in locals():
-                print(err_notString)
                 abort(400, err_notString)
             if "f_message" in locals():
-                print(f_message)
                 abort(500, f_message)
             if "request_isNotJSON" in locals():
-                print(request_isNotJSON)
                 abort(415, request_isNotJSON)
             else:
                 abort(400)
     
     # Allows the BOT to update the count on which Q&As have been handled every 12h
     @API_app.route('/updateCount', methods=['PUT'])
-    @limiter.limit("200 per hour", override_defaults=False)
     @authToken.login_required
     def updateCount():
         try:
@@ -551,8 +559,8 @@ def create_app():
                         f_message = "Error updating count on Question ID: "+str(questionID)
                         raise(f_message)
                 
-                print("Successfully incremented the count field on the database")
-                return("Successfully incremented the count field on the database")
+                API_app.logger.info("Successfully incremented the count field on the database")
+                return("",204)
             
             else:
                 request_isNotJSON = "Error incrementing the count. The request is NOT in JSON format."
@@ -568,17 +576,14 @@ def create_app():
             if "err_questionID" in locals():
                 abort(404, err_questionID)
             if "f_message" in locals():
-                print(f_message)
                 abort(500, f_message)
             if "request_isNotJSON" in locals():
-                print(request_isNotJSON)
                 abort(415, request_isNotJSON)
             else:
                 abort(400)
 
     # Update entries on the DB, to be used by the FrontEnd - Update Tab
     @API_app.route('/updateEntries/<int:questionID>', methods=['PUT'])
-    @limiter.limit("200 per hour", override_defaults=False)
     @authToken.login_required
     def updateEntries(questionID):
         try:
@@ -608,15 +613,13 @@ def create_app():
                 f_message = "Failed to update entries on the DB"
                 raise(f_message)
             
-            print("Sucessfully updated the entries on the DB, ID: "+str(id))
+            API_app.logger.info("Sucessfully updated the entries on the DB, ID: "+str(id))
             return(str(id), 200)
         
         except:
             if "err_questionID" in locals():
-                print(err_questionID)
                 abort(404, err_questionID)
             if "f_message" in locals():
-                print(f_message)
                 abort(500, f_message)
             else:
                 abort(400)
