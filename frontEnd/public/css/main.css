@@ -82,7 +82,9 @@ textarea:focus {
 
 .buttons.is-right {
     height: 58px;
+}
 
 .is-danger{
-    background-color: hsl(348, 100%, 61%) !important;
+    /*background-color: hsl(348, 100%, 61%) !important;*/
+    background-color: rgb(251, 61, 102) !important;
 }

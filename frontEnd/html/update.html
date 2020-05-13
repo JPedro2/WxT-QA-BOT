@@ -54,7 +54,7 @@
                     <div id="questionGroup">
                         <div class="field">
                             <input required class="input questionInput" id="questionField" type="text"
-                                placeholder="Question"></div>
+                                placeholder="Select a question to be updated on the right."></div>
                     </div>
                     <div class="field">
                         <div class="buttons has-addons is-right">
@@ -76,7 +76,7 @@
                     <div class="field">
                         <div class="control">
                             <textarea required class="textarea" id="ans" name="answer"
-                                placeholder="It logs on."></textarea>
+                                placeholder="Answer will appear here."></textarea>
                         </div>
                     </div>
                     <!--Submit Line-->
@@ -144,40 +144,39 @@
             <div class="markdown box">
                 <div class="container">
                     <h2 class="title is-5 has-text-white">Markdown Cheat Sheet</h2>
-                    <p class="has-text-white">Add special characters around your text to apply markup formatting</p>
-                    <br>
                     <p class="is-size-5 has-text-weight-semibold">Style</p>
                     <p class="has-text-white">**BOLD**</p>
                     <p class="has-text-white">_italic_</p>
-                    <p class="has-text-white">>Blockquote</p>
+                    <p class="has-text-white">> Blockquote</p>
+                    <p class="has-text-white">`unformatted text`</p>
+                    <br>
+                    <p class="is-size-5 has-text-weight-semibold">Links</p>
+                    <p class="has-text-white">Example: [Cisco Website](www.cisco.com)</p>
                     <br>
                     <p class="is-size-5 has-text-weight-semibold">Lists</p>
                     <p class="has-text-white">1. Item1</p>
                     <p class="has-text-white">2. Item2</p>
                     <p class="has-text-white">3. Item3</p>
                     <br>
-                    <p class="has-text-white">*Bullet point1</p>
-                    <p class="has-text-white">*Bullet point2</p>
+                    <p class="has-text-white">* Bullet point1</p>
+                    <p class="has-text-white">* Bullet point2</p>
                     <br>
                     <p class="is-size-5 has-text-weight-semibold">Headings</p>
                     <p class="has-text-white"># Heading 1</p>
-                    <p class="has-text-white"># # Heading 2</p>
-                    <p class="has-text-white"># # # Heading 3</p>
-                    <p class="has-text-white">--- Horizonal Line</p>
-                    <br>
-                    <p class="is-size-5 has-text-weight-semibold">Links</p>
-                    <p class="has-text-white">[link text](link)</p>
+                    <p class="has-text-white">## Heading 2</p>
+                    <p class="has-text-white">### Heading 3</p>
+                    <p class="has-text-white">--- Horizontal Line</p>
                 </div>
             </div>
         </div>
     </div>
     </div>
-    <!-- Live Preview Area -->
+    <!-- Markdown Preview Area -->
     <div class="markup-Container">
 
         <div class="section primaryFont">
 
-            <p class="is-size-4 has-text-white has-text-weight-medium">Live Preview</p>
+            <p class="is-size-4 has-text-white has-text-weight-medium">Markdown Preview</p>
             <div id="answerField" class="markup-Area content">
 
             </div>
@@ -321,7 +320,7 @@
     //If add is clicked append a new input box to the page
     document.getElementById("addQuestionFieldButton").addEventListener('click', function () {
         $("#questionGroup").append(
-            '<div class="field altQuestionInput"><input class="input questionInput" type="text" placeholder="Alternate Question"></div>'
+            '<div class="field altQuestionInput"><input class="input questionInput" type="text" placeholder="Alternative Question"></div>'
         );
         let currentHeight = $(".markdown").height()
         $(".markdown").height(currentHeight + 52)

@@ -89,5 +89,5 @@ textarea:focus {
 }
 
 .is-danger{
-    background-color: hsl(348, 100%, 61%) !important;
+    background-color: rgb(251, 61, 102) !important;
 }
