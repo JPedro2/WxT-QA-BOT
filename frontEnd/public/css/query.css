@@ -24,7 +24,7 @@ textarea:focus {
 .markdown {
     
     padding: 10px;
-    height: 260px;
+    height: 310px;
     
 }
 
@@ -80,4 +80,8 @@ h1 {
     pointer-events: none;
     cursor: not-allowed;
     background-color: #b8b8b8 !important;
+}
+
+#searchQuestionButton{
+    margin-top: 8px;
 }
