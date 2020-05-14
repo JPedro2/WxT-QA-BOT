@@ -33,6 +33,8 @@ textarea:focus {
     height: 265px;
     overflow: scroll;
     overflow-x: hidden;
+    margin-bottom: 11px !important;
+    margin-top: 11px !important;
 }
 
 .inputs {
@@ -90,4 +92,29 @@ textarea:focus {
 
 .is-danger{
     background-color: rgb(251, 61, 102) !important;
+}
+
+.to-hide {
+    display: none !important;
+}
+
+#searchQuestionButton {
+    margin-top: 36px;
+    width: 20%;
+}
+
+#getAllQuestion {
+    margin-top: 36px;
+    width: 36%;
+}
+
+#questionIDField {
+    font-size: 1rem;
+    margin-top: 36px;
+    height: 50px;
+    width: 40%;
+}
+
+#questionField {
+    height: 50px;
 }

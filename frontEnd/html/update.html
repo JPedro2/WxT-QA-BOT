@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/update.css">
     <link rel="shortcut icon" href="./public/assets/favicon.ico" type="image/x-icon">
     <link rel="icon" href="./public/assets/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/autoComplete.css">
 </head>
 
 <body>
@@ -43,153 +44,200 @@
                 <li class="is-active"><a href="update.html">Update</a></li>
             </ul>
         </div>
-        <h3 class="is-size-4">Question</h3>
         <div class="columns">
             <div class="column is-three-quarters">
-                <!--On submit of the form do the add entry, use target to prevent redirect (Sorry, should be done better)-->
-                <!--TODO: Remove the target and submit the form with ajax -->
-                <form id="form">
-                    <!--Question Input-->
-
-                    <div id="questionGroup">
+                <h3 class="is-size-4">Question</h3>
+                <div id="questionGroup">
+                    <div class="field">
+                        <input required class="input questionInput" id="questionField" type="text" placeholder="Enter a question">
+                    </div>
+                </div>
+                <div class="to-hide">
+                    <!--On submit of the form do the add entry, use target to prevent redirect (Sorry, should be done better)-->
+                    <!--TODO: Remove the target and submit the form with ajax -->
+                    <!-- <form id="question"> -->
+                        <!--Question Input-->
                         <div class="field">
-                            <input disabled required class="input questionInput" id="questionField" type="text"
-                                placeholder="Select a question to be updated on the right."></div>
-                    </div>
-                    <div class="field">
-                        <div class="buttons has-addons is-right">
-                            <button disabled class="button has-text-white" id="addQuestionFieldButton">
-                                <span class="icon is-small">
-                                    <i class="fas fa-plus"></i>
-                                </span>
-                            </button>
-                            <button disabled class="button has-text-white" id="removeQuestionFieldButton">
-                                <span class="icon is-small">
-                                    <i class="fas fa-minus"></i>
-                                </span>
-                            </button>
+                            <div class="buttons has-addons is-right">
+                                <button class="button has-text-white" id="addQuestionFieldButton">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-plus"></i>
+                                    </span>
+                                </button>
+                                <button class="button has-text-white" id="removeQuestionFieldButton">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-minus"></i>
+                                    </span>
+                                </button>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Answer Input -->
-                    <p class="is-size-4">Answer</p>
-                    <div class="field">
-                        <div class="control">
-                            <textarea disabled required class="textarea" id="ans" name="answer"
-                                placeholder="Answer will appear here."></textarea>
-                        </div>
-                    </div>
-                    <!--Submit Line-->
-                    <div class="field is-grouped">
+                        <!-- Answer Input -->
+                        <p class="is-size-4">Answer</p>
                         <div class="field">
                             <div class="control">
-                                <div class="select">
-                                    <select disabled id='select' name="select" required>
-                                        <option>General</option>
-                                        <option>Volunteer Programme</option>
-                                        <option>Plans and Pricing</option>
-                                        <option>Controls & Features</option>
-                                        <option>Quality Issues</option>
-                                    </select>
+                                <textarea required class="textarea" id="ans" name="answer"
+                                    placeholder="Answer will appear here."></textarea>
+                            </div>
+                        </div>
+                        <!--Submit Line-->
+                        <div class="field is-grouped">
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select">
+                                        <select id='select' name="select" required>
+                                            <option>General</option>
+                                            <option>Volunteer Programme</option>
+                                            <option>Plans and Pricing</option>
+                                            <option>Controls & Features</option>
+                                            <option>Quality Issues</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="field">
-                            <div class="file has-name is-fullwidth">
-                                <label class="file-label">
-                                    <input disabled class="file-input" id="fileInput" type="file" name="resume">
-                                    <span class="file-cta">
-                                        <span class="file-icon">
-                                            <i class="fas fa-upload"></i>
+                            <div class="field">
+                                <div class="file has-name is-fullwidth">
+                                    <label class="file-label">
+                                        <input class="file-input" id="fileInput" type="file" name="resume">
+                                        <span class="file-cta">
+                                            <span class="file-icon">
+                                                <i class="fas fa-upload"></i>
+                                            </span>
+                                            <span class="file-label">
+                                                Choose a file
+                                            </span>
                                         </span>
-                                        <span class="file-label">
-                                            Choose a file
+                                        <span class="file-name" id="fileName">
+                                            No File Loaded
                                         </span>
-                                    </span>
-                                    <span class="file-name" id="fileName">
-                                        No File Loaded
-                                    </span>
-                                </label>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="control is-pulled-right">
+                                <button onclick="deleteFile()" id='deleteFileButton' class="button is-danger">Delete File</button>
+                            </div>
+                            <div class="control is-pulled-right">
+                                <button id="submitQA" class="button is-link">Submit</button>
                             </div>
                         </div>
-                        <div class="control is-pulled-right">
-                            <button onclick="deleteFile()" disabled id='deleteFileButton' class="button is-danger">Delete File</button>
-                        </div>
-                        <div class="control is-pulled-right">
-                            <button disabled id="submitQA" class="button is-link">Submit</button>
-                        </div>
-                </form>
-                <br><br>
+                    <!-- </form> -->
+                    <br><br>
+                    <p class="is-size-4">Attached Files</p>
+                    <a href="" target="_blank" id="linkButton" class="button has-text-white linkButton">No File Attached</a>
+                </div>
             </div>
-            <p class="is-size-4">Attached Files</p>
-            <a href="" target="_blank" id="linkButton" class="button has-text-white linkButton">No File Attached</a>
-        </div>
-        <div class="column">
-            <div class="searchBox box">
-                <div class="container">
-                    <h2 class="is-size-4">Select a question</h2>
-                    <div class="field has-addons">
-                        <div class="control is-expanded"">
-                            <input class=" input" id="questionIDField" type="text" placeholder="Question ID">
-                        </div>
-                        <div class="control">
-                            <a id="searchQuestionButton" class="button is-info">
-                                Find
-                            </a>
-                        </div>
+            <div class="column is-one-quarter">
+                <!-- <button onclick='temp()' id='findAllButton' class="button is-fullwidth">Find all</button> -->
+                <!-- <input id="questionIDField" class="is-medium is-halfwidth"></input> -->
+                <input required class="input is-medium is-halfwidth" id="questionIDField" type="text" placeholder="Question ID">
+                <button id="searchQuestionButton" class="button is-medium has-text-white"><i class="fas fa-search"></i></button>
+                <button id="getAllQuestion" class="button is-medium has-text-white">View all</button>
+                <div class="markdown box to-hide">
+                    <div class="container">
+                        <h2 class="title is-5 has-text-white">Markdown Cheat Sheet</h2>
+                        <p class="is-size-5 has-text-weight-semibold">Style</p>
+                        <p class="has-text-white">**BOLD**</p>
+                        <p class="has-text-white">_italic_</p>
+                        <p class="has-text-white">> Blockquote</p>
+                        <p class="has-text-white">`unformatted text`</p>
+                        <br>
+                        <p class="is-size-5 has-text-weight-semibold">Links</p>
+                        <p class="has-text-white">Example: [Cisco Website](www.cisco.com)</p>
+                        <br>
+                        <p class="is-size-5 has-text-weight-semibold">Lists</p>
+                        <p class="has-text-white">1. Item1</p>
+                        <p class="has-text-white">2. Item2</p>
+                        <p class="has-text-white">3. Item3</p>
+                        <br>
+                        <p class="has-text-white">* Bullet point1</p>
+                        <p class="has-text-white">* Bullet point2</p>
+                        <br>
+                        <p class="is-size-5 has-text-weight-semibold">Headings</p>
+                        <p class="has-text-white"># Heading 1</p>
+                        <p class="has-text-white">## Heading 2</p>
+                        <p class="has-text-white">### Heading 3</p>
+                        <p class="has-text-white">--- Horizontal Line</p>
                     </div>
                 </div>
-            </div>
-            <div class="markdown box">
-                <div class="container">
-                    <h2 class="title is-5 has-text-white">Markdown Cheat Sheet</h2>
-                    <p class="is-size-5 has-text-weight-semibold">Style</p>
-                    <p class="has-text-white">**BOLD**</p>
-                    <p class="has-text-white">_italic_</p>
-                    <p class="has-text-white">> Blockquote</p>
-                    <p class="has-text-white">`unformatted text`</p>
-                    <br>
-                    <p class="is-size-5 has-text-weight-semibold">Links</p>
-                    <p class="has-text-white">Example: [Cisco Website](www.cisco.com)</p>
-                    <br>
-                    <p class="is-size-5 has-text-weight-semibold">Lists</p>
-                    <p class="has-text-white">1. Item1</p>
-                    <p class="has-text-white">2. Item2</p>
-                    <p class="has-text-white">3. Item3</p>
-                    <br>
-                    <p class="has-text-white">* Bullet point1</p>
-                    <p class="has-text-white">* Bullet point2</p>
-                    <br>
-                    <p class="is-size-5 has-text-weight-semibold">Headings</p>
-                    <p class="has-text-white"># Heading 1</p>
-                    <p class="has-text-white">## Heading 2</p>
-                    <p class="has-text-white">### Heading 3</p>
-                    <p class="has-text-white">--- Horizontal Line</p>
-                </div>
+                <button onclick="deleteEntry()" id='deleteEntryButton' class="button is-danger is-fullwidth to-hide">Delete Question</button>
             </div>
         </div>
-    </div>
     </div>
     <!-- Markdown Preview Area -->
-    <div class="markup-Container">
-
+    <div class="markup-Container to-hide">
         <div class="section primaryFont">
-
             <p class="is-size-4 has-text-white has-text-weight-medium">Markdown Preview</p>
-            <div id="answerField" class="markup-Area content">
-
-            </div>
+            <div id="answerField" class="markup-Area content"></div>
         </div>
     </div>
-    <iframe style="display: none;" width="0" height="0" border="0" name="dummyframe" id="dummyframe"></iframe>
+
+    <div class="modal" id="listModal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">All Questions</p>
+                <button class="delete" id="closeQuestion" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+                <table class="table is-fullwidth">
+                    <thead>
+                        <tr>
+                            <th>Number</th>
+                            <th>Question</th>
+                        </tr>
+                    </thead>
+                    <tbody id="anslist">
+                        <!--List of answers pulled from the database-->
+                    </tbody>
+                </table>
+            </section>
+            <footer class="modal-card-foot">
+            </footer>
+        </div>
+    </div>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@7.2.0/dist/js/autoComplete.min.js"></script>
 <script>
+
+    //Search by ID
+    document.getElementById("searchQuestionButton").addEventListener('click', function () {
+        let questionID = document.getElementById("questionIDField").value;
+        $(".to-hide").each(function (index) {
+            $(this).attr("style", "display:block !important;");
+        });
+        populateFields(questionID);
+    });
+
+    //Called when the user presses the all questions button
+    document.getElementById("getAllQuestion").addEventListener('click', function () {
+        //activates the modal by adding the active class
+        document.getElementById("listModal").classList.add("is-active");
+    });
+    //Called when the user closes the model with the x
+    document.getElementById("closeQuestion").addEventListener('click', function () {
+        //closes the modal by removing the active class
+        document.getElementById("listModal").classList.remove("is-active");
+    });
+
+    //On page load load all the questions and put them in the modal
+    axios.get('http://35.242.181.193:3002/getAll')
+        .then(response => {
+            //Loop through every q and a
+            for (let i = 0; i < response.data.items.length; i++) {
+                //build html with the response
+                let appendedQuestion = "<tr><td>" + response.data.items[i].id + "</td><td>" + response.data.items[i]
+                    .question + "</td></tr>";
+                //import them into the modal
+                document.getElementById("anslist").innerHTML += appendedQuestion;
+            }
+        });
+
     //File input 
     const fileInput = document.getElementById('fileInput');
     fileInput.onchange = () => {
@@ -239,9 +287,9 @@
     // Grab the forms id
     var form = document.getElementById('form');
     // Adds a listener for the "submit" event.
-    form.addEventListener('submit', function (e) {
-        e.preventDefault();
-    });
+    // form.addEventListener('submit', function (e) {
+    //     e.preventDefault();
+    // });
 
     //On click of the submit button
     document.getElementById("submitQA").addEventListener('click', submitQA);
@@ -341,74 +389,6 @@
         }
     })
 
-    //Called when use searches a question ID
-    document.getElementById("searchQuestionButton").addEventListener('click', function () {
-        //Grab the question ID num
-        let questionID = document.getElementById("questionIDField").value;
-        //Get request the Question Num for details
-        axios.get('http://35.242.181.193:3002/getKnowledge/' + questionID)
-            .then(response => {
-                //remove all alternative question fields and reset questions
-                resetFields();
-
-                //Update the alternate question fields on the page with the question queried
-                //Have to do this first or it wipes the other fields
-                for (let i = 0; i < response.data.alternatives.length; i++) {
-                    console.log(response.data.alternatives[0])
-                    $("#questionGroup").append('<div class="field altQuestionInput"><input value="' +
-                        response.data.alternatives[i] +
-                        '" class="input questionInput" type="text" placeholder="Alternate Question"></div>'
-                        );
-                }
-                //update the value of the question field
-                document.getElementById("questionField").value = response.data.question;
-
-                //Update the answer field on the page with the question queried
-                document.getElementById("ans").value = response.data.answer;
-
-                //Update the question type
-                document.getElementById("select").value = response.data.tag;
-
-                document.getElementById('fileName').textContent = response.data.location
-
-                //Toggles button on the page
-                if (response.data.location != null) {
-                    document.getElementById("linkButton").href = response.data.location;
-                    document.getElementById("linkButton").classList.remove("linkButton");
-                    document.getElementById("linkButton").textContent = "File Loaded - Open File"
-                    $('#deleteFileButton').removeAttr('disabled');
-                } else {
-                    document.getElementById("linkButton").classList.add("linkButton");
-                    document.getElementById("linkButton").textContent = "No Files"
-                    document.getElementById('fileName').textContent = "No File Selected"
-                    $('#deleteFileButton').attr('disabled', true);
-                }
-
-                //if the question is returned 
-                if (response.status == 200){
-                    //remove the disabled attribute
-                    $('#questionField').removeAttr('disabled');
-                    $('#select').removeAttr('disabled');
-                    $('#ans').removeAttr('disabled');
-                    $('#fileInput').removeAttr('disabled');
-                    $('#addQuestionFieldButton').removeAttr('disabled');
-                    $('#removeQuestionFieldButton').removeAttr('disabled');
-                    $('#submitQA').removeAttr('disabled');
-                };
-                //send the answer for rendering
-                preview();
-            }).catch(error => {
-
-                if (error.response.status === 404) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Question ID: '.concat(questionID).concat(' Not Found!')
-                    })
-                }
-            })
-    });
-
 
 
     //reset all the fields to null
@@ -437,7 +417,187 @@
 
     }
 
+    function deleteEntry() {
+        var qid = document.getElementById('questionIDField').value;
+        Swal.fire({
+        title: 'Are you sure you want to delete question ' + qid + '?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+        if (result.value) {
+            var url = "http://35.242.181.193:3002/deleteQuestion/" + qid;
 
+            var requestOptions = {
+                method: 'DELETE',
+                redirect: 'follow',
+                mode: 'cors',
+                headers: {
+                    "Authorization": 'Bearer ' + sessionStorage.getItem('token')
+                }
+            };
+
+            fetch(url, requestOptions)
+                .then(response => response.text())
+                .then(result => {
+                    Swal.fire(
+                    'Deleted!',
+                    'Question ' + qid + ' has been deleted!',
+                    'success'
+                    )
+                })
+                .catch(error => {
+                    if (error.status === 500) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Internal Server Error',
+                        })
+                    }
+                    if (error.status === 400) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Bad Request',
+                        })
+                    }
+                })
+        }
+        })
+    }
+
+    function getAllQuestions() {
+        var url = "http://35.242.181.193:3002/getAllQuestions";
+
+        var requestOptions = {
+            method: 'GET',
+            redirect: 'follow',
+            mode: 'cors',
+            headers: {
+                "Authorization": 'Bearer ' + sessionStorage.getItem('token')
+            }
+        };
+
+        return fetch(url, requestOptions)
+            .then(response => response.text())
+            .then(result => result)        
+            .catch(error => {
+                if (error.status === 401) {
+                    location.href = "login.html"
+                }
+                if (error.status === 400) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Bad Request',
+                    })
+                }
+            })
+    }
+
+    function populateFields(questionID) {
+        //Get request the question ID 
+        axios.get('http://35.242.181.193:3002/getKnowledge/' + questionID)
+            .then(response => {
+                //Update the question field on the page with the question queried
+                document.getElementById("questionField").value = response.data.question;
+                //Update the answer field on the page with the question queried
+                document.getElementById("ans").value = response.data.answer;
+                //Update the question type
+                // document.getElementById("type").textContent = response.data.tag;
+                //Toggles button on the page
+                if (response.data.location != null) {
+                    document.getElementById("linkButton").href = response.data.location;
+                    document.getElementById("linkButton").classList.remove("linkButton");
+                    document.getElementById("linkButton").textContent = "File Loaded - Open File"
+                } else {
+                    document.getElementById("linkButton").classList.add("linkButton");
+                    document.getElementById("linkButton").textContent = "No Files"
+                }
+
+                var converter = new showdown.Converter();
+                //Get the value of answer Field
+                var text = response.data.answer;
+                //Convert the inputted text to HTML
+                var html = converter.makeHtml(text);
+                //set answerField to the updated html
+                document.getElementById("answerField").innerHTML = html;
+
+                document.getElementById("questionIDField").value = questionID;
+
+                //clear the alt question field 
+                document.getElementById("altQuestionField").value = "";
+
+                //prints the alt questions at the bottom of the page
+                for (let i = 0; i < response.data.alternatives.length; i++) {
+                        $("#questionGroup").append(
+                            '<div class="field altQuestionInput"><input class="input questionInput" type="text" placeholder="Alternative Question" value="' + response.data.alternatives[i] + '"></div>'
+                        );
+                }
+            }).catch(error => {
+                if (error.status === 401) {
+                    location.href = "login.html"
+                }
+                if (error.status === 400) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Bad Request',
+                    })
+                }
+            })
+    }
+
+    var options = getAllQuestions().then(out => {
+        return JSON.parse(out)
+    });
+
+    new autoComplete({
+        data: {
+        src: options,
+        key: ["question"],
+        cache: false
+        },
+        placeHolder: "Enter a question",
+        selector: "#questionField",
+        threshold: 0,
+        debounce: 300,
+        searchEngine: "strict",
+        resultsList: {
+            render: true,
+            container: source => {
+                source.setAttribute("id", "question_list");
+            },
+            destination: document.querySelector("#questionField"),
+            position: "afterend",
+            element: "ul"
+        },
+        maxResults: 5,
+        highlight: true,
+        resultItem: {
+            content: (data, source) => {
+                source.innerHTML = data.match;
+            },
+            element: "li"
+        },
+        noResults: () => {
+            const result = document.createElement("li");
+            result.setAttribute("class", "no_result");
+            result.setAttribute("tabindex", "1");
+            result.innerHTML = "No Results";
+            document.querySelector("#autoComplete_list").appendChild(result);
+        },
+        onSelection: feedback => {
+            $("#questionField").val(feedback.selection.value.question);
+            $(".to-hide").each(function (index) {
+                $(this).attr("style", "display:block !important;");
+            });
+            populateFields(feedback.selection.value.id);
+        }
+    });
 
 
 </script>
