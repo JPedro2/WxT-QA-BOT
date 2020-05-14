@@ -33,6 +33,7 @@ textarea:focus {
     height: 265px;
     overflow: scroll;
     overflow-x: hidden;
+    margin-bottom: 11px !important;
 }
 
 .inputs {
@@ -90,4 +91,8 @@ textarea:focus {
 
 .is-danger{
     background-color: rgb(251, 61, 102) !important;
+}
+
+#deleteEntryButton {
+    /* width: 100%; */
 }
