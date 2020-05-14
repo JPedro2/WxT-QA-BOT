@@ -53,17 +53,17 @@
 
                     <div id="questionGroup">
                         <div class="field">
-                            <input required class="input questionInput" id="questionField" type="text"
+                            <input disabled required class="input questionInput" id="questionField" type="text"
                                 placeholder="Select a question to be updated on the right."></div>
                     </div>
                     <div class="field">
                         <div class="buttons has-addons is-right">
-                            <button class="button has-text-white" id="addQuestionFieldButton">
+                            <button disabled class="button has-text-white" id="addQuestionFieldButton">
                                 <span class="icon is-small">
                                     <i class="fas fa-plus"></i>
                                 </span>
                             </button>
-                            <button class="button has-text-white" id="removeQuestionFieldButton">
+                            <button disabled class="button has-text-white" id="removeQuestionFieldButton">
                                 <span class="icon is-small">
                                     <i class="fas fa-minus"></i>
                                 </span>
@@ -75,7 +75,7 @@
                     <p class="is-size-4">Answer</p>
                     <div class="field">
                         <div class="control">
-                            <textarea required class="textarea" id="ans" name="answer"
+                            <textarea disabled required class="textarea" id="ans" name="answer"
                                 placeholder="Answer will appear here."></textarea>
                         </div>
                     </div>
@@ -84,7 +84,7 @@
                         <div class="field">
                             <div class="control">
                                 <div class="select">
-                                    <select id='select' name="select" required>
+                                    <select disabled id='select' name="select" required>
                                         <option>General</option>
                                         <option>Volunteer Programme</option>
                                         <option>Plans and Pricing</option>
@@ -98,7 +98,7 @@
                         <div class="field">
                             <div class="file has-name is-fullwidth">
                                 <label class="file-label">
-                                    <input class="file-input" id="fileInput" type="file" name="resume">
+                                    <input disabled class="file-input" id="fileInput" type="file" name="resume">
                                     <span class="file-cta">
                                         <span class="file-icon">
                                             <i class="fas fa-upload"></i>
@@ -117,7 +117,7 @@
                             <button onclick="deleteFile()" disabled id='deleteFileButton' class="button is-danger">Delete File</button>
                         </div>
                         <div class="control is-pulled-right">
-                            <button id="submitQA" class="button is-link">Submit</button>
+                            <button disabled id="submitQA" class="button is-link">Submit</button>
                         </div>
                 </form>
                 <br><br>
@@ -376,12 +376,25 @@
                     document.getElementById("linkButton").href = response.data.location;
                     document.getElementById("linkButton").classList.remove("linkButton");
                     document.getElementById("linkButton").textContent = "File Loaded - Open File"
+                    $('#deleteFileButton').removeAttr('disabled');
                 } else {
                     document.getElementById("linkButton").classList.add("linkButton");
                     document.getElementById("linkButton").textContent = "No Files"
+                    document.getElementById('fileName').textContent = "No File Selected"
+                    $('#deleteFileButton').attr('disabled', true);
                 }
 
-
+                //if the question is returned 
+                if (response.status == 200){
+                    //remove the disabled attribute
+                    $('#questionField').removeAttr('disabled');
+                    $('#select').removeAttr('disabled');
+                    $('#ans').removeAttr('disabled');
+                    $('#fileInput').removeAttr('disabled');
+                    $('#addQuestionFieldButton').removeAttr('disabled');
+                    $('#removeQuestionFieldButton').removeAttr('disabled');
+                    $('#submitQA').removeAttr('disabled');
+                };
                 //send the answer for rendering
                 preview();
             }).catch(error => {
@@ -395,6 +408,8 @@
                 }
             })
     });
+
+
 
     //reset all the fields to null
     function resetFields() {
@@ -421,6 +436,10 @@
         $('#deleteFileButton').attr("disabled", true);
 
     }
+
+
+
+
 </script>
 
 </html>
