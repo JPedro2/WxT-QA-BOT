@@ -104,7 +104,6 @@ celerybeat.pid
 # Environments
 .env
 .venv
-env/
 venv/
 ENV/
 env.bak/
@@ -135,10 +134,13 @@ dmypy.json
 **/.DS_Store
 
 # Custom credentials, shell scripts and guides
-credentials/
-start-up-guide.md
-tmp-uploadFiles/
+backEnd/credentials/
+backEnd/start_flask.sh
 fixPermissions.sh
+start-up-guide.md
+
+# env files
+env/*.env
 
 # frontEnd modules
 frontEnd/node_modules/

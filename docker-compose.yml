@@ -1,0 +1,41 @@
+version: "3"
+services:
+    backend-api:
+        build: ./backEnd
+        restart: always
+        env_file:
+            - ./env/backEndCredentials.env
+        links:
+            - db
+        ports:
+            - "3002:3002"
+        networks:
+            - default
+    db:
+        image: mysql:latest
+        restart: always
+        env_file:
+            - ./env/MYSQLcredentials.env
+        ports:
+            - "3306:3306"
+        # Where the DB data will be persisted
+        volumes:
+            - sql-datavolume:/var/lib/mysql
+            # Build new db based
+            #- ./db:/docker-entrypoint-initdb.d/
+            # Loading existing DB data from backup
+            - /var/lib/automysqlbackup/daily/qanda/qanda_2020-05-15_06h25m.Friday.sql:/docker-entrypoint-initdb.d/dump.sql
+        networks:
+            - default
+
+    php-admin:
+        container_name: april-phpadmin 
+        image: phpmyadmin/phpmyadmin 
+        restart: always
+        links:
+            - db
+        ports: 
+            - "3003:80"
+
+volumes:
+    sql-datavolume:

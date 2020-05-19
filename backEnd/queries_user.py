@@ -1,18 +1,16 @@
-import mysql.connector
+import os
 import sys
-
-# Set working directory
-sys.path.append('/home/WxT-QA-BOT')
-import credentials
+import mysql.connector
 
 # Connect to MySQL database
 def connectToDB():
     try:
         db = mysql.connector.connect(
-            host=credentials.DB["host"],
-            user=credentials.DB["user"],
-            passwd=credentials.DB["passwd"],
-            database=credentials.DB["database"]
+            user=os.environ['DB_user'],
+            host=os.environ['DB_host'],
+            port=os.environ['DB_port'],
+            password=os.environ['DB_password'],
+            database=os.environ['DB_database']
         )
         # Instantiate cursor
         cursor = db.cursor()
