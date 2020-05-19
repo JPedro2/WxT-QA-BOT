@@ -3,4 +3,4 @@ Move your GCP Service Account Key `.json` file here. This file is used to [authe
 
 Please check here for more information on [how to get your service account key](https://cloud.google.com/docs/authentication/production#obtaining_and_providing_service_account_credentials_manually).
 
-# After you move the Service Account Key file here you MUST rename it to: `GCP-serviceAcctKey.json`
+**After you move the Service Account Key file to this folder you MUST rename it to:** `GCP-serviceAcctKey.json`
