@@ -260,7 +260,7 @@ def create_app():
                 #grab the part of the URL that specifies the path to the file on GCP
                 renameFilePath=location.split('/')[-2]+"/"+location.split('/')[-1]
                 if rename_blob(renameFilePath):
-                    API_app.logger.info("Attached file for question ID: "+str(questionID)+" has been renamed from GCP.")
+                    API_app.logger.info("Attached file for question ID: "+str(questionID)+" has been renamed on GCP.")
                 else:
                     #delete temporarily uploaded file
                     delete_tmpFile = os.remove(source_file_name)

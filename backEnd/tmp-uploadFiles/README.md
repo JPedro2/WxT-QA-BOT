@@ -1,0 +1,2 @@
+## Temporary Upload Files Folder
+Files that need to be attached to a DB entry will be temporarily downloaded to this folder before they are uploaded to GCP Cloud Storage and its URL saved on the DB. After this, the file will be deleted. 

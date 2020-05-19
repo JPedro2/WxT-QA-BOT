@@ -134,8 +134,12 @@ dmypy.json
 **/.DS_Store
 
 # Custom credentials, shell scripts and guides
-backEnd/credentials/
-backEnd/start_flask.sh
+backEnd/credentials/*
+!backEnd/credentials/README.md
+
+backEnd/tmp-uploadFiles/*
+!backEnd/tmp-uploadFiles/README.md
+
 fixPermissions.sh
 start-up-guide.md
 
