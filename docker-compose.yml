@@ -11,6 +11,7 @@ services:
             - "3002:3002"
         networks:
             - default
+    
     db:
         image: mysql:latest
         restart: always
@@ -21,12 +22,27 @@ services:
         # Where the DB data will be persisted
         volumes:
             - sql-datavolume:/var/lib/mysql
-            # Build new db based
+            # Build new db based on the init.sql file 
             #- ./db:/docker-entrypoint-initdb.d/
             # Loading existing DB data from backup
-            - /var/lib/automysqlbackup/daily/qanda/qanda_2020-05-15_06h25m.Friday.sql:/docker-entrypoint-initdb.d/dump.sql
+            #- /db/backups/backup20200519T162620Z.sql:/docker-entrypoint-initdb.d/dump.sql
+            #- /var/lib/automysqlbackup/daily/qanda/qanda_2020-05-15_06h25m.Friday.sql:/docker-entrypoint-initdb.d/dump.sql
+            - ./db/backups/backup_2020-05-19T19-03-18Z.sql:/docker-entrypoint-initdb.d/dump.sql
         networks:
             - default
+    
+    db-backup:
+        image: databack/mysql-backup
+        user: "0"
+        restart: always
+        links:
+            - db
+        volumes:
+            - ./db/backups:/db
+        env_file:
+            - ./env/MYSQLcredentials.env
+        networks:
+            - default   
 
     php-admin:
         container_name: april-phpadmin 
@@ -35,7 +51,7 @@ services:
         links:
             - db
         ports: 
-            - "3003:80"
+            - "3008:80"
 
 volumes:
     sql-datavolume:

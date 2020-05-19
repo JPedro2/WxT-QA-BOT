@@ -140,6 +140,9 @@ backEnd/credentials/*
 backEnd/tmp-uploadFiles/*
 !backEnd/tmp-uploadFiles/README.md
 
+db/backups/*
+!db/backups/README.md
+
 fixPermissions.sh
 start-up-guide.md
 
