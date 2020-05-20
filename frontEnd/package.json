@@ -4,7 +4,6 @@
   "description": "Front end admin for the webex bot ",
   "main": "server.js",
   "dependencies": {
-    "@google-cloud/storage": "^4.7.0",
     "@tarekraafat/autocomplete.js": "^7.2.0",
     "autocompleter": "^6.0.3",
     "express": "^4.17.1"

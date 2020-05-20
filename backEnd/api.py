@@ -14,10 +14,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from google.cloud import storage
 
-# Set working directory
-sys.path.append('/home/WxT-QA-BOT/credentials')
-import credentials
-
 def create_app():
     
     # Instantiate Flask app
@@ -27,19 +23,18 @@ def create_app():
     CORS(API_app)
 
     # Instantiate API config for uploads
-    ALLOWED_EXTENSIONS = credentials.FLASK["ALLOWED_EXTENSIONS"]
+    ALLOWED_EXTENSIONS = os.environ['Flask_AllowedExtensions']
     API_app.config['MAX_CONTENT_LENGTH'] = 300 * 1024 * 1024 #300MB maximum allowed file size to be uploaded                    
-    API_app.config['UPLOAD_FOLDER'] = credentials.FLASK["UPLOAD_FOLDER"]
+    API_app.config['UPLOAD_FOLDER'] = os.environ['Flask_UploadFolder']
 
     # Instantiate API config for Auth
-    API_app.config['SECRET_KEY'] = credentials.FLASK["Flask_SECRET_KEY"]
+    API_app.config['SECRET_KEY'] = os.environ['Flask_SecretKey']
     auth = HTTPBasicAuth()
     authToken = HTTPTokenAuth('Bearer')
-    #CORS(API_app)
 
     # Instantiate GCP Storage Credentials
-    bucket_name = credentials.GCP["storage_bucket_name"]
-    GCP_Service_Acct = credentials.GCP["GCP_Service_Acct"]
+    bucket_name = os.environ['GCP_bucketName']
+    GCP_Service_Acct = os.environ['GCP_ServiceAcct']
 
     # Instantiate default rate limit of 10000 per day, and 1000 per hour applied to all routes for API service
     limiter = Limiter(
@@ -51,7 +46,7 @@ def create_app():
     # Root
     @API_app.route('/')
     def default():
-        return("Welcome. This is April's API Service")
+        return("Welcome. This is April's API Service")            
 
 #======================================================= API AUTH =======================================================
     
@@ -246,18 +241,17 @@ def create_app():
             if 'file' not in request.files:
                 err_noFile = "No file submitted"
                 raise(err_noFile)
-            
             file = request.files['file']
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 file_extension = filename.rsplit('.', 1)[1].lower()
-                source_file_name = os.path.join(API_app.config['UPLOAD_FOLDER'], filename) 
+                source_file_name = os.path.join(API_app.config['UPLOAD_FOLDER'], filename)
                 file.save(source_file_name)
                 API_app.logger.info("File temporarily Uploaded from the FrontEnd to the BackEnd")
             else:
                 err_fileExtension = "File extentions is not allowed. Please only submit allowed file extensions."
                 raise(err_fileExtension)
-
+            
             #Before submiting the file to GCP Storage check if a question-attachment file already exists
             #If so, submit a new one with (n+1) in the name (this fits the Update workflow and overcomes a GCP bug)
             checkUrl = queries.getKnowledge(questionID)
@@ -266,7 +260,7 @@ def create_app():
                 #grab the part of the URL that specifies the path to the file on GCP
                 renameFilePath=location.split('/')[-2]+"/"+location.split('/')[-1]
                 if rename_blob(renameFilePath):
-                    API_app.logger.info("Attached file for question ID: "+str(questionID)+" has been renamed from GCP.")
+                    API_app.logger.info("Attached file for question ID: "+str(questionID)+" has been renamed on GCP.")
                 else:
                     #delete temporarily uploaded file
                     delete_tmpFile = os.remove(source_file_name)
@@ -632,4 +626,4 @@ if __name__ == "__main__":
     API_app = create_app()
 
     #For DEV Testing purposes ONLY
-    API_app.run(host=credentials.FLASK["Flask_HOST"], port=credentials.FLASK["Flask_PORT_TEST_ENV"], debug=True)
+    API_app.run(host=os.environ['Flask_host'], port=os.environ['Flask_port'], debug=True)
