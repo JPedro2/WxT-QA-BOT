@@ -51,27 +51,35 @@
                     <div class="field">
                         <input required class="input questionInput" id="questionField" type="text" placeholder="Enter a question">
                     </div>
-                </div>
-                <div class="to-hide">
                     <!--On submit of the form do the add entry, use target to prevent redirect (Sorry, should be done better)-->
                     <!--TODO: Remove the target and submit the form with ajax -->
                     <!-- <form id="question"> -->
-                        <!--Question Input-->
-                        <div class="field">
-                            <div class="buttons has-addons is-right">
-                                <button class="button has-text-white" id="addQuestionFieldButton">
-                                    <span class="icon is-small">
-                                        <i class="fas fa-plus"></i>
-                                    </span>
-                                </button>
-                                <button class="button has-text-white" id="removeQuestionFieldButton">
-                                    <span class="icon is-small">
-                                        <i class="fas fa-minus"></i>
-                                    </span>
-                                </button>
-                            </div>
+                    <!--Question Input-->
+                    <div class="field">
+                        <div class="buttons has-addons is-right">
+                            <button class="button has-text-white" id="addQuestionFieldButton">
+                                <span class="icon is-small">
+                                    <i class="fas fa-plus"></i>
+                                </span>
+                            </button>
+                            <button class="button has-text-white" id="removeQuestionFieldButton">
+                                <span class="icon is-small">
+                                    <i class="fas fa-minus"></i>
+                                </span>
+                            </button>
                         </div>
-
+                    </div>
+                </div>
+            </div>
+            <div class="column is-one-quarter">
+                <input required class="input is-medium is-halfwidth" id="questionIDField" type="text" placeholder="Question ID">
+                <button id="searchQuestionButton" class="button is-medium has-text-white"><i class="fas fa-search"></i></button>
+                <button id="getAllQuestion" class="button is-medium has-text-white">View all</button>
+            </div>
+        </div>
+        <div class="columns">
+            <div class="column is-three-quarters">
+                <div class="to-hide">
                         <!-- Answer Input -->
                         <p class="is-size-4">Answer</p>
                         <div class="field">
@@ -128,11 +136,6 @@
                 </div>
             </div>
             <div class="column is-one-quarter">
-                <!-- <button onclick='temp()' id='findAllButton' class="button is-fullwidth">Find all</button> -->
-                <!-- <input id="questionIDField" class="is-medium is-halfwidth"></input> -->
-                <input required class="input is-medium is-halfwidth" id="questionIDField" type="text" placeholder="Question ID">
-                <button id="searchQuestionButton" class="button is-medium has-text-white"><i class="fas fa-search"></i></button>
-                <button id="getAllQuestion" class="button is-medium has-text-white">View all</button>
                 <div class="markdown box to-hide">
                     <div class="container">
                         <h2 class="title is-5 has-text-white">Markdown Cheat Sheet</h2>
