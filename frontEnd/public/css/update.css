@@ -118,3 +118,9 @@ textarea:focus {
 #questionField {
     height: 50px;
 }
+
+.tab-is-right{
+    position: absolute; 
+    right: 0;
+    
+}

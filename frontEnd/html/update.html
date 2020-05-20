@@ -40,8 +40,11 @@
         <div class="tabs is-centered">
             <ul>
                 <li><a href="main.html">Submit</a></li>
-                <li><a href="query.html">Query</a></li>
                 <li class="is-active"><a href="update.html">Update</a></li>
+                <!--Icon show page is locked-->
+                <li id='pageLocked' class="tab-is-right"><a><span class='is-invisible'>.</span><i id='lockedIcon'
+                            class="fas fa-lock "></i><i id='unlockedIcon' class="fas fa-unlock"
+                            style='display: none;'></i><span class='is-invisible'>.</span></a></li>
             </ul>
         </div>
         <div class="columns">
@@ -49,7 +52,8 @@
                 <h3 class="is-size-4">Question</h3>
                 <div id="questionGroup">
                     <div class="field">
-                        <input required class="input questionInput" id="questionField" type="text" placeholder="Enter a question">
+                        <input required autocomplete="off" class="input questionInput" id="questionField" type="text"
+                            placeholder="Enter a question">
                     </div>
                     <!--On submit of the form do the add entry, use target to prevent redirect (Sorry, should be done better)-->
                     <!--TODO: Remove the target and submit the form with ajax -->
@@ -57,12 +61,12 @@
                     <!--Question Input-->
                     <div class="field">
                         <div class="buttons has-addons is-right">
-                            <button class="button has-text-white" id="addQuestionFieldButton">
+                            <button disabled class="button has-text-white" id="addQuestionFieldButton">
                                 <span class="icon is-small">
                                     <i class="fas fa-plus"></i>
                                 </span>
                             </button>
-                            <button class="button has-text-white" id="removeQuestionFieldButton">
+                            <button disabled class="button has-text-white" id="removeQuestionFieldButton">
                                 <span class="icon is-small">
                                     <i class="fas fa-minus"></i>
                                 </span>
@@ -72,67 +76,71 @@
                 </div>
             </div>
             <div class="column is-one-quarter">
-                <input required class="input is-medium is-halfwidth" id="questionIDField" type="text" placeholder="Question ID">
-                <button id="searchQuestionButton" class="button is-medium has-text-white"><i class="fas fa-search"></i></button>
+                <input required class="input is-medium is-halfwidth" id="questionIDField" type="text"
+                    placeholder="Question ID">
+                <button id="searchQuestionButton" class="button is-medium has-text-white"><i
+                        class="fas fa-search"></i></button>
                 <button id="getAllQuestion" class="button is-medium has-text-white">View all</button>
             </div>
         </div>
         <div class="columns">
             <div class="column is-three-quarters">
                 <div class="to-hide">
-                        <!-- Answer Input -->
-                        <p class="is-size-4">Answer</p>
+                    <!-- Answer Input -->
+                    <p class="is-size-4">Answer</p>
+                    <div class="field">
+                        <div class="control">
+                            <textarea disabled required class="textarea" id="ans" name="answer"
+                                placeholder="Answer will appear here."></textarea>
+                        </div>
+                    </div>
+                    <!--Submit Line-->
+                    <div class="field is-grouped">
                         <div class="field">
                             <div class="control">
-                                <textarea required class="textarea" id="ans" name="answer"
-                                    placeholder="Answer will appear here."></textarea>
-                            </div>
-                        </div>
-                        <!--Submit Line-->
-                        <div class="field is-grouped">
-                            <div class="field">
-                                <div class="control">
-                                    <div class="select">
-                                        <select id='select' name="select" required>
-                                            <option>General</option>
-                                            <option>Volunteer Programme</option>
-                                            <option>Plans and Pricing</option>
-                                            <option>Controls & Features</option>
-                                            <option>Quality Issues</option>
-                                        </select>
-                                    </div>
+                                <div class="select">
+                                    <select disabled id='select' name="select" required>
+                                        <option>General</option>
+                                        <option>Volunteer Programme</option>
+                                        <option>Plans and Pricing</option>
+                                        <option>Controls & Features</option>
+                                        <option>Quality Issues</option>
+                                    </select>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="field">
-                                <div class="file has-name is-fullwidth">
-                                    <label class="file-label">
-                                        <input class="file-input" id="fileInput" type="file" name="resume">
-                                        <span class="file-cta">
-                                            <span class="file-icon">
-                                                <i class="fas fa-upload"></i>
-                                            </span>
-                                            <span class="file-label">
-                                                Choose a file
-                                            </span>
+                        <div class="field">
+                            <div class="file has-name is-fullwidth">
+                                <label class="file-label">
+                                    <input disabled class="file-input" id="fileInput" type="file" name="resume">
+                                    <span class="file-cta">
+                                        <span class="file-icon">
+                                            <i class="fas fa-upload"></i>
                                         </span>
-                                        <span class="file-name" id="fileName">
-                                            No File Loaded
+                                        <span class="file-label">
+                                            Choose a file
                                         </span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="control is-pulled-right">
-                                <button onclick="deleteFile()" id='deleteFileButton' class="button is-danger">Delete File</button>
-                            </div>
-                            <div class="control is-pulled-right">
-                                <button id="submitQA" class="button is-link">Submit</button>
+                                    </span>
+                                    <span class="file-name" id="fileName">
+                                        No File Loaded
+                                    </span>
+                                </label>
                             </div>
                         </div>
+                        <div class="control is-pulled-right">
+                            <button disabled onclick="deleteFile()" id='deleteFileButton'
+                                class="button is-danger">Delete File</button>
+                        </div>
+                        <div class="control is-pulled-right">
+                            <button disabled id="submitQA" class="button is-link">Submit</button>
+                        </div>
+                    </div>
                     <!-- </form> -->
                     <br><br>
                     <p class="is-size-4">Attached Files</p>
-                    <a href="" target="_blank" id="linkButton" class="button has-text-white linkButton">No File Attached</a>
+                    <a href="" target="_blank" id="linkButton" class="button has-text-white linkButton">No File
+                        Attached</a>
                 </div>
             </div>
             <div class="column is-one-quarter">
@@ -163,7 +171,8 @@
                         <p class="has-text-white">--- Horizontal Line</p>
                     </div>
                 </div>
-                <button onclick="deleteEntry()" id='deleteEntryButton' class="button is-danger is-fullwidth to-hide">Delete Question</button>
+                <button onclick="deleteEntry()" id='deleteEntryButton'
+                    class="button is-danger is-fullwidth to-hide">Delete Question</button>
             </div>
         </div>
     </div>
@@ -207,6 +216,71 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@7.2.0/dist/js/autoComplete.min.js"></script>
 <script>
+    //true = Page Locked
+    //false = Page Unlocked
+    let lockedStatus = true;
+
+    let lockedIcon = document.getElementById('pageLocked');
+
+    lockedIcon.addEventListener('click', function () {
+        if (lockedStatus == true) {
+
+            let isLoggedIn = sessionStorage.getItem('token');
+            if (isLoggedIn == null) {
+                Swal.fire({
+                    title: 'Not Logged In!',
+                    text: "You need to log in to make changes.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: 'rgb(0, 188, 235)',
+                    cancelButtonColor: 'rgb(251, 61, 102)',
+                    confirmButtonText: 'Log In'
+                }).then((result) => {
+                    if (result.value) {
+                        location.href='./login.html'
+                    }
+                })
+            } else{
+            lockedStatus = false
+            $('#lockedIcon').toggle()
+            $('#unlockedIcon').toggle('slow')
+            toggleInputLock(lockedStatus);
+            }
+
+
+        } else {
+            lockedStatus = true
+            $('#lockedIcon').toggle('slow')
+            $('#unlockedIcon').toggle()
+            toggleInputLock(lockedStatus);
+        }
+    })
+
+
+    //function to toggle input locked status
+    function toggleInputLock(state) {
+        //if the state is changing to unlocked
+        if (state == false) {
+            $('#addQuestionFieldButton').prop('disabled', false);
+            $('#removeQuestionFieldButton').prop('disabled', false);
+            $('#ans').prop('disabled', false);
+            $('#select').prop('disabled', false);
+            $('#fileInput').prop('disabled', false);
+            $('#deleteFileButton').prop('disabled', false);
+            $('#submitQA').prop('disabled', false);
+            $('#deleteEntryButton').prop('disabled', false);
+
+        } else { //if the state is changing to locked
+            $('#addQuestionFieldButton').prop('disabled', true);
+            $('#removeQuestionFieldButton').prop('disabled', true);
+            $('#ans').prop('disabled', true);
+            $('#select').prop('disabled', true);
+            $('#fileInput').prop('disabled', true);
+            $('#deleteFileButton').prop('disabled', true);
+            $('#submitQA').prop('disabled', true);
+            $('#deleteEntryButton').prop('disabled', true);
+        }
+    }
 
     //Search by ID
     document.getElementById("searchQuestionButton").addEventListener('click', function () {
@@ -423,52 +497,52 @@
     function deleteEntry() {
         var qid = document.getElementById('questionIDField').value;
         Swal.fire({
-        title: 'Are you sure you want to delete question ' + qid + '?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
+            title: 'Are you sure you want to delete question ' + qid + '?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
-        if (result.value) {
-            var url = "http://35.242.181.193:3002/deleteQuestion/" + qid;
+            if (result.value) {
+                var url = "http://35.242.181.193:3002/deleteQuestion/" + qid;
 
-            var requestOptions = {
-                method: 'DELETE',
-                redirect: 'follow',
-                mode: 'cors',
-                headers: {
-                    "Authorization": 'Bearer ' + sessionStorage.getItem('token')
-                }
-            };
+                var requestOptions = {
+                    method: 'DELETE',
+                    redirect: 'follow',
+                    mode: 'cors',
+                    headers: {
+                        "Authorization": 'Bearer ' + sessionStorage.getItem('token')
+                    }
+                };
 
-            fetch(url, requestOptions)
-                .then(response => response.text())
-                .then(result => {
-                    Swal.fire(
-                    'Deleted!',
-                    'Question ' + qid + ' has been deleted!',
-                    'success'
-                    )
-                })
-                .catch(error => {
-                    if (error.status === 500) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Internal Server Error',
-                        })
-                    }
-                    if (error.status === 400) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Bad Request',
-                        })
-                    }
-                })
-        }
+                fetch(url, requestOptions)
+                    .then(response => response.text())
+                    .then(result => {
+                        Swal.fire(
+                            'Deleted!',
+                            'Question ' + qid + ' has been deleted!',
+                            'success'
+                        )
+                    })
+                    .catch(error => {
+                        if (error.status === 500) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Internal Server Error',
+                            })
+                        }
+                        if (error.status === 400) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Bad Request',
+                            })
+                        }
+                    })
+            }
         })
     }
 
@@ -486,7 +560,7 @@
 
         return fetch(url, requestOptions)
             .then(response => response.text())
-            .then(result => result)        
+            .then(result => result)
             .catch(error => {
                 if (error.status === 401) {
                     location.href = "login.html"
@@ -536,9 +610,10 @@
 
                 //prints the alt questions at the bottom of the page
                 for (let i = 0; i < response.data.alternatives.length; i++) {
-                        $("#questionGroup").append(
-                            '<div class="field altQuestionInput"><input class="input questionInput" type="text" placeholder="Alternative Question" value="' + response.data.alternatives[i] + '"></div>'
-                        );
+                    $("#questionGroup").append(
+                        '<div class="field altQuestionInput"><input class="input questionInput" type="text" placeholder="Alternative Question" value="' +
+                        response.data.alternatives[i] + '"></div>'
+                    );
                 }
             }).catch(error => {
                 if (error.status === 401) {
@@ -560,9 +635,9 @@
 
     new autoComplete({
         data: {
-        src: options,
-        key: ["question"],
-        cache: false
+            src: options,
+            key: ["question"],
+            cache: false
         },
         placeHolder: "Enter a question",
         selector: "#questionField",
@@ -601,8 +676,6 @@
             populateFields(feedback.selection.value.id);
         }
     });
-
-
 </script>
 
 </html>
