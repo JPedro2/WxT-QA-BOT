@@ -19,15 +19,13 @@ services:
             - ./env/MYSQLcredentials.env
         ports:
             - "3306:3306"
-        # Where the DB data will be persisted
+        #DB data will be persisted in this volume
         volumes:
             - sql-datavolume:/var/lib/mysql
-            # Build new db based on the init.sql file 
+            #Build new db based on the init.sql file 
             #- ./db:/docker-entrypoint-initdb.d/
-            # Loading existing DB data from backup
-            #- /db/backups/backup20200519T162620Z.sql:/docker-entrypoint-initdb.d/dump.sql
-            #- /var/lib/automysqlbackup/daily/qanda/qanda_2020-05-15_06h25m.Friday.sql:/docker-entrypoint-initdb.d/dump.sql
-            - ./db/backups/backup_2020-05-19T19-03-18Z.sql:/docker-entrypoint-initdb.d/dump.sql
+            #Restoring DB data from backup
+            - ./db/backups/qanda_2020-05-19_06h25m.Tuesday.sql:/docker-entrypoint-initdb.d/dump.sql
         networks:
             - default
     
