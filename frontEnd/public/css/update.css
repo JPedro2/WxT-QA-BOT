@@ -98,22 +98,13 @@ textarea:focus {
     display: none !important;
 }
 
-#searchQuestionButton {
-    margin-top: 36px;
-    width: 20%;
+
+
+#getAllQuestion{
+    margin-left: 5px;
 }
 
-#getAllQuestion {
-    margin-top: 36px;
-    width: 36%;
-}
 
-#questionIDField {
-    font-size: 1rem;
-    margin-top: 36px;
-    height: 50px;
-    width: 40%;
-}
 
 #questionField {
     height: 50px;
@@ -123,4 +114,7 @@ textarea:focus {
     position: absolute; 
     right: 0;
     
+}
+#searchQuestionField{
+    margin-top: 36px;
 }

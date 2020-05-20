@@ -76,11 +76,19 @@
                 </div>
             </div>
             <div class="column is-one-quarter">
-                <input required class="input is-medium is-halfwidth" id="questionIDField" type="text"
-                    placeholder="Question ID">
-                <button id="searchQuestionButton" class="button is-medium has-text-white"><i
-                        class="fas fa-search"></i></button>
-                <button id="getAllQuestion" class="button is-medium has-text-white">View all</button>
+                <div id='searchQuestionField' class="field has-addons">
+                    <div class="control is-expanded ">
+                        <input required class="input is-medium is-fullwidth" id="questionIDField" type="text"
+                            placeholder="Question ID">
+                    </div>
+                    <div class="control">
+                        <a id="searchQuestionButton" class="button is-medium has-text-white"><i
+                                class="fas fa-search"></i></a>
+                    </div>
+                    
+                    <button id="getAllQuestion" class="button is-medium has-text-white">View all</button>
+                </div>
+                
             </div>
         </div>
         <div class="columns">
@@ -237,14 +245,14 @@
                     confirmButtonText: 'Log In'
                 }).then((result) => {
                     if (result.value) {
-                        location.href='./login.html'
+                        location.href = './login.html'
                     }
                 })
-            } else{
-            lockedStatus = false
-            $('#lockedIcon').toggle()
-            $('#unlockedIcon').toggle('slow')
-            toggleInputLock(lockedStatus);
+            } else {
+                lockedStatus = false
+                $('#lockedIcon').toggle()
+                $('#unlockedIcon').toggle('slow')
+                toggleInputLock(lockedStatus);
             }
 
 
@@ -676,6 +684,22 @@
             populateFields(feedback.selection.value.id);
         }
     });
+
+
+
+    // Get the input field
+var input = document.getElementById("questionIDField");
+
+// Execute a function when the user releases a key on the keyboard
+input.addEventListener("keyup", function(event) {
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    document.getElementById("searchQuestionButton").click();
+  }
+});
 </script>
 
 </html>
