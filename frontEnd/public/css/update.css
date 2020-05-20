@@ -34,7 +34,10 @@ textarea:focus {
     overflow: scroll;
     overflow-x: hidden;
     margin-bottom: 11px !important;
+<<<<<<< HEAD
     margin-top: 11px !important;
+=======
+>>>>>>> 70c0684576b0c314b8d345619bb561c4cd8ca8fe
 }
 
 .inputs {
