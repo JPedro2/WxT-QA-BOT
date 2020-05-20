@@ -4,6 +4,8 @@
   "description": "Front end admin for the webex bot ",
   "main": "server.js",
   "dependencies": {
+    "@tarekraafat/autocomplete.js": "^7.2.0",
+    "autocompleter": "^6.0.3",
     "express": "^4.17.1"
   },
   "devDependencies": {},
