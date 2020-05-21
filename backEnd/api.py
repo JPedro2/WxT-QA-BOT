@@ -137,7 +137,7 @@ def create_app():
         except:
             abort(400, "Error validating the token")
 
-    @API_app.route('/api/token')
+    @API_app.route('/auth/token')
     @auth.login_required
     def get_auth_token():
         try:
@@ -149,7 +149,7 @@ def create_app():
             abort(400, "Error generating Token")
 
 
-    @API_app.route('/api/newUsers', methods=['POST'])
+    @API_app.route('/newUsers', methods=['POST'])
     @auth.login_required(role='admin')
     def new_user():
         try:

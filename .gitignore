@@ -151,3 +151,4 @@ env/*.env
 
 # frontEnd modules
 frontEnd/node_modules/
+frontEnd/package-lock.json

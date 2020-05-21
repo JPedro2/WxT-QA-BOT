@@ -13,6 +13,7 @@ services:
             - "3002:3002"
         networks:
             - backend-network
+            - proxy
     
     db:
         image: mysql:latest
@@ -27,7 +28,7 @@ services:
             #Build new db based on the init.sql file 
             #- ./db:/docker-entrypoint-initdb.d/
             #Restoring DB data from backup
-            - ./db/backups/qanda_2020-05-19_06h25m.Tuesday.sql:/docker-entrypoint-initdb.d/dump.sql
+            - ./db/backups/qanda_2020-05-15_06h25m.Friday.sql:/docker-entrypoint-initdb.d/dump.sql
         networks:
             - backend-network
     
@@ -53,6 +54,7 @@ services:
             - "3008:80"
         networks:
             - backend-network
+            - proxy
     
     frontend-nodejs:
         build: ./frontEnd
@@ -62,7 +64,7 @@ services:
         ports:
             - "3006:3006"
         networks:
-            - frontend-network
+            - proxy
         
     frontend-server:
         image: nginx:mainline-alpine
@@ -74,8 +76,10 @@ services:
             - ./frontEnd/nginx-conf:/etc/nginx/conf.d
         depends_on:
             - frontend-nodejs
+            - backend-api
+            - php-admin
         networks:
-            - frontend-network
+            - proxy
 
 volumes:
     sql-datavolume:
@@ -84,5 +88,5 @@ volumes:
 networks:
     backend-network:
         driver: bridge
-    frontend-network:
+    proxy:
         driver: bridge
