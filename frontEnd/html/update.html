@@ -56,12 +56,13 @@
                             placeholder="Enter a question">
                     </div>
                 </div>
-                    <!--On submit of the form do the add entry, use target to prevent redirect (Sorry, should be done better)-->
-                    <!--TODO: Remove the target and submit the form with ajax -->
-                    <!-- <form id="question"> -->
-                    <!--Question Input-->
+                <!--On submit of the form do the add entry, use target to prevent redirect (Sorry, should be done better)-->
+                <!--TODO: Remove the target and submit the form with ajax -->
+                <!-- <form id="question"> -->
+                <!--Question Input-->
                 <div class="field">
                     <div class="buttons has-addons is-right">
+
                         <button disabled class="button has-text-white" id="addQuestionFieldButton">
                             <span class="icon is-small">
                                 <i class="fas fa-plus"></i>
@@ -74,25 +75,8 @@
                         </button>
                     </div>
                 </div>
-            </div>
-            <div class="column is-one-quarter">
-                <div id='searchQuestionField' class="field has-addons">
-                    <div class="control is-expanded ">
-                        <input required class="input is-medium is-fullwidth" id="questionIDField" type="text"
-                            placeholder="Question ID">
-                    </div>
-                    <div class="control">
-                        <a id="searchQuestionButton" class="button is-medium has-text-white"><i
-                                class="fas fa-search"></i></a>
-                    </div>
-                    
-                    <button id="getAllQuestion" class="button is-medium has-text-white">View all</button>
-                </div>
-                
-            </div>
-        </div>
-        <div class="columns">
-            <div class="column is-three-quarters">
+
+
                 <div class="to-hide">
                     <!-- Answer Input -->
                     <p class="is-size-4">Answer</p>
@@ -150,8 +134,30 @@
                     <a href="" target="_blank" id="linkButton" class="button has-text-white linkButton">No File
                         Attached</a>
                 </div>
+
             </div>
-            <div class="column is-one-quarter">
+            <div class="column">
+                <!--Search Question Box-->
+                <div id='searchQuestionField' class="field has-addons has-addons-centered">
+                    <p class="control">
+                        <a id="getAllQuestion" class="button is-medium">
+                            <i class="fas fa-list has-text-white"></i>
+                        </a>
+                    </p>
+                    <div class="control is-expanded ">
+                        <input required class="input is-medium is-fullwidth" id="questionIDField" type="text"
+                            placeholder="Question ID">
+                    </div>
+                    <div class="control">
+                        <a id="searchQuestionButton" class="button is-medium has-text-white"><i
+                                class="fas fa-search"></i></a>
+                    </div>
+                </div>
+                <!-- Delete Question button-->
+                <button disabled onclick="deleteEntry()" id='deleteEntryButton'
+                    class="button is-danger is-fullwidth to-hide">Delete Question</button>
+
+                <!-- Markdown Container -->
                 <div class="markdown box to-hide">
                     <div class="container">
                         <h2 class="title is-5 has-text-white">Markdown Cheat Sheet</h2>
@@ -179,7 +185,7 @@
                         <p class="has-text-white">--- Horizontal Line</p>
                     </div>
                 </div>
-                <button disabled onclick="deleteEntry()" id='deleteEntryButton' class="button is-danger is-fullwidth to-hide">Delete Question</button>
+
             </div>
         </div>
     </div>
@@ -281,6 +287,8 @@
             $('#submitQA').prop('disabled', false);
             $('#deleteEntryButton').prop('disabled', false);
 
+            ac.resultsList.render = false;
+
         } else { //if the state is changing to locked
             $('#addQuestionFieldButton').prop('disabled', true);
             $('#removeQuestionFieldButton').prop('disabled', true);
@@ -290,25 +298,22 @@
             $('#deleteFileButton').prop('disabled', true);
             $('#submitQA').prop('disabled', true);
             $('#deleteEntryButton').prop('disabled', true);
+
+            ac.resultsList.render = true;
         }
     }
 
     //Search by ID
     document.getElementById("searchQuestionButton").addEventListener('click', function () {
         let questionID = document.getElementById("questionIDField").value;
-        options.then(function(result) {
-            if(questionID in result) {
-                $(".to-hide").each(function (index) {
-                    $(this).attr("style", "display:block !important;");
-                });
-                populateFields(questionID);
-            } else {
-                Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Question with ID ' + document.getElementById('questionIDField').value + ' not found',
-                    })
-            }
+        options.then(function (result) {
+            // loop through the hidden elements 
+            $(".to-hide").each(function (index) {
+                //set them to visible
+                $(this).attr("style", "display:block !important;");
+            });
+            populateFields(questionID);
+
         });
     });
 
@@ -441,6 +446,8 @@
                         return fetch("http://35.242.181.193:3002/uploadFile/" + result, fileRequestOptions);
                     }
                 }
+
+
             })
             .catch(error => {
                 if (error.response.status === 401) {
@@ -455,22 +462,35 @@
                 }
             })
             .then(function () {
-                Swal.fire(
-                    'Thank you',
-                    'Submitted successfully',
-                    'success'
-                )
+                Swal.fire({
+                    title: 'Thank you',
+                    text: 'Submitted successfully',
+                    icon: 'success',
+                    confirmButtonText: 'Continue'
+
+                }).then((result) => {
+                    if (result.value) {
+                        location.reload()
+                    }
+                })
+
             })
 
     }
 
     //If add is clicked append a new input box to the page
     document.getElementById("addQuestionFieldButton").addEventListener('click', function () {
-        $("#questionGroup").append(
-            '<div class="field altQuestionInput"><input class="input questionInput" type="text" placeholder="Alternative Question"></div>'
-        );
+
+
+        let altInputTemplate = $(
+                '<div class="field altQuestionInput questionInput"><input class="input altQuestionInput" type="text" placeholder="Alternative Question"></div>'
+            )
+            .hide()
+            .fadeIn(300);
+
+        $("#questionGroup").append(altInputTemplate);
         let currentHeight = $(".markdown").height()
-        $(".markdown").height(currentHeight + 52)
+        $(".markdown").height(currentHeight + 62)
     })
 
     //If remove is clicked remove a input box unless theres only 1
@@ -481,7 +501,7 @@
             questionInputs[questionInputs.length - 1].remove();
 
             let currentHeight = $(".markdown").height()
-            $(".markdown").height(currentHeight - 52)
+            $(".markdown").height(currentHeight - 62)
         } else {
             alert("You must provide atleast one question.")
         }
@@ -546,6 +566,7 @@
                             'Question ' + qid + ' has been deleted!',
                             'success'
                         )
+                        location.reload();
                     })
                     .catch(error => {
                         if (error.status === 500) {
@@ -564,6 +585,8 @@
                         }
                     })
             }
+
+            //reload the current page
         })
     }
 
@@ -637,6 +660,7 @@
                     );
                 }
             }).catch(error => {
+
                 if (error.response.status === 401) {
                     location.href = "login.html"
                 }
@@ -651,13 +675,17 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
-                        text: 'Question with ID ' + document.getElementById('questionIDField').value + ' not found',
+                        text: 'Question with ID ' + document.getElementById('questionIDField').value +
+                            ' not found',
                     })
                 }
             })
     }
 
-    new autoComplete({
+
+
+    let ac = new autoComplete({
+
         data: {
             src: options,
             key: ["question"],
@@ -699,23 +727,24 @@
             });
             populateFields(feedback.selection.value.id);
         }
+
     });
 
 
 
     // Get the input field
-var input = document.getElementById("questionIDField");
+    var input = document.getElementById("questionIDField");
 
-// Execute a function when the user releases a key on the keyboard
-input.addEventListener("keyup", function(event) {
-  // Number 13 is the "Enter" key on the keyboard
-  if (event.keyCode === 13) {
-    // Cancel the default action, if needed
-    event.preventDefault();
-    // Trigger the button element with a click
-    document.getElementById("searchQuestionButton").click();
-  }
-});
+    // Execute a function when the user releases a key on the keyboard
+    input.addEventListener("keyup", function (event) {
+        // Number 13 is the "Enter" key on the keyboard
+        if (event.keyCode === 13) {
+            // Cancel the default action, if needed
+            event.preventDefault();
+            // Trigger the button element with a click
+            document.getElementById("searchQuestionButton").click();
+        }
+    });
 </script>
 
 </html>

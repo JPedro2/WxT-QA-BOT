@@ -34,8 +34,10 @@ textarea:focus {
     overflow: scroll;
     overflow-x: hidden;
     margin-bottom: 12px !important;
-    margin-top: 36px !important;
+    margin-top: 45px !important;
 }
+
+
 
 .inputs {
     height: 30%;
@@ -117,4 +119,8 @@ textarea:focus {
 }
 #searchQuestionField{
     margin-top: 36px;
+}
+
+.altQuestionInput{
+    height: 50px;
 }
