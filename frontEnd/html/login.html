@@ -85,7 +85,7 @@
                 redirect: 'follow'
             };
 
-            fetch("http://35.242.181.193:3002/api/token", requestOptions)
+            fetch("http://35.242.181.193:3002/auth/token", requestOptions)
             .then(function(response) {
                 if(response.status === 200) {
                     response.json().then(function(data) {

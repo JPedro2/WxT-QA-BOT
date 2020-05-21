@@ -28,7 +28,7 @@ services:
             #Build new db based on the init.sql file 
             #- ./db:/docker-entrypoint-initdb.d/
             #Restoring DB data from backup
-            - ./db/backups/qanda_2020-05-15_06h25m.Friday.sql:/docker-entrypoint-initdb.d/dump.sql
+            - ./db/backups/qanda_2020-05-19_06h25m.Tuesday.sql:/docker-entrypoint-initdb.d/dump.sql
         networks:
             - backend-network
     
@@ -54,7 +54,6 @@ services:
             - "3008:80"
         networks:
             - backend-network
-            - proxy
     
     frontend-nodejs:
         build: ./frontEnd
@@ -77,7 +76,6 @@ services:
         depends_on:
             - frontend-nodejs
             - backend-api
-            - php-admin
         networks:
             - proxy
 
