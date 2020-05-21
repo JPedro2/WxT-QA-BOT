@@ -151,5 +151,3 @@ env/*.env
 
 # frontEnd modules
 frontEnd/node_modules/
-# frontEnd PM2 prod config
-frontEnd/frontEnd.config.js
