@@ -70,7 +70,7 @@ services:
         ports:
             - "80:80"
         volumes:
-            - web-root:/var/www/html
+            #- web-root:/var/www/html
             - ./frontEnd/nginx-conf:/etc/nginx/conf.d
         depends_on:
             - frontend-nodejs
@@ -79,13 +79,10 @@ services:
 
 volumes:
     sql-datavolume:
-    web-root:
+    #web-root:
 
 networks:
     backend-network:
         driver: bridge
     frontend-network:
         driver: bridge
-
-
-
