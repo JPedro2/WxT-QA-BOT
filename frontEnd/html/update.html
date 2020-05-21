@@ -55,23 +55,23 @@
                         <input required autocomplete="off" class="input questionInput" id="questionField" type="text"
                             placeholder="Enter a question">
                     </div>
+                </div>
                     <!--On submit of the form do the add entry, use target to prevent redirect (Sorry, should be done better)-->
                     <!--TODO: Remove the target and submit the form with ajax -->
                     <!-- <form id="question"> -->
                     <!--Question Input-->
-                    <div class="field">
-                        <div class="buttons has-addons is-right">
-                            <button disabled class="button has-text-white" id="addQuestionFieldButton">
-                                <span class="icon is-small">
-                                    <i class="fas fa-plus"></i>
-                                </span>
-                            </button>
-                            <button disabled class="button has-text-white" id="removeQuestionFieldButton">
-                                <span class="icon is-small">
-                                    <i class="fas fa-minus"></i>
-                                </span>
-                            </button>
-                        </div>
+                <div class="field">
+                    <div class="buttons has-addons is-right">
+                        <button disabled class="button has-text-white" id="addQuestionFieldButton">
+                            <span class="icon is-small">
+                                <i class="fas fa-plus"></i>
+                            </span>
+                        </button>
+                        <button disabled class="button has-text-white" id="removeQuestionFieldButton">
+                            <span class="icon is-small">
+                                <i class="fas fa-minus"></i>
+                            </span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -179,8 +179,7 @@
                         <p class="has-text-white">--- Horizontal Line</p>
                     </div>
                 </div>
-                <button onclick="deleteEntry()" id='deleteEntryButton'
-                    class="button is-danger is-fullwidth to-hide">Delete Question</button>
+                <button disabled onclick="deleteEntry()" id='deleteEntryButton' class="button is-danger is-fullwidth to-hide">Delete Question</button>
             </div>
         </div>
     </div>
@@ -229,6 +228,10 @@
     let lockedStatus = true;
 
     let lockedIcon = document.getElementById('pageLocked');
+
+    var options = getAllQuestions().then(out => {
+        return JSON.parse(out)
+    });
 
     lockedIcon.addEventListener('click', function () {
         if (lockedStatus == true) {
@@ -293,10 +296,20 @@
     //Search by ID
     document.getElementById("searchQuestionButton").addEventListener('click', function () {
         let questionID = document.getElementById("questionIDField").value;
-        $(".to-hide").each(function (index) {
-            $(this).attr("style", "display:block !important;");
+        options.then(function(result) {
+            if(questionID in result) {
+                $(".to-hide").each(function (index) {
+                    $(this).attr("style", "display:block !important;");
+                });
+                populateFields(questionID);
+            } else {
+                Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Question with ID ' + document.getElementById('questionIDField').value + ' not found',
+                    })
+            }
         });
-        populateFields(questionID);
     });
 
     //Called when the user presses the all questions button
@@ -430,10 +443,10 @@
                 }
             })
             .catch(error => {
-                if (error.status === 401) {
+                if (error.response.status === 401) {
                     location.href = "login.html"
                 }
-                if (error.status === 400) {
+                if (error.response.status === 400) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
@@ -624,22 +637,25 @@
                     );
                 }
             }).catch(error => {
-                if (error.status === 401) {
+                if (error.response.status === 401) {
                     location.href = "login.html"
                 }
-                if (error.status === 400) {
+                if (error.response.status === 400) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
                         text: 'Bad Request',
                     })
                 }
+                if (error.response.status === 404) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Question with ID ' + document.getElementById('questionIDField').value + ' not found',
+                    })
+                }
             })
     }
-
-    var options = getAllQuestions().then(out => {
-        return JSON.parse(out)
-    });
 
     new autoComplete({
         data: {
