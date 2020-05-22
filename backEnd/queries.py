@@ -236,13 +236,25 @@ def updateEntries(id, tag, question, answer, location, alternatives, count):
             raise(err_questionID)
         # Update entire row if all fields are populated
         elif tag != "" and question != "" and answer != "" and alternatives != "" and count != "" and location != "":
+            #Edge case: if updating a question by removing all the existing alternatives,
+            #the frontEnd will make alternatives="empty" 
+            if alternatives == "empty":
+                alternatives = ""
             cursor.execute("UPDATE qanda SET tag=%s, question=%s, answer=%s, alternatives=%s, location=%s, count=%s WHERE id=%s", (tag, question, answer, alternatives, location, count, id,))
             print("Successfully updated the entire row on the database, ID: "+str(id))
         else:
             if tag != "" and question != "" and answer != "" and alternatives != "" and location != "":
+                #Edge case: if updating a question by removing all the existing alternatives,
+                #the frontEnd will make alternatives="empty" 
+                if alternatives == "empty":
+                    alternatives = ""
                 cursor.execute("UPDATE qanda SET tag=%s, question=%s, answer=%s, alternatives=%s, location=%s WHERE id=%s", (tag, question, answer, alternatives, location, id,))
                 print("Successfully updated the tag, the question, the answer, the alternatives and the location fields on the database")
             elif tag != "" and question != "" and answer != "" and alternatives != "":
+                #Edge case: if updating a question by removing all the existing alternatives,
+                #the frontEnd will make alternatives="empty" 
+                if alternatives == "empty":
+                    alternatives = ""
                 cursor.execute("UPDATE qanda SET tag=%s, question=%s, answer=%s, alternatives=%s WHERE id=%s", (tag, question, answer, alternatives, id,))
                 print("Successfully updated the tag, the question, the answer and the alternatives fields on the database")
             elif tag != "" and question != "" and answer != "":
