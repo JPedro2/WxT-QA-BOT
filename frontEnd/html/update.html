@@ -649,18 +649,20 @@
 
                 document.getElementById("questionIDField").value = questionID;
 
-                //clear the alt question field 
-                document.getElementById("altQuestionField").value = "";
-
+                //remove all the existing alt question fields
+                $('.altQuestionInput').remove();
+                
                 //prints the alt questions at the bottom of the page
                 for (let i = 0; i < response.data.alternatives.length; i++) {
                     $("#questionGroup").append(
-                        '<div class="field altQuestionInput"><input class="input questionInput" type="text" placeholder="Alternative Question" value="' +
+                        '<div class="field altQuestionInput"><input class="input questionInput altQuestionInput" type="text" placeholder="Alternative Question" value="' +
                         response.data.alternatives[i] + '"></div>'
                     );
                 }
-            }).catch(error => {
 
+                
+            }).catch(error => {
+                console.log(error);
                 if (error.response.status === 401) {
                     location.href = "login.html"
                 }
