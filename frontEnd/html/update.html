@@ -153,6 +153,7 @@
                                 class="fas fa-search"></i></a>
                     </div>
                 </div>
+                
                 <!-- Delete Question button-->
                 <button disabled onclick="deleteEntry()" id='deleteEntryButton'
                     class="button is-danger is-fullwidth to-hide">Delete Question</button>
@@ -286,6 +287,7 @@
             $('#deleteFileButton').prop('disabled', false);
             $('#submitQA').prop('disabled', false);
             $('#deleteEntryButton').prop('disabled', false);
+            $('.altQuestionInput').prop('disabled', false);
 
             ac.resultsList.render = false;
 
@@ -298,6 +300,7 @@
             $('#deleteFileButton').prop('disabled', true);
             $('#submitQA').prop('disabled', true);
             $('#deleteEntryButton').prop('disabled', true);
+            $('.altQuestionInput').prop('disabled', true);
 
             ac.resultsList.render = true;
         }
@@ -367,11 +370,11 @@
     };
 
     function generateQuestionFormat() {
-        let listOfQuestions = document.getElementsByClassName('questionInput');
+        let listOfQuestions = document.getElementsByClassName('altQuestionInput');
         let appendedQuestions = "";
 
         //loop through all the questions and generate the alternative questions 
-        for (let i = 1; i < listOfQuestions.length; i++) {
+        for (let i = 0; i < listOfQuestions.length; i++) {
             if (listOfQuestions.length - 1 == i) {
                 appendedQuestions += listOfQuestions[i].value
             } else {
@@ -380,9 +383,10 @@
         }
 
         //If no alternative questions asked, return as "" as alternatives
-        if (listOfQuestions.length == 1) {
-            return ""
+        if (listOfQuestions.length == 0) {
+            appendedQuestions = "empty";
         }
+        console.log(appendedQuestions)
         //returns the appended questions
         return appendedQuestions;
     }
@@ -483,7 +487,7 @@
 
 
         let altInputTemplate = $(
-                '<div class="field altQuestionInput questionInput"><input class="input altQuestionInput" type="text" placeholder="Alternative Question"></div>'
+                '<div class="field questionInput"><input disabled class="input altQuestionInput" type="text" placeholder="Alternative Question"></div>'
             )
             .hide()
             .fadeIn(300);
@@ -654,10 +658,15 @@
                 
                 //prints the alt questions at the bottom of the page
                 for (let i = 0; i < response.data.alternatives.length; i++) {
+
+                    console.log( response.data.alternatives[i])
                     $("#questionGroup").append(
-                        '<div class="field altQuestionInput"><input class="input questionInput altQuestionInput" type="text" placeholder="Alternative Question" value="' +
+                        '<div class="field  questionInput"><input class="input altQuestionInput" disabled type="text" placeholder="Alternative Question" value="' +
                         response.data.alternatives[i] + '"></div>'
                     );
+
+                    let currentHeight = $(".markdown").height()
+        $(".markdown").height(currentHeight + 62)
                 }
 
                 
