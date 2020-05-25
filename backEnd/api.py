@@ -148,6 +148,14 @@ def create_app():
         except:
             abort(400, "Error generating Token")
 
+    @API_app.route('/auth/checkPosture')
+    @authToken.login_required
+    def checkPosture():
+        try:
+            return ("Token is valid", 200)
+        
+        except:
+            abort(500, "Error checking  if token is valid")
 
     @API_app.route('/newUsers', methods=['POST'])
     @auth.login_required(role='admin')
@@ -214,7 +222,8 @@ def create_app():
     
     def rename_blob(blob_name):
         try:
-            # Deletes the object/attachment-file stored on GCP Storage
+            #Renames the object/attachment-file stored on GCP Storage, used when changing the current attached file on the DB
+            #At any given time the maximum GCP will old per question is 2 items: "old_UploadedFile" and the up-to-date file 
             storage_client = storage.Client.from_service_account_json(GCP_Service_Acct)
             bucket = storage_client.bucket(bucket_name)
             blob = bucket.blob(blob_name)
@@ -225,6 +234,19 @@ def create_app():
 
         except:
             API_app.logger.debug("Error renaming file from GCP Cloud Storage")
+            return None
+
+    def delete_blob(blob_name):
+        try:
+            # Deletes the object/attachment-file stored on GCP Storage, used when deleting a question from the DB
+            storage_client = storage.Client.from_service_account_json(GCP_Service_Acct)
+            bucket = storage_client.bucket(bucket_name)
+            blob = bucket.blob(blob_name)
+            blob.delete()
+            return True
+
+        except:
+            API_app.logger.debug("Error deleting file from GCP Cloud Storage")
             return None
 
     #URL needs to contain the questionID that the file needs to be associated with 
@@ -253,7 +275,7 @@ def create_app():
                 raise(err_fileExtension)
             
             #Before submiting the file to GCP Storage check if a question-attachment file already exists
-            #If so, submit a new one with (n+1) in the name (this fits the Update workflow and overcomes a GCP bug)
+            #If so, change the name of the current file stored to "old_UploadedFile" and store the new file
             checkUrl = queries.getKnowledge(questionID)
             location = checkUrl["location"]
             if location:
@@ -264,10 +286,9 @@ def create_app():
                 else:
                     #delete temporarily uploaded file
                     delete_tmpFile = os.remove(source_file_name)
-                    ErrDelGCPfile = "Error renaming file from GCP on Question ID: "+str(questionID)
-                    raise(ErrDelGCPfile)
+                    ErrReNameGCPfile = "Error renaming file from GCP on Question ID: "+str(questionID)
+                    raise(ErrReNameGCPfile)
             
-            #destination_blob_name = "QuestionID-"+str(questionID)+"/attachment-QuestionID-"+str(questionID)+"."+str(file_extension)
             destination_blob_name = "QuestionID-"+str(questionID)+"/"+filename
             #Submit file to GCP Cloud Storage to be used by the BOT
             location = upload_blob(source_file_name, destination_blob_name)
@@ -290,8 +311,8 @@ def create_app():
                 abort(400, err_noFile)
             if "err_fileExtension" in locals():
                 abort(400, err_fileExtension)
-            if "ErrDelGCPfile" in locals():
-                abort(500, ErrDelGCPfile)
+            if "ErrReNameGCPfile" in locals():
+                abort(500, ErrReNameGCPfile)
             if "ErrUploadGCPfile" in locals():
                 abort(500, ErrUploadGCPfile)
             else:
@@ -369,6 +390,18 @@ def create_app():
             if not questionExists:
                 err_questionID = "Error! Question ID: "+str(questionID)+" does not exist!"
                 raise(err_questionID)
+
+            #Before deleting the question from the DB check if there is a file attached to that question and delete it from GCP
+            location = questionExists["location"]
+            if location:
+                #grab the part of the URL that specifies the path to the file on GCP
+                #FilePath=location.split('/')[-2]+"/"+location.split('/')[-1]
+                FilePath=location.split('/')[-2]+"/"
+                if delete_blob(FilePath):
+                    API_app.logger.info("Attached file for question ID: "+str(questionID)+" has been removed from GCP.")
+                else:
+                    API_app.logger.info("Error deleting file from GCP for Question ID: "+str(questionID))
+            
             _deleteQuestion = queries.deleteQuestion(questionID)
             if not _deleteQuestion:
                 API_app.logger.debug("Error deleting entries of Question ID: "+str(questionID)+" from the database.")
