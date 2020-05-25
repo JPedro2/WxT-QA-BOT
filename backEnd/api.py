@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import logging
 import queries
 import queries_user
 from flask import Flask, jsonify, request, abort, g
@@ -42,6 +43,13 @@ def create_app():
         key_func=get_remote_address,
         default_limits=["10000 per day","1000 per hour"]
     )
+
+    # Gunicorn has its own loggers and handlers. 
+    # Sync the Flask application to use those handlers and set --log-level=info (or other level) when invoking Gunicorn
+    if __name__ != "__main__":
+        gunicorn_logger = logging.getLogger("gunicorn.error")
+        API_app.logger.handlers = gunicorn_logger.handlers
+        API_app.logger.setLevel(gunicorn_logger.level)
 
     # Root
     @API_app.route('/')
@@ -241,12 +249,14 @@ def create_app():
             # Deletes the object/attachment-file stored on GCP Storage, used when deleting a question from the DB
             storage_client = storage.Client.from_service_account_json(GCP_Service_Acct)
             bucket = storage_client.bucket(bucket_name)
-            blob = bucket.blob(blob_name)
-            blob.delete()
+            #iterate over the folder to delete all files. There will never be more than 2 files in a question folder
+            blobs = bucket.list_blobs(prefix=blob_name)
+            for blob in blobs:
+                blob.delete()
             return True
 
         except:
-            API_app.logger.debug("Error deleting file from GCP Cloud Storage")
+            API_app.logger.error("Error deleting file from GCP Cloud Storage")
             return None
 
     #URL needs to contain the questionID that the file needs to be associated with 
@@ -386,25 +396,25 @@ def create_app():
     @authToken.login_required
     def deleteQuestion(questionID):
         try:
-            questionExists = queries.getKnowledge(questionID)
-            if not questionExists:
+            deleteQuestion = queries.getKnowledge(questionID)
+            if not deleteQuestion:
                 err_questionID = "Error! Question ID: "+str(questionID)+" does not exist!"
                 raise(err_questionID)
 
             #Before deleting the question from the DB check if there is a file attached to that question and delete it from GCP
-            location = questionExists["location"]
+            location = deleteQuestion["location"]
             if location:
                 #grab the part of the URL that specifies the path to the file on GCP
                 #FilePath=location.split('/')[-2]+"/"+location.split('/')[-1]
-                FilePath=location.split('/')[-2]+"/"
+                FilePath=location.split('/')[-2]
                 if delete_blob(FilePath):
                     API_app.logger.info("Attached file for question ID: "+str(questionID)+" has been removed from GCP.")
                 else:
-                    API_app.logger.info("Error deleting file from GCP for Question ID: "+str(questionID))
+                    API_app.logger.error("Error deleting file from GCP for Question ID: "+str(questionID))
             
             _deleteQuestion = queries.deleteQuestion(questionID)
             if not _deleteQuestion:
-                API_app.logger.debug("Error deleting entries of Question ID: "+str(questionID)+" from the database.")
+                API_app.logger.error("Error deleting entries of Question ID: "+str(questionID)+" from the database.")
                 f_message = "Error deleting entries of Question ID: "+str(questionID)+" from the database."
                 raise(f_message)
             API_app.logger.info("Successfully deleted all entries of Question ID: "+str(questionID)+" from the database.")
