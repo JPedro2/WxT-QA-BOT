@@ -153,7 +153,7 @@
                                 class="fas fa-search"></i></a>
                     </div>
                 </div>
-                
+
                 <!-- Delete Question button-->
                 <button disabled onclick="deleteEntry()" id='deleteEntryButton'
                     class="button is-danger is-fullwidth to-hide">Delete Question</button>
@@ -244,6 +244,9 @@
         if (lockedStatus == true) {
 
             let isLoggedIn = sessionStorage.getItem('token');
+
+
+
             if (isLoggedIn == null) {
                 Swal.fire({
                     title: 'Not Logged In!',
@@ -259,10 +262,47 @@
                     }
                 })
             } else {
-                lockedStatus = false
-                $('#lockedIcon').toggle()
-                $('#unlockedIcon').toggle('slow')
-                toggleInputLock(lockedStatus);
+                //Create a new headers object to hold the check posture headers
+                const myHeaders = new Headers();
+                //append the current token to the headers
+                myHeaders.append("Authorization", 'Bearer ' + sessionStorage.getItem('token'));
+
+
+                //Build out the request
+                const myRequest = new Request('http://35.242.181.193/api/auth/checkPosture', {
+                    method: 'GET',
+                    headers: myHeaders,
+                    mode: 'cors',
+                    cache: 'default',
+                });
+
+                console.log(myRequest)
+
+                fetch(myRequest)
+                    .then(response => {
+                        if (response.status == 401) {
+                            Swal.fire({
+                                title: 'Invalid Token!',
+                                text: "Please log in again to continue.",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: 'rgb(0, 188, 235)',
+                                cancelButtonColor: 'rgb(251, 61, 102)',
+                                confirmButtonText: 'Log In'
+                            }).then((result) => {
+                                if (result.value) {
+                                    location.href = './login.html'
+                                }
+                            })
+                        } else {
+                            lockedStatus = false
+                            $('#lockedIcon').toggle()
+                            $('#unlockedIcon').toggle('slow')
+                            toggleInputLock(lockedStatus);
+                        }
+                    })
+
+
             }
 
 
@@ -487,7 +527,7 @@
 
 
         let altInputTemplate = $(
-                '<div class="field questionInput"><input disabled class="input altQuestionInput" type="text" placeholder="Alternative Question"></div>'
+                '<div class="field questionInput"><input class="input altQuestionInput" type="text" placeholder="Alternative Question"></div>'
             )
             .hide()
             .fadeIn(300);
@@ -655,21 +695,21 @@
 
                 //remove all the existing alt question fields
                 $('.altQuestionInput').remove();
-                
+
                 //prints the alt questions at the bottom of the page
                 for (let i = 0; i < response.data.alternatives.length; i++) {
 
-                    console.log( response.data.alternatives[i])
+                    console.log(response.data.alternatives[i])
                     $("#questionGroup").append(
                         '<div class="field  questionInput"><input class="input altQuestionInput" disabled type="text" placeholder="Alternative Question" value="' +
                         response.data.alternatives[i] + '"></div>'
                     );
 
                     let currentHeight = $(".markdown").height()
-        $(".markdown").height(currentHeight + 62)
+                    $(".markdown").height(currentHeight + 62)
                 }
 
-                
+
             }).catch(error => {
                 console.log(error);
                 if (error.response.status === 401) {
