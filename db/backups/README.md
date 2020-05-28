@@ -1,5 +1,10 @@
 ## MySQL backup folder
 The MySQL-Backup container will save the DB backups in this folder. The DB is backed up everyday at 4.30am.
+The backup files are compressed as `.tgz`. To  extract backup file you  will needd to be in this directoory and use the following command:
+
+```
+tar -xvzf <name-of-file>.tgz
+```
 
 If you are running this application in a Linux machine you might want to make sure that your backups do not pile up. For that you can schedule a `cron` job to delete all backups that are older than 2 days by doing the following.
 

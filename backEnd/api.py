@@ -259,6 +259,58 @@ def create_app():
             API_app.logger.error("Error deleting file from GCP Cloud Storage")
             return None
 
+    def add_fileToDB(file, questionID):
+        try:
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file_extension = filename.rsplit('.', 1)[1].lower()
+                source_file_name = os.path.join(API_app.config['UPLOAD_FOLDER'], filename)
+                file.save(source_file_name)
+                API_app.logger.info("File temporarily Uploaded from the FrontEnd to the BackEnd")
+            else:
+                err_fileExtension = True
+                raise(err_fileExtension)
+            
+            #Before submiting the file to GCP Storage check if a question-attachment file already exists
+            #If so, change the name of the current file stored to "old_UploadedFile" and store the new file
+            checkUrl = queries.getKnowledge(questionID)
+            location = checkUrl["location"]
+            if location:
+                #grab the part of the URL that specifies the path to the file on GCP
+                renameFilePath=location.split('/')[-2]+"/"+location.split('/')[-1]
+                if rename_blob(renameFilePath):
+                    API_app.logger.info("Attached file for question ID: "+str(questionID)+" has been renamed on GCP.")
+                else:
+                    #delete temporarily uploaded file
+                    delete_tmpFile = os.remove(source_file_name)
+                    ErrReNameGCPfile = True
+                    raise(ErrReNameGCPfile)
+            
+            destination_blob_name = "QuestionID-"+str(questionID)+"/"+filename
+            #Submit file to GCP Cloud Storage to be used by the BOT
+            location = upload_blob(source_file_name, destination_blob_name)
+            if location:
+                #add the file's URL for download to the location on the database base
+                addLocation = queries.updateEntries(questionID, "", "", "", location, "", "")
+                #delete temporarily uploaded file
+                delete_tmpFile = os.remove(source_file_name)
+                API_app.logger.info("Sucessfully uploaded a file to GCP Cloud Storage. URL: "+str(location))
+                return("",201)
+            else:
+                delete_tmpFile = os.remove(source_file_name)
+                ErrUploadGCPfile = True
+                raise(ErrUploadGCPfile)
+            
+        except:
+            if "err_fileExtension" in locals():
+                return "err_fileExtension"
+            if "ErrReNameGCPfile" in locals():
+                return "ErrReNameGCPfile"
+            if "ErrUploadGCPfile" in locals():
+                return "ErrUploadGCPfile"
+            else:
+                return None
+
     #URL needs to contain the questionID that the file needs to be associated with 
     @API_app.route('/uploadFile/<int:questionID>', methods=['POST'])
     @authToken.login_required
@@ -274,45 +326,21 @@ def create_app():
                 err_noFile = "No file submitted"
                 raise(err_noFile)
             file = request.files['file']
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file_extension = filename.rsplit('.', 1)[1].lower()
-                source_file_name = os.path.join(API_app.config['UPLOAD_FOLDER'], filename)
-                file.save(source_file_name)
-                API_app.logger.info("File temporarily Uploaded from the FrontEnd to the BackEnd")
-            else:
+
+            addFile=add_fileToDB(file, questionID)
+            if addFile == "err_fileExtension":
                 err_fileExtension = "File extentions is not allowed. Please only submit allowed file extensions."
                 raise(err_fileExtension)
-            
-            #Before submiting the file to GCP Storage check if a question-attachment file already exists
-            #If so, change the name of the current file stored to "old_UploadedFile" and store the new file
-            checkUrl = queries.getKnowledge(questionID)
-            location = checkUrl["location"]
-            if location:
-                #grab the part of the URL that specifies the path to the file on GCP
-                renameFilePath=location.split('/')[-2]+"/"+location.split('/')[-1]
-                if rename_blob(renameFilePath):
-                    API_app.logger.info("Attached file for question ID: "+str(questionID)+" has been renamed on GCP.")
-                else:
-                    #delete temporarily uploaded file
-                    delete_tmpFile = os.remove(source_file_name)
-                    ErrReNameGCPfile = "Error renaming file from GCP on Question ID: "+str(questionID)
-                    raise(ErrReNameGCPfile)
-            
-            destination_blob_name = "QuestionID-"+str(questionID)+"/"+filename
-            #Submit file to GCP Cloud Storage to be used by the BOT
-            location = upload_blob(source_file_name, destination_blob_name)
-            if location:
-                #add the file's URL for download to the location on the database base
-                addLocation = queries.updateEntries(questionID, "", "", "", location, "", "")
-                #delete temporarily uploaded file
-                delete_tmpFile = os.remove(source_file_name)
-                API_app.logger.info("Sucessfully uploaded a file to GCP Cloud Storage. URL: "+str(location))
-                return("",201)
-            else:
-                delete_tmpFile = os.remove(source_file_name)
+            if addFile == "ErrReNameGCPfile":
+                ErrReNameGCPfile = "Error renaming file from GCP on Question ID: "+str(questionID)
+                raise(ErrReNameGCPfile)
+            if addFile == "ErrUploadGCPfile":
                 ErrUploadGCPfile = "Error uploading file to GCP for Question ID: "+str(questionID)
                 raise(ErrUploadGCPfile)
+            if addFile is None:
+                raise
+
+            return("",200)
             
         except:
             if "err_questionID" in locals():
@@ -326,7 +354,8 @@ def create_app():
             if "ErrUploadGCPfile" in locals():
                 abort(500, ErrUploadGCPfile)
             else:
-                abort(400)
+                abort(500)
+
 #=================================================== API File Upload ====================================================
 
 #==================================================== API Endpoints =====================================================
@@ -376,21 +405,47 @@ def create_app():
     @API_app.route('/addEntry', methods=['POST'])
     @authToken.login_required
     def addEntry():
-        tag = request.form.get('tag')
-        question = request.form.get('question')
-        answer = request.form.get('answer')
-        alternatives = request.form.get('alternatives')
         try:
+            tag = request.form.get('tag')
+            question = request.form.get('question')
+            answer = request.form.get('answer')
+            alternatives = request.form.get('alternatives')
+        
             newQuestionID = queries.addEntry(tag, question, answer, alternatives)
             if newQuestionID == "Failure":
                 f_message = "Failed to add Entry to DB"
                 raise(f_message)
+            
+            #Check if a file is part of the request to be updated or added to the question
+            if 'file' in request.files:
+                file = request.files['file']
+                addFile=add_fileToDB(file, newQuestionID)
+                if addFile == "err_fileExtension":
+                    err_fileExtension = "File extentions is not allowed. Please only submit allowed file extensions."
+                    raise(err_fileExtension)
+                if addFile == "ErrReNameGCPfile":
+                    ErrReNameGCPfile = "Error renaming file from GCP on Question ID: "+str(newQuestionID)
+                    raise(ErrReNameGCPfile)
+                if addFile == "ErrUploadGCPfile":
+                    ErrUploadGCPfile = "Error uploading file to GCP for Question ID: "+str(newQuestionID)
+                    raise(ErrUploadGCPfile)
+                if addFile is None:
+                    raise
+                API_app.logger.info("File sucessfully attached to Question ID: "+str(newQuestionID))
+            
             return (newQuestionID, 201)
         
         except:
             if "f_message" in locals():
                 abort(500, f_message)
-            abort(400)
+            if "err_fileExtension" in locals():
+                abort(400, err_fileExtension)
+            if "ErrReNameGCPfile" in locals():
+                abort(500, ErrReNameGCPfile)
+            if "ErrUploadGCPfile" in locals():
+                abort(500, ErrUploadGCPfile)
+            else:
+                abort(400)
 
     @API_app.route('/deleteQuestion/<int:questionID>', methods=['DELETE'])
     @authToken.login_required
@@ -650,6 +705,23 @@ def create_app():
                 f_message = "Failed to update entries on the DB"
                 raise(f_message)
             
+            #Check if a file is part of the request to be updated or added to the question
+            if 'file' in request.files:
+                file = request.files['file']
+                addFile=add_fileToDB(file, questionID)
+                if addFile == "err_fileExtension":
+                    err_fileExtension = "File extentions is not allowed. Please only submit allowed file extensions."
+                    raise(err_fileExtension)
+                if addFile == "ErrReNameGCPfile":
+                    ErrReNameGCPfile = "Error renaming file from GCP on Question ID: "+str(questionID)
+                    raise(ErrReNameGCPfile)
+                if addFile == "ErrUploadGCPfile":
+                    ErrUploadGCPfile = "Error uploading file to GCP for Question ID: "+str(questionID)
+                    raise(ErrUploadGCPfile)
+                if addFile is None:
+                    raise
+                API_app.logger.info("File sucessfully attached to Question ID: "+str(id))
+            
             API_app.logger.info("Sucessfully updated the entries on the DB, ID: "+str(id))
             return(str(id), 200)
         
@@ -658,6 +730,12 @@ def create_app():
                 abort(404, err_questionID)
             if "f_message" in locals():
                 abort(500, f_message)
+            if "err_fileExtension" in locals():
+                abort(400, err_fileExtension)
+            if "ErrReNameGCPfile" in locals():
+                abort(500, ErrReNameGCPfile)
+            if "ErrUploadGCPfile" in locals():
+                abort(500, ErrUploadGCPfile)
             else:
                 abort(400)
 #==================================================== API Endpoints =====================================================
