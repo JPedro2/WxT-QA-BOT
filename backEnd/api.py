@@ -421,12 +421,17 @@ def create_app():
                 file = request.files['file']
                 addFile=add_fileToDB(file, newQuestionID)
                 if addFile == "err_fileExtension":
+                    #if there's an error uploading the file when adding a completely new questioon, 
+                    #we need to delete the newly added question otherwise the question still gets created
+                    queries.deleteQuestion(newQuestionID)
                     err_fileExtension = "File extentions is not allowed. Please only submit allowed file extensions."
                     raise(err_fileExtension)
                 if addFile == "ErrReNameGCPfile":
+                    queries.deleteQuestion(newQuestionID)
                     ErrReNameGCPfile = "Error renaming file from GCP on Question ID: "+str(newQuestionID)
                     raise(ErrReNameGCPfile)
                 if addFile == "ErrUploadGCPfile":
+                    queries.deleteQuestion(newQuestionID)
                     ErrUploadGCPfile = "Error uploading file to GCP for Question ID: "+str(newQuestionID)
                     raise(ErrUploadGCPfile)
                 if addFile is None:
