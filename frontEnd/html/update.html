@@ -63,12 +63,12 @@
                 <div class="field">
                     <div class="buttons has-addons is-right">
 
-                        <button disabled class="button has-text-white" id="addQuestionFieldButton">
+                        <button disabled class="button is-info has-text-white" id="addQuestionFieldButton">
                             <span class="icon is-small">
                                 <i class="fas fa-plus"></i>
                             </span>
                         </button>
-                        <button disabled class="button has-text-white" id="removeQuestionFieldButton">
+                        <button disabled class="button is-info has-text-white" id="removeQuestionFieldButton">
                             <span class="icon is-small">
                                 <i class="fas fa-minus"></i>
                             </span>
@@ -102,7 +102,7 @@
                             </div>
                         </div>
 
-                        <div class="field">
+                        <div class="field has-addons">
                             <div class="file has-name is-fullwidth">
                                 <label class="file-label">
                                     <input disabled class="file-input" id="fileInput" type="file" name="resume">
@@ -114,25 +114,24 @@
                                             Choose a file
                                         </span>
                                     </span>
-                                    <span class="file-name" id="fileName">
-                                        No File Loaded
-                                    </span>
                                 </label>
                             </div>
+                            <div class="control">
+                                <a target="_blank" class="button file-name" id="fileName">
+                                    No File Loaded
+                                </a>
+                              </div>
+                            <div class="control">
+                                <button disabled onclick="deleteFile()" id='deleteFileButton' class="button is-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="control is-pulled-right">
-                            <button disabled onclick="deleteFile()" id='deleteFileButton'
-                                class="button is-danger">Delete File</button>
-                        </div>
+
                         <div class="control is-pulled-right">
                             <button disabled id="submitQA" class="button is-link">Submit</button>
                         </div>
                     </div>
-                    <!-- </form> -->
-                    <br><br>
-                    <p class="is-size-4">Attached Files</p>
-                    <a href="" target="_blank" id="linkButton" class="button has-text-white linkButton">No File
-                        Attached</a>
                 </div>
 
             </div>
@@ -140,7 +139,7 @@
                 <!--Search Question Box-->
                 <div id='searchQuestionField' class="field has-addons has-addons-centered">
                     <p class="control">
-                        <a id="getAllQuestion" class="button is-medium">
+                        <a id="getAllQuestion" class="button is-info is-medium">
                             <i class="fas fa-list has-text-white"></i>
                         </a>
                     </p>
@@ -149,7 +148,7 @@
                             placeholder="Question ID">
                     </div>
                     <div class="control">
-                        <a id="searchQuestionButton" class="button is-medium has-text-white"><i
+                        <a id="searchQuestionButton" class="button is-info is-medium has-text-white"><i
                                 class="fas fa-search"></i></a>
                     </div>
                 </div>
@@ -222,6 +221,10 @@
             </footer>
         </div>
     </div>
+    <div id="tooltip" role="tooltip">
+        Click Here to Unlock the page!
+        <div id="arrow" data-popper-arrow></div>
+    </div>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
@@ -229,7 +232,35 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@7.2.0/dist/js/autoComplete.min.js"></script>
+<script src="https://unpkg.com/@popperjs/core@2"></script>
 <script>
+    const button = document.querySelector('#lockedIcon');
+    const tooltip = document.querySelector('#tooltip');
+
+    Popper.createPopper(button, tooltip, {
+        placement: 'left',
+        modifiers: [{
+            name: 'offset',
+            options: {
+                offset: [0, 35],
+            },
+        }, ],
+    });
+
+    //get the visited cache variable
+    var firstTimeBool = localStorage.getItem('firstTimeBool');
+
+    //If the user hasnt visited show tool tip
+    if(firstTimeBool == undefined){
+        $('#tooltip').fadeTo( 12000, 100)
+        console.log("jel")
+    } 
+
+    //tell the page i've visited 
+    localStorage.setItem('firstTimeBool', 'true');
+
+
+
     //true = Page Locked
     //false = Page Unlocked
     let lockedStatus = true;
@@ -350,11 +381,7 @@
     document.getElementById("searchQuestionButton").addEventListener('click', function () {
         let questionID = document.getElementById("questionIDField").value;
         options.then(function (result) {
-            // loop through the hidden elements 
-            $(".to-hide").each(function (index) {
-                //set them to visible
-                $(this).attr("style", "display:block !important;");
-            });
+
             populateFields(questionID);
 
         });
@@ -667,49 +694,54 @@
         //Get request the question ID 
         axios.get('http://35.242.181.193:3002/getKnowledge/' + questionID)
             .then(response => {
-                //Update the question field on the page with the question queried
-                document.getElementById("questionField").value = response.data.question;
-                //Update the answer field on the page with the question queried
-                document.getElementById("ans").value = response.data.answer;
-                //Update the question type
-                // document.getElementById("type").textContent = response.data.tag;
-                //Toggles button on the page
-                if (response.data.location != null) {
-                    document.getElementById("linkButton").href = response.data.location;
-                    document.getElementById("linkButton").classList.remove("linkButton");
-                    document.getElementById("linkButton").textContent = "File Loaded - Open File"
-                } else {
-                    document.getElementById("linkButton").classList.add("linkButton");
-                    document.getElementById("linkButton").textContent = "No Files"
+
+                if (response.status == 200) {
+                    //Update the question field on the page with the question queried
+                    document.getElementById("questionField").value = response.data.question;
+                    //Update the answer field on the page with the question queried
+                    document.getElementById("ans").value = response.data.answer;
+                    //Update the question type
+                    // document.getElementById("type").textContent = response.data.tag;
+                    //Toggles button on the page
+                    if (response.data.location != null) {
+                        document.getElementById("fileName").href = response.data.location;
+                        document.getElementById("fileName").classList.remove("linkButton");
+                        document.getElementById("fileName").textContent = "File Loaded - Open File"
+                    } else {
+                        document.getElementById("fileName").classList.add("linkButton");
+                        document.getElementById("fileName").textContent = "No Files Attached"
+                    }
+
+                    var converter = new showdown.Converter();
+                    //Get the value of answer Field
+                    var text = response.data.answer;
+                    //Convert the inputted text to HTML
+                    var html = converter.makeHtml(text);
+                    //set answerField to the updated html
+                    document.getElementById("answerField").innerHTML = html;
+
+                    document.getElementById("questionIDField").value = questionID;
+
+                    //remove all the existing alt question fields
+                    $('.altQuestionInput').remove();
+
+                    //prints the alt questions at the bottom of the page
+                    for (let i = 0; i < response.data.alternatives.length; i++) {
+
+                        console.log(response.data.alternatives[i])
+                        $("#questionGroup").append(
+                            '<div class="field  questionInput"><input class="input altQuestionInput" disabled type="text" placeholder="Alternative Question" value="' +
+                            response.data.alternatives[i] + '"></div>'
+                        );
+
+                        let currentHeight = $(".markdown").height()
+                        $(".markdown").height(currentHeight + 62)
+                    }
+                    $(".to-hide").each(function (index) {
+                        //set them to visible
+                        $(this).attr("style", "display:block !important;");
+                    });
                 }
-
-                var converter = new showdown.Converter();
-                //Get the value of answer Field
-                var text = response.data.answer;
-                //Convert the inputted text to HTML
-                var html = converter.makeHtml(text);
-                //set answerField to the updated html
-                document.getElementById("answerField").innerHTML = html;
-
-                document.getElementById("questionIDField").value = questionID;
-
-                //remove all the existing alt question fields
-                $('.altQuestionInput').remove();
-
-                //prints the alt questions at the bottom of the page
-                for (let i = 0; i < response.data.alternatives.length; i++) {
-
-                    console.log(response.data.alternatives[i])
-                    $("#questionGroup").append(
-                        '<div class="field  questionInput"><input class="input altQuestionInput" disabled type="text" placeholder="Alternative Question" value="' +
-                        response.data.alternatives[i] + '"></div>'
-                    );
-
-                    let currentHeight = $(".markdown").height()
-                    $(".markdown").height(currentHeight + 62)
-                }
-
-
             }).catch(error => {
                 console.log(error);
                 if (error.response.status === 401) {

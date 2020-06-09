@@ -65,9 +65,7 @@ textarea:focus {
     padding-top: 15px !important;
 }
 
-.button{
-    background-color: rgb(0, 188, 235) !important;
-}
+
 
 #addQuestionFieldButton{
     margin-top: 10px;
@@ -79,6 +77,11 @@ textarea:focus {
     overflow: scroll;
     word-wrap: break-word;
 }
+#submitQA{
+    background-color: #6EBE4A !important;
+    width: 200px;
+    
+}
 
 .buttons.is-right {
     height: 58px;
@@ -87,4 +90,7 @@ textarea:focus {
 .is-danger{
     
     background-color: rgb(251, 61, 102) !important;
+}
+.is-info{
+    background-color: rgb(0, 188, 235) !important;
 }
