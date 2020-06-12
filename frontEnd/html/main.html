@@ -44,12 +44,9 @@
         </div>
         <h3 class="is-size-4">Question</h3>
         <div class="columns">
+            <!-- LeftSide of page -->
             <div class="column is-three-quarters">
-                <!--On submit of the form do the add entry, use target to prevent redirect (Sorry, should be done better)-->
-                <!--TODO: Remove the target and submit the form with ajax -->
                 <form id="form">
-                    <!--Question Input-->
-
                     <div id="questionGroup">
                         <div class="field">
                             <input required class="input questionInput" type="text"
@@ -57,12 +54,12 @@
                     </div>
                     <div class="field">
                         <div class="buttons has-addons is-right">
-                            <button class="button has-text-white" id="addQuestionFieldButton">
+                            <button class="button is-info has-text-white" id="addQuestionFieldButton">
                                 <span class="icon is-small">
                                     <i class="fas fa-plus"></i>
                                 </span>
                             </button>
-                            <button class="button has-text-white" id="removeQuestionFieldButton">
+                            <button class="button is-info has-text-white" id="removeQuestionFieldButton">
                                 <span class="icon is-small">
                                     <i class="fas fa-minus"></i>
                                 </span>
@@ -79,6 +76,10 @@
                         </div>
                     </div>
                     <!--Submit Line-->
+                    <div class='columns'>
+                        <div class='column'>
+
+                      
                     <div class="field is-grouped">
                         <div class="field">
                             <div class="control">
@@ -94,7 +95,7 @@
                             </div>
                         </div>
 
-                        <div class="field">
+                        <div class="field has-addons">
                             <div class="file has-name">
                                 <label class="file-label">
                                     <input class="file-input" id="fileInput" type="file" name="resume">
@@ -106,51 +107,66 @@
                                             Choose a file...
                                         </span>
                                     </span>
-                                    <span class="file-name" id="fileName">
-                                        No File Selected
-                                    </span>
+                                   
                                 </label>
                             </div>
+                            <div class="control">
+                                <a  class="button file-name" id="fileName">
+                                    No File Loaded
+                                </a>
+                              </div>
+                            <div class="control">
+                                <button disabled onclick="deleteFile()" id='deleteFileButton' class="button is-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                              </div>
                         </div>
-                        <div class="control is-pulled-right">
-                            <button disabled onclick="deleteFile()" id='deleteFileButton' class="button is-danger">Delete File</button>
-                        </div>
-                        <div class="control is-pulled-right">
-                            <button id="submitQA" class="button is-link">Submit</button>
-                        </div>
+                    </div>
+                </div>
+                
+                <div class='column'>
+                    <div class="field is-grouped is-grouped-right">
+                    <div class="control ">
+                        <button id="submitQA" class="button is-link">Submit</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+                
                 </form>
             </div>
-        </div>
-        <div class="column">
-            <div class="markdown box">
-                <div class="container">
-                    <h2 class="title is-5 has-text-white">Markdown Cheat Sheet</h2>
-                    <p class="is-size-5 has-text-weight-semibold">Style</p>
-                    <p class="has-text-white">**BOLD**</p>
-                    <p class="has-text-white">_italic_</p>
-                    <p class="has-text-white">> Blockquote</p>
-                    <p class="has-text-white">`unformatted text`</p>
-                    <br>
-                    <p class="is-size-5 has-text-weight-semibold">Links</p>
-                    <p class="has-text-white">Example: [Cisco Website](www.cisco.com)</p>
-                    <br>
-                    <p class="is-size-5 has-text-weight-semibold">Lists</p>
-                    <p class="has-text-white">1. Item1</p>
-                    <p class="has-text-white">2. Item2</p>
-                    <p class="has-text-white">3. Item3</p>
-                    <br>
-                    <p class="has-text-white">* Bullet point1</p>
-                    <p class="has-text-white">* Bullet point2</p>
-                    <br>
-                    <p class="is-size-5 has-text-weight-semibold">Headings</p>
-                    <p class="has-text-white"># Heading 1</p>
-                    <p class="has-text-white">## Heading 2</p>
-                    <p class="has-text-white">### Heading 3</p>
-                    <p class="has-text-white">--- Horizontal Line</p>
+
+            <!-- Right Side of page -->
+            <div class="column">
+                <div class="markdown box">
+                    <div class="container">
+                        <h2 class="title is-5 has-text-white">Markdown Cheat Sheet</h2>
+                        <p class="is-size-5 has-text-weight-semibold">Style</p>
+                        <p class="has-text-white">**BOLD**</p>
+                        <p class="has-text-white">_italic_</p>
+                        <p class="has-text-white">> Blockquote</p>
+                        <p class="has-text-white">`unformatted text`</p>
+                        <br>
+                        <p class="is-size-5 has-text-weight-semibold">Links</p>
+                        <p class="has-text-white">Example: [Cisco Website](www.cisco.com)</p>
+                        <br>
+                        <p class="is-size-5 has-text-weight-semibold">Lists</p>
+                        <p class="has-text-white">1. Item1</p>
+                        <p class="has-text-white">2. Item2</p>
+                        <p class="has-text-white">3. Item3</p>
+                        <br>
+                        <p class="has-text-white">* Bullet point1</p>
+                        <p class="has-text-white">* Bullet point2</p>
+                        <br>
+                        <p class="is-size-5 has-text-weight-semibold">Headings</p>
+                        <p class="has-text-white"># Heading 1</p>
+                        <p class="has-text-white">## Heading 2</p>
+                        <p class="has-text-white">### Heading 3</p>
+                        <p class="has-text-white">--- Horizontal Line</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
     <!-- Markdown Preview Area -->
     <div class="markup-Container">
@@ -241,6 +257,12 @@
         formdata.append("answer", document.getElementById('ans').value);
         formdata.append("tag", document.getElementById('select').value);
         formdata.append("alternatives", generateQuestionFormat());
+
+        var uploadedFile = $('#fileInput').prop('files')[0];
+
+        if (uploadedFile !== undefined) {
+        formdata.append("file", uploadedFile)
+        }
         //set the requests settings
         var requestOptions = {
             method: 'POST',
@@ -254,43 +276,26 @@
         //Execute POST
         fetch("http://35.242.181.193:3002/addEntry", requestOptions)
             .then(response => {
+                console.log(response)
                 if (response.ok) {
-                    return response.text()
+                    
+                    Swal.fire(
+                    'Thank you',
+                    'Submitted successfully',
+                    'success'
+                )
+                return response.text()
                 } else {
                     return Promise.reject(response);
-                }
-            })
-            .then(result => {
-                //grab file from input using jquery because js didnt work for some reason 
-                var uploadedFile = $('#fileInput').prop('files')[0];
-                if (uploadedFile !== undefined) {
-                    if (uploadedFile !== "") {
-
-                        //build a form
-                        var fileformdata = new FormData();
-                        //add the file into the form
-                        fileformdata.append("file", uploadedFile);
-
-                        //build request options
-                        var fileRequestOptions = {
-                            method: 'POST',
-                            body: fileformdata,
-                            redirect: 'follow',
-                            mode: 'cors',
-                            headers: {
-                                "Authorization": 'Bearer ' + sessionStorage.getItem('token')
-                            }
-                        };
-
-                        //Send an API call to the url with the ID
-                        return fetch("http://35.242.181.193:3002/uploadFile/" + result, fileRequestOptions);
-                    }
                 }
             })
             .catch(error => {
                 console.log(error)
                 if (error.status === 401) {
-                    //location.href = "login.html"
+                    location.href = "login.html"
+                }
+                if (error.status === 404) {
+                    location.href = "login.html"
                 }
                 if (error.status === 400) {
                     Swal.fire({
@@ -303,11 +308,6 @@
             .then(response => {
                 //fire a successful
                 //TODO: Check if actually successful
-                Swal.fire(
-                    'Thank you',
-                    'Submitted successfully',
-                    'success'
-                )
                 //clear the fields
                 clearFields();
             });
@@ -338,34 +338,41 @@
             }
 
             //only remove if theres more than one
-            if (listOfQuestions.length != 1){
+            if (listOfQuestions.length != 1) {
                 //remove the extra question fields
                 removeQuestionField(listOfQuestions);
             }
         }
     }
 
-
     //If add is clicked append a new input box to the page
     document.getElementById("addQuestionFieldButton").addEventListener('click', function () {
-        //call function to add a question
-        addQuestionField();
+
+
+        let altInputTemplate = $(
+                '<div class="field questionInput"><input class="input altQuestionInput" type="text" placeholder="Alternative Question"></div>'
+            )
+            .hide()
+            .fadeIn(300);
+
+        $("#questionGroup").append(altInputTemplate);
+        let currentHeight = $(".markdown").height()
+        $(".markdown").height(currentHeight + 52)
     })
+
 
     //If remove is clicked remove a input box unless theres only 1
     document.getElementById("removeQuestionFieldButton").addEventListener('click', function () {
         var questionInputs = document.getElementsByClassName('questionInput');
 
         if (questionInputs.length > 1) {
-            removeQuestionField(questionInputs)
-        } else { //if theres only one field warn the user and dont remove it
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'You need atleast one question!'
-            })
-        }
+            questionInputs[questionInputs.length - 1].remove();
 
+            let currentHeight = $(".markdown").height()
+            $(".markdown").height(currentHeight - 52)
+        } else {
+            alert("You must provide atleast one question.")
+        }
     })
 
     //function to delete the file on the page
@@ -375,13 +382,6 @@
         document.getElementById('fileName').textContent = "No File Selected";
         $('#deleteFileButton').attr("disabled", true);
 
-    }
-
-    //function to add a question field on the page 
-    function addQuestionField() {
-        $("#questionGroup").append(
-            '<div class="field altQuestionInput"><input class="input questionInput" type="text" placeholder="Alternative Question"></div>'
-        );
     }
 
     //function to remove the last question field on the page

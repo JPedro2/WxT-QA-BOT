@@ -75,10 +75,6 @@ textarea:focus {
     padding-top: 15px !important;
 }
 
-.button{
-    background-color: rgb(0, 188, 235) !important;
-}
-
 #addQuestionFieldButton{
     margin-top: 10px;
 }
@@ -89,7 +85,7 @@ textarea:focus {
 .linkButton {
     pointer-events: none;
     cursor: not-allowed;
-    background-color: #b8b8b8 !important;
+    
 }
 
 .is-danger{
@@ -100,13 +96,18 @@ textarea:focus {
     display: none !important;
 }
 
-
+#submitQA{
+    background-color: #6EBE4A !important;
+    width: 200px;
+}
 
 #getAllQuestion{
     margin-left: 5px;
 }
 
-
+.is-info{
+    background-color: rgb(0, 188, 235) !important;
+}
 
 #questionField {
     height: 50px;
@@ -124,3 +125,43 @@ textarea:focus {
 .altQuestionInput{
     height: 50px;
 }
+#tooltip {
+    background: #333;
+    color: white;
+    font-weight: bold;
+    padding: 4px 8px;
+    font-size: 13px;
+    border-radius: 4px;
+    opacity: 0;
+  }
+
+
+#arrow,
+#arrow::before {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  z-index: -1;
+}
+
+#arrow::before {
+  content: '';
+  transform: rotate(45deg);
+  background: #333;
+}
+
+#tooltip[data-popper-placement^='top'] > #arrow {
+    bottom: -4px;
+  }
+  
+  #tooltip[data-popper-placement^='bottom'] > #arrow {
+    top: -4px;
+  }
+  
+  #tooltip[data-popper-placement^='left'] > #arrow {
+    right: -4px;
+  }
+  
+  #tooltip[data-popper-placement^='right'] > #arrow {
+    left: -4px;
+  }
