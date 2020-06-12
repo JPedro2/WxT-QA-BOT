@@ -86,55 +86,65 @@
                                 placeholder="Answer will appear here."></textarea>
                         </div>
                     </div>
-                    <!--Submit Line-->
-                    <div class="field is-grouped">
-                        <div class="field">
-                            <div class="control">
-                                <div class="select">
-                                    <select disabled id='select' name="select" required>
-                                        <option>General</option>
-                                        <option>Volunteer Programme</option>
-                                        <option>Plans and Pricing</option>
-                                        <option>Controls & Features</option>
-                                        <option>Quality Issues</option>
-                                    </select>
+                    <div class='columns'>
+                        <div class='column'>
+                            <!--Submit Line-->
+                            <div class="field is-grouped">
+                                <div class="field">
+                                    <div class="control">
+                                        <div class="select">
+                                            <select disabled id='select' name="select" required>
+                                                <option>General</option>
+                                                <option>Volunteer Programme</option>
+                                                <option>Plans and Pricing</option>
+                                                <option>Controls & Features</option>
+                                                <option>Quality Issues</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="field has-addons">
+                                    <div class="file has-name is-fullwidth">
+                                        <label class="file-label">
+                                            <input disabled class="file-input" id="fileInput" type="file" name="resume">
+                                            <span class="file-cta">
+                                                <span class="file-icon">
+                                                    <i class="fas fa-upload"></i>
+                                                </span>
+                                                <span class="file-label">
+                                                    Choose a file
+                                                </span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div class="control">
+                                        <a target="_blank" class="button file-name" id="fileName">
+                                            No File Loaded
+                                        </a>
+                                    </div>
+                                    <div class="control">
+                                        <button disabled onclick="deleteFileFunction()" id='deleteFileButton'
+                                            class="button is-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="field has-addons">
-                            <div class="file has-name is-fullwidth">
-                                <label class="file-label">
-                                    <input disabled class="file-input" id="fileInput" type="file" name="resume">
-                                    <span class="file-cta">
-                                        <span class="file-icon">
-                                            <i class="fas fa-upload"></i>
-                                        </span>
-                                        <span class="file-label">
-                                            Choose a file
-                                        </span>
-                                    </span>
-                                </label>
+                        <div class='column'>
+                            <div class="field is-grouped is-grouped-right">
+                                <div class="control is-pulled-right">
+                                    <button disabled id="submitQA" class="button is-link">Submit</button>
+                                </div>
                             </div>
-                            <div class="control">
-                                <a target="_blank" class="button file-name" id="fileName">
-                                    No File Loaded
-                                </a>
-                              </div>
-                            <div class="control">
-                                <button disabled onclick="deleteFile()" id='deleteFileButton' class="button is-danger">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="control is-pulled-right">
-                            <button disabled id="submitQA" class="button is-link">Submit</button>
                         </div>
                     </div>
-                </div>
 
+                </div>
             </div>
+
+
             <div class="column">
                 <!--Search Question Box-->
                 <div id='searchQuestionField' class="field has-addons has-addons-centered">
@@ -234,6 +244,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@7.2.0/dist/js/autoComplete.min.js"></script>
 <script src="https://unpkg.com/@popperjs/core@2"></script>
 <script>
+    let deleteFile = false; 
     const button = document.querySelector('#lockedIcon');
     const tooltip = document.querySelector('#tooltip');
 
@@ -251,10 +262,10 @@
     var firstTimeBool = localStorage.getItem('firstTimeBool');
 
     //If the user hasnt visited show tool tip
-    if(firstTimeBool == undefined){
-        $('#tooltip').fadeTo( 12000, 100)
+    if (firstTimeBool == undefined) {
+        $('#tooltip').fadeTo(12000, 100)
         console.log("jel")
-    } 
+    }
 
     //tell the page i've visited 
     localStorage.setItem('firstTimeBool', 'true');
@@ -418,6 +429,7 @@
             const fileName = document.getElementById('fileName');
             fileName.textContent = fileInput.files[0].name;
             $('#deleteFileButton').removeAttr("disabled");
+            deleteFile = false;
         }
     }
 
@@ -476,11 +488,12 @@
         formdata.append("answer", document.getElementById('ans').value);
         formdata.append("tag", document.getElementById('select').value);
         formdata.append("alternatives", generateQuestionFormat());
+        formdata.append("deleteFile", deleteFile);
 
         var uploadedFile = $('#fileInput').prop('files')[0];
 
         if (uploadedFile !== undefined) {
-        formdata.append("file", uploadedFile)
+            formdata.append("file", uploadedFile)
         }
 
         var requestOptions = {
@@ -494,22 +507,25 @@
         };
 
         fetch(url, requestOptions)
-        .then(response => {
+            .then(response => {
                 console.log(response)
                 if (response.ok) {
-                    
+
                     Swal.fire(
-                    'Thank you',
-                    'Submitted successfully',
-                    'success'
-                )
-                return response.text()
+                        'Thank you',
+                        'Submitted successfully',
+                        'success'
+                    )
+                    return response.text()
                 } else {
                     return Promise.reject(response);
                 }
             })
             .catch(error => {
                 if (error.response.status === 401) {
+                    location.href = "login.html"
+                }
+                if (error.response.status === 404) {
                     location.href = "login.html"
                 }
                 if (error.response.status === 400) {
@@ -572,11 +588,12 @@
 
     }
 
-    function deleteFile() {
+    function deleteFileFunction() {
         //get the file input and set value to undefined so it doesnt get uploaded
         document.getElementById('fileInput').value = "";
         document.getElementById('fileName').textContent = "No File Selected"
         $('#deleteFileButton').attr("disabled", true);
+        deleteFile = true;
 
     }
 
@@ -680,7 +697,12 @@
                     if (response.data.location != null) {
                         document.getElementById("fileName").href = response.data.location;
                         document.getElementById("fileName").classList.remove("linkButton");
-                        document.getElementById("fileName").textContent = "File Loaded - Open File"
+
+
+                        var fileNameArr = response.data.location.split('/');
+
+                        document.getElementById("fileName").textContent = fileNameArr[fileNameArr.length - 1] +
+                            ' - Open File'
                     } else {
                         document.getElementById("fileName").classList.add("linkButton");
                         document.getElementById("fileName").textContent = "No Files Attached"
