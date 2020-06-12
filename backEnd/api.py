@@ -700,7 +700,8 @@ def create_app():
                 alternatives = ""
             if count is None:
                 count = ""
-            if deleteFile == "True":
+            deleteFile = deleteFile.lower()
+            if deleteFile == "true":
                 deleteFile = True
             else:
                 deleteFile = False
