@@ -329,7 +329,7 @@ def create_app():
 
             addFile=add_fileToDB(file, questionID)
             if addFile == "err_fileExtension":
-                err_fileExtension = "File extentions is not allowed. Please only submit allowed file extensions."
+                err_fileExtension = "This file extention is not allowed. Please only submit allowed file extensions."
                 raise(err_fileExtension)
             if addFile == "ErrReNameGCPfile":
                 ErrReNameGCPfile = "Error renaming file from GCP on Question ID: "+str(questionID)
@@ -465,7 +465,6 @@ def create_app():
             location = deleteQuestion["location"]
             if location:
                 #grab the part of the URL that specifies the path to the file on GCP
-                #FilePath=location.split('/')[-2]+"/"+location.split('/')[-1]
                 FilePath=location.split('/')[-2]
                 if delete_blob(FilePath):
                     API_app.logger.info("Attached file for question ID: "+str(questionID)+" has been removed from GCP.")
@@ -690,6 +689,8 @@ def create_app():
             answer = request.form.get('answer')
             location = request.form.get('location')
             alternatives = request.form.get('alternatives')
+            deleteFile = request.form.get('deleteFile')
+
             #Make sure count is an int 
             #count will be 'None' if the field is not present in the form OR if it cannot be converted to an integer
             count = request.form.get('count', type=int)
@@ -699,7 +700,11 @@ def create_app():
                 alternatives = ""
             if count is None:
                 count = ""
-            
+            if deleteFile == "True":
+                deleteFile = True
+            else:
+                deleteFile = False
+
             updateEntries = queries.updateEntries(id, tag, question, answer, location, alternatives, count)     
             #Check questionID is valid
             if updateEntries == False:
@@ -715,7 +720,7 @@ def create_app():
                 file = request.files['file']
                 addFile=add_fileToDB(file, questionID)
                 if addFile == "err_fileExtension":
-                    err_fileExtension = "File extentions is not allowed. Please only submit allowed file extensions."
+                    err_fileExtension = "This file extention is not allowed. Please only submit allowed file extensions."
                     raise(err_fileExtension)
                 if addFile == "ErrReNameGCPfile":
                     ErrReNameGCPfile = "Error renaming file from GCP on Question ID: "+str(questionID)
@@ -727,6 +732,25 @@ def create_app():
                     raise
                 API_app.logger.info("File sucessfully attached to Question ID: "+str(id))
             
+            #Check if we just need to delete the file attached to the answer from the DB
+            if deleteFile:
+                #Make sure check there is a file attached to that question (to avoid errors) and delete it from GCP
+                questionToDeleteFile = queries.getKnowledge(questionID)
+                fileToDelete = questionToDeleteFile["location"]
+                if fileToDelete:
+                    #grab the part of the URL that specifies the path to the file on GCP
+                    FilePath=fileToDelete.split('/')[-2]
+                    if delete_blob(FilePath):
+                        API_app.logger.info("Attached file for question ID: "+str(questionID)+" has been removed from GCP.")
+                    else:
+                        API_app.logger.error("Error deleting file from GCP for Question ID: "+str(questionID))
+                #Delete file location entry from the DB
+                deletefile_DB = queries.deleteFileLocation(questionID)
+                if deletefile_DB:
+                    API_app.logger.info("File location for question ID: "+str(questionID)+" has been removed from Database.")
+                else:
+                    API_app.logger.error("Error deleting file location from Database for Question ID: "+str(questionID))
+
             API_app.logger.info("Sucessfully updated the entries on the DB, ID: "+str(id))
             return(str(id), 200)
         

@@ -185,6 +185,18 @@ def deleteQuestion(questionID):
     except:
         return False
 
+def deleteFileLocation(questionID):
+    try:
+        location = ""
+        cursor, db = connectToDB()
+        cursor.execute("UPDATE qanda SET location=%s WHERE id=%s", (location, questionID,))
+        print("Successfully deleted the file location field on the database")
+        closeConnectionToDB(db, cursor)
+        return True
+    
+    except:
+        return False
+
 def appendAlternative(questionID, alternative):
     try:
         cursor, db = connectToDB()
