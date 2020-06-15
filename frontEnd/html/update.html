@@ -236,6 +236,7 @@
         <div id="arrow" data-popper-arrow></div>
     </div>
 </body>
+<script src="./js/env.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js"></script>
@@ -311,7 +312,7 @@
 
 
                 //Build out the request
-                const myRequest = new Request('http://35.242.181.193/api/auth/checkPosture', {
+                const myRequest = new Request( baseURL +'/api/auth/checkPosture', {
                     method: 'GET',
                     headers: myHeaders,
                     mode: 'cors',
@@ -410,7 +411,7 @@
     });
 
     //On page load load all the questions and put them in the modal
-    axios.get('http://35.242.181.193:3002/getAll')
+    axios.get(baseURL + '/api/getAll')
         .then(response => {
             //Loop through every q and a
             for (let i = 0; i < response.data.items.length; i++) {
@@ -481,7 +482,7 @@
     document.getElementById("submitQA").addEventListener('click', submitQA);
 
     function submitQA() {
-        var url = "http://35.242.181.193:3002/updateEntries/" + document.getElementById('questionIDField').value
+        var url = baseURL + "/api/updateEntries/" + document.getElementById('questionIDField').value
 
         var formdata = new FormData();
         formdata.append("question", document.getElementsByClassName('questionInput')[0].value);
@@ -510,12 +511,18 @@
             .then(response => {
                 console.log(response)
                 if (response.ok) {
-
-                    Swal.fire(
-                        'Thank you',
-                        'Submitted successfully',
-                        'success'
-                    )
+                    Swal.fire({
+                                title: 'Thank you',
+                                text: 'Submitted successfully',
+                                icon: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: 'rgb(0, 188, 235)',
+                                confirmButtonText: 'Continue'
+                            }).then((result) => {
+                                if (result.value) {
+                                    location.href = './update.html'
+                                }
+                            })
                     return response.text()
                 } else {
                     return Promise.reject(response);
@@ -609,7 +616,7 @@
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.value) {
-                var url = "http://35.242.181.193:3002/deleteQuestion/" + qid;
+                var url = baseURL + "/api/deleteQuestion/" + qid;
 
                 var requestOptions = {
                     method: 'DELETE',
@@ -653,7 +660,7 @@
     }
 
     function getAllQuestions() {
-        var url = "http://35.242.181.193:3002/getAllQuestions";
+        var url = baseURL + "/api/getAllQuestions";
 
         var requestOptions = {
             method: 'GET',
@@ -683,7 +690,7 @@
 
     function populateFields(questionID) {
         //Get request the question ID 
-        axios.get('http://35.242.181.193:3002/getKnowledge/' + questionID)
+        axios.get(baseURL + '/api/getKnowledge/' + questionID)
             .then(response => {
 
                 if (response.status == 200) {

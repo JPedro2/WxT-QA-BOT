@@ -57,6 +57,7 @@
     </div>
 <iframe style="display: none;" width="0" height="0" border="0" name="dummyframe" id="dummyframe"></iframe>
 </body>
+<script src="./js/env.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js"></script>
@@ -85,7 +86,7 @@
                 redirect: 'follow'
             };
 
-            fetch("http://35.242.181.193:3002/auth/token", requestOptions)
+            fetch(baseURL + "/api/auth/token", requestOptions)
             .then(function(response) {
                 if(response.status === 200) {
                     response.json().then(function(data) {
