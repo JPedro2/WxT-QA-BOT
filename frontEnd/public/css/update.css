@@ -69,6 +69,7 @@ textarea:focus {
     background-color: white;
     padding: 10px;
     height: 260px;
+    overflow-y: scroll;
 }
 
 .section:first-of-type {
@@ -164,4 +165,9 @@ textarea:focus {
   
   #tooltip[data-popper-placement^='right'] > #arrow {
     left: -4px;
+  }
+
+  tr:hover{
+      cursor: pointer;
+      background-color: hsl(0, 0%, 96%);
   }

@@ -245,10 +245,16 @@
 <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@7.2.0/dist/js/autoComplete.min.js"></script>
 <script src="https://unpkg.com/@popperjs/core@2"></script>
 <script>
-    let deleteFile = false; 
-    const button = document.querySelector('#lockedIcon');
-    const tooltip = document.querySelector('#tooltip');
 
+    //Flag to indicate if a file should be deleted on the database upon submit.
+    let deleteFile = false; 
+
+    //Context of locked Icon at top tight
+    const button = document.querySelector('#lockedIcon');
+
+    //Context of tooltip which is only shown on first load
+    const tooltip = document.querySelector('#tooltip');
+    //Create a new tooltip
     Popper.createPopper(button, tooltip, {
         placement: 'left',
         modifiers: [{
@@ -285,10 +291,7 @@
 
     lockedIcon.addEventListener('click', function () {
         if (lockedStatus == true) {
-
             let isLoggedIn = sessionStorage.getItem('token');
-
-
 
             if (isLoggedIn == null) {
                 Swal.fire({
@@ -344,11 +347,7 @@
                             toggleInputLock(lockedStatus);
                         }
                     })
-
-
             }
-
-
         } else {
             lockedStatus = true
             $('#lockedIcon').toggle('slow')
@@ -410,19 +409,6 @@
         document.getElementById("listModal").classList.remove("is-active");
     });
 
-    //On page load load all the questions and put them in the modal
-    axios.get(baseURL + '/api/getAll')
-        .then(response => {
-            //Loop through every q and a
-            for (let i = 0; i < response.data.items.length; i++) {
-                //build html with the response
-                let appendedQuestion = "<tr><td>" + response.data.items[i].id + "</td><td>" + response.data.items[i]
-                    .question + "</td></tr>";
-                //import them into the modal
-                document.getElementById("anslist").innerHTML += appendedQuestion;
-            }
-        });
-
     //File input 
     const fileInput = document.getElementById('fileInput');
     fileInput.onchange = () => {
@@ -473,10 +459,6 @@
 
     // Grab the forms id
     var form = document.getElementById('form');
-    // Adds a listener for the "submit" event.
-    // form.addEventListener('submit', function (e) {
-    //     e.preventDefault();
-    // });
 
     //On click of the submit button
     document.getElementById("submitQA").addEventListener('click', submitQA);
@@ -730,8 +712,6 @@
 
                     //prints the alt questions at the bottom of the page
                     for (let i = 0; i < response.data.alternatives.length; i++) {
-
-                        console.log(response.data.alternatives[i])
                         $("#questionGroup").append(
                             '<div class="field  questionInput"><input class="input altQuestionInput" disabled type="text" placeholder="Alternative Question" value="' +
                             response.data.alternatives[i] + '"></div>'
@@ -817,10 +797,11 @@
     });
 
 
+    // ------------------------- Question Search ---------------------------------
 
+    //--------- Event Listener for Enter Search ------------
     // Get the input field
     var input = document.getElementById("questionIDField");
-
     // Execute a function when the user releases a key on the keyboard
     input.addEventListener("keyup", function (event) {
         // Number 13 is the "Enter" key on the keyboard
@@ -830,6 +811,30 @@
             // Trigger the button element with a click
             document.getElementById("searchQuestionButton").click();
         }
+    });
+
+  
+
+
+    // --------------------- All Questions Modal Code ----------------------------
+    //On page load load all the questions and put them in the modal
+    axios.get(baseURL + '/api/getAll')
+        .then(response => {
+            //Loop through every q and a
+            for (let i = 0; i < response.data.items.length; i++) {
+                //build html with the response
+                let appendedQuestion = "<tr><td class='modalQuestionID'>" + response.data.items[i].id + "</td><td>" + response.data.items[i]
+                    .question + "</td></tr>";
+                //import them into the modal
+                document.getElementById("anslist").innerHTML += appendedQuestion;
+            }
+    });
+
+    //Add an event listener on click of td 
+    $("body").on("click", "tr", function() {
+        //Get the contex of what was clicked on
+        populateFields($(this)[0].firstChild.innerHTML) 
+        document.getElementById("listModal").classList.remove("is-active");
     });
 </script>
 
