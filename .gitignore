@@ -152,3 +152,14 @@ env/*.env
 # frontEnd modules
 frontEnd/node_modules/
 frontEnd/package-lock.json
+
+# bot private files
+vars.yml
+docker-compose.yml
+hooks.yml
+db.sqlite3
+build.sh
+__pycache__/
+.DS_Store
+
+
