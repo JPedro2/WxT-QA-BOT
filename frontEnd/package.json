@@ -7,6 +7,8 @@
   "dependencies": {
     "@tarekraafat/autocomplete.js": "^7.2.0",
     "autocompleter": "^6.0.3",
+    "dotenv": "^8.2.0",
+    "ejs": "^3.1.3",
     "express": "^4.17.1"
   },
   "devDependencies": {},

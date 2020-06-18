@@ -1,250 +1,3 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-    <title>Q&amp;A Admin Dashboard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
-    <link rel="stylesheet" href="css/update.css">
-    <link rel="shortcut icon" href="./public/assets/favicon.ico" type="image/x-icon">
-    <link rel="icon" href="./public/assets/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="css/autoComplete.css">
-</head>
-
-<body>
-
-    <nav class="navbar primaryFont" role="navigation" aria-label="main navigation">
-        <!--Left Side of the Navbar-->
-        <div class="navbar-brand">
-            <a class="navbar-item">
-                <img class="logo" src="assets/meetingsLogo.png">
-            </a>
-            <a class="navbar-item is-size-4 ">
-                April's Knowledge Base
-            </a>
-        </div>
-        <!--Right Side fo the Navbar-->
-        <div class="navbar-menu">
-            <div class="navbar-end">
-                <a class="navbar-item" href="https://www.cisco.com/">
-                    <img class="logo" src="assets/ciscoLogo.png">
-                </a>
-                <a class="navbar-item" href="https://www.ibm.com/uk-en">
-                    <img class="logo" src="assets/ibmLogo.png">
-                </a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="section primaryFont">
-        <div class="tabs is-centered">
-            <ul>
-                <li><a href="main.html">Submit</a></li>
-                <li class="is-active"><a href="update.html">Update</a></li>
-                <!--Icon show page is locked-->
-                <li id='pageLocked' class="tab-is-right"><a><span class='is-invisible'>.</span><i id='lockedIcon'
-                            class="fas fa-lock "></i><i id='unlockedIcon' class="fas fa-unlock"
-                            style='display: none;'></i><span class='is-invisible'>.</span></a></li>
-            </ul>
-        </div>
-        <div class="columns">
-            <div class="column is-three-quarters">
-                <h3 class="is-size-4">Question</h3>
-                <div id="questionGroup">
-                    <div class="field">
-                        <input required autocomplete="off" class="input questionInput" id="questionField" type="text"
-                            placeholder="Enter a question">
-                    </div>
-                </div>
-                <!--On submit of the form do the add entry, use target to prevent redirect (Sorry, should be done better)-->
-                <!--TODO: Remove the target and submit the form with ajax -->
-                <!-- <form id="question"> -->
-                <!--Question Input-->
-                <div class="field">
-                    <div class="buttons has-addons is-right">
-
-                        <button disabled class="button is-info has-text-white" id="addQuestionFieldButton">
-                            <span class="icon is-small">
-                                <i class="fas fa-plus"></i>
-                            </span>
-                        </button>
-                        <button disabled class="button is-info has-text-white" id="removeQuestionFieldButton">
-                            <span class="icon is-small">
-                                <i class="fas fa-minus"></i>
-                            </span>
-                        </button>
-                    </div>
-                </div>
-
-
-                <div class="to-hide">
-                    <!-- Answer Input -->
-                    <p class="is-size-4">Answer</p>
-                    <div class="field">
-                        <div class="control">
-                            <textarea disabled required class="textarea" id="ans" name="answer"
-                                placeholder="Answer will appear here."></textarea>
-                        </div>
-                    </div>
-                    <div class='columns'>
-                        <div class='column'>
-                            <!--Submit Line-->
-                            <div class="field is-grouped">
-                                <div class="field">
-                                    <div class="control">
-                                        <div class="select">
-                                            <select disabled id='select' name="select" required>
-                                                <option>General</option>
-                                                <option>Volunteer Programme</option>
-                                                <option>Plans and Pricing</option>
-                                                <option>Controls & Features</option>
-                                                <option>Quality Issues</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="field has-addons">
-                                    <div class="file has-name is-fullwidth">
-                                        <label class="file-label">
-                                            <input disabled class="file-input" id="fileInput" type="file" name="resume">
-                                            <span class="file-cta">
-                                                <span class="file-icon">
-                                                    <i class="fas fa-upload"></i>
-                                                </span>
-                                                <span class="file-label">
-                                                    Choose a file
-                                                </span>
-                                            </span>
-                                        </label>
-                                    </div>
-                                    <div class="control">
-                                        <a target="_blank" class="button file-name" id="fileName">
-                                            No File Loaded
-                                        </a>
-                                    </div>
-                                    <div class="control">
-                                        <button disabled onclick="deleteFileFunction()" id='deleteFileButton'
-                                            class="button is-danger">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class='column'>
-                            <div class="field is-grouped is-grouped-right">
-                                <div class="control is-pulled-right">
-                                    <button disabled id="submitQA" class="button is-link">Submit</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-
-            <div class="column">
-                <!--Search Question Box-->
-                <div id='searchQuestionField' class="field has-addons has-addons-centered">
-                    <p class="control">
-                        <a id="getAllQuestion" class="button is-info is-medium">
-                            <i class="fas fa-list has-text-white"></i>
-                        </a>
-                    </p>
-                    <div class="control is-expanded ">
-                        <input required class="input is-medium is-fullwidth" id="questionIDField" type="text"
-                            placeholder="Question ID">
-                    </div>
-                    <div class="control">
-                        <a id="searchQuestionButton" class="button is-info is-medium has-text-white"><i
-                                class="fas fa-search"></i></a>
-                    </div>
-                </div>
-
-                <!-- Delete Question button-->
-                <button disabled onclick="deleteEntry()" id='deleteEntryButton'
-                    class="button is-danger is-fullwidth to-hide">Delete Question</button>
-
-                <!-- Markdown Container -->
-                <div class="markdown box to-hide">
-                    <div class="container">
-                        <h2 class="title is-5 has-text-white">Markdown Cheat Sheet</h2>
-                        <p class="is-size-5 has-text-weight-semibold">Style</p>
-                        <p class="has-text-white">**BOLD**</p>
-                        <p class="has-text-white">_italic_</p>
-                        <p class="has-text-white">> Blockquote</p>
-                        <p class="has-text-white">`unformatted text`</p>
-                        <br>
-                        <p class="is-size-5 has-text-weight-semibold">Links</p>
-                        <p class="has-text-white">Example: [Cisco Website](www.cisco.com)</p>
-                        <br>
-                        <p class="is-size-5 has-text-weight-semibold">Lists</p>
-                        <p class="has-text-white">1. Item1</p>
-                        <p class="has-text-white">2. Item2</p>
-                        <p class="has-text-white">3. Item3</p>
-                        <br>
-                        <p class="has-text-white">* Bullet point1</p>
-                        <p class="has-text-white">* Bullet point2</p>
-                        <br>
-                        <p class="is-size-5 has-text-weight-semibold">Headings</p>
-                        <p class="has-text-white"># Heading 1</p>
-                        <p class="has-text-white">## Heading 2</p>
-                        <p class="has-text-white">### Heading 3</p>
-                        <p class="has-text-white">--- Horizontal Line</p>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-    <!-- Markdown Preview Area -->
-    <div class="markup-Container to-hide">
-        <div class="section primaryFont">
-            <p class="is-size-4 has-text-white has-text-weight-medium">Markdown Preview</p>
-            <div id="answerField" class="markup-Area content"></div>
-        </div>
-    </div>
-
-    <div class="modal" id="listModal">
-        <div class="modal-background"></div>
-        <div class="modal-card">
-            <header class="modal-card-head">
-                <p class="modal-card-title">All Questions</p>
-                <button class="delete" id="closeQuestion" aria-label="close"></button>
-            </header>
-            <section class="modal-card-body">
-                <table class="table is-fullwidth">
-                    <thead>
-                        <tr>
-                            <th>Number</th>
-                            <th>Question</th>
-                        </tr>
-                    </thead>
-                    <tbody id="anslist">
-                        <!--List of answers pulled from the database-->
-                    </tbody>
-                </table>
-            </section>
-            <footer class="modal-card-foot">
-            </footer>
-        </div>
-    </div>
-    <div id="tooltip" role="tooltip">
-        Click Here to Unlock the page!
-        <div id="arrow" data-popper-arrow></div>
-    </div>
-</body>
-<script src="./js/env.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
-<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@7.2.0/dist/js/autoComplete.min.js"></script>
-<script src="https://unpkg.com/@popperjs/core@2"></script>
-<script>
 
     //Flag to indicate if a file should be deleted on the database upon submit.
     let deleteFile = false; 
@@ -304,7 +57,7 @@
                     confirmButtonText: 'Log In'
                 }).then((result) => {
                     if (result.value) {
-                        location.href = './login.html'
+                        location.href = './login'
                     }
                 })
             } else {
@@ -337,7 +90,7 @@
                                 confirmButtonText: 'Log In'
                             }).then((result) => {
                                 if (result.value) {
-                                    location.href = './login.html'
+                                    location.href = './login'
                                 }
                             })
                         } else {
@@ -502,7 +255,7 @@
                                 confirmButtonText: 'Continue'
                             }).then((result) => {
                                 if (result.value) {
-                                    location.href = './update.html'
+                                    location.href = './update'
                                 }
                             })
                     return response.text()
@@ -512,10 +265,10 @@
             })
             .catch(error => {
                 if (error.response.status === 401) {
-                    location.href = "login.html"
+                    location.href = "./login"
                 }
                 if (error.response.status === 404) {
-                    location.href = "login.html"
+                    location.href = "./login"
                 }
                 if (error.response.status === 400) {
                     Swal.fire({
@@ -658,7 +411,7 @@
             .then(result => result)
             .catch(error => {
                 if (error.status === 401) {
-                    location.href = "login.html"
+                    location.href = "./login"
                 }
                 if (error.status === 400) {
                     Swal.fire({
@@ -728,7 +481,7 @@
             }).catch(error => {
                 console.log(error);
                 if (error.response.status === 401) {
-                    location.href = "login.html"
+                    location.href = "./login"
                 }
                 if (error.response.status === 400) {
                     Swal.fire({
@@ -836,6 +589,3 @@
         populateFields($(this)[0].firstChild.innerHTML) 
         document.getElementById("listModal").classList.remove("is-active");
     });
-</script>
-
-</html>

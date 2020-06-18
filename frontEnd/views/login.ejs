@@ -20,6 +20,7 @@
             </a>
             <a class="navbar-item is-size-4 ">
                 April's Knowledge Base
+                
             </a>
         </div>
         <!--Right Side fo the Navbar-->
@@ -35,7 +36,7 @@
         </div>
     </nav>
     <div class="loginbox">
-        <h2>Login</h2>
+        <h2>login</h2>
         <hr>
         <div class="loginform">
             <form id="login" method="post">
@@ -57,49 +58,14 @@
     </div>
 <iframe style="display: none;" width="0" height="0" border="0" name="dummyframe" id="dummyframe"></iframe>
 </body>
-<script src="./js/env.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
-    $(document).ready(function() {
-        $('#loginbtn').click(function(e) {
-            e.preventDefault();
-            var credentials = $('#login').serializeArray();
-            var username = credentials[0].value;
-            var password = credentials[1].value;
-            var duration;
-            var token;
-
-            var myHeaders = new Headers();
-            var to_encode = username+":"+password;
-            var base64_encoded = btoa(to_encode);
-            myHeaders.append("Authorization", "Basic "+base64_encoded);
-            myHeaders.append("Access-Control-Allow-Origin", "*");
-
-            var requestOptions = {
-                // mode: 'no-cors',
-                method: 'GET',
-                headers: myHeaders,
-                redirect: 'follow'
-            };
-
-            fetch(baseURL + "/api/auth/token", requestOptions)
-            .then(function(response) {
-                if(response.status === 200) {
-                    response.json().then(function(data) {
-                        duration = data.duration;
-                        token = data.token;
-                        sessionStorage.setItem('duration', duration);
-                        sessionStorage.setItem('token', token);
-                    }).then(location.href="main.html");
-                }
-            }).catch(err => {
-                alert("Invalid credentials");
-            });
-        });
-    });
+    var baseURL = '<%= baseURL %>'
 </script>
+<script src="./js/login.js"></script>
 </html>

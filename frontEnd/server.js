@@ -1,24 +1,26 @@
+//--------------------- Npm dependencies -------------------------
+//Note: You will need to download these for the applciation to work.
+require('dotenv').config()
 var express = require('express');
-var app = express();
 var path = require('path');
 
+
+//Instance of App
+var app = express()
+
+//Pull in the routes
+const routes = require('./routes/app.routes');
+
+//Set the view engine to use ejs as a templating language
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
+//Static assets like JS,CSS, and images
 app.use(express.static(__dirname + "/public"));
 
-app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname + '/html/login.html'));
-});
-app.get('/main.html', function(req, res) {
-    res.sendFile(path.join(__dirname + '/html/main.html'));
-});
-app.get('/query.html' , function(req, res) {
-    res.sendFile(path.join(__dirname + '/html/query.html'));
-});
-app.get('/update.html', function(req, res) {
-    res.sendFile(path.join(__dirname + '/html/update.html'));
-});
-app.get('/login.html', function(req, res){
-    res.sendFile(path.join(__dirname + '/html/login.html'));
-})
+//set the express app to use routes 
+app.use(routes);
 
-app.listen(3006, '0.0.0.0');
+//Start the server on the clients IP and port defined above.
+app.listen(process.env.frontEndPORT, process.env.frontEndHOST);
 console.log('Server started');
