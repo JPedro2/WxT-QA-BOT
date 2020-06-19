@@ -48,12 +48,15 @@ services:
     php-admin:
         image: phpmyadmin/phpmyadmin 
         restart: always
+        env_file:
+            - ./env/phpAdminVariables.env
         depends_on:
             - db
         ports: 
             - "3008:80"
         networks:
             - backend-network
+            - proxy
     
     frontend-nodejs:
         build: ./frontEnd
@@ -71,17 +74,16 @@ services:
         ports:
             - "80:80"
         volumes:
-            #- web-root:/var/www/html
             - ./frontEnd/nginx-conf:/etc/nginx/conf.d
         depends_on:
             - frontend-nodejs
             - backend-api
+            - php-admin
         networks:
             - proxy
 
 volumes:
     sql-datavolume:
-    #web-root:
 
 networks:
     backend-network:

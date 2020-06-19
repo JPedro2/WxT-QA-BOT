@@ -1,1 +1,4 @@
 NODE_ENV=production           #'development' OR 'production'
+baseURL=                      #http(s)://<IP-of-API-backEnd-services>
+frontEndPORT=                 #e.g.: 3006
+frontEndHOST=                 #e.g.: 0.0.0.0

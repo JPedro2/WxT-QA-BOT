@@ -1,0 +1,2 @@
+#Fully-qualified path where nginx makes phpMyAdmin available (frontEnd/nginx-conf/nginx.conf)
+PMA_ABSOLUTE_URI=http://<frontEnd-IP>/db-admin/
