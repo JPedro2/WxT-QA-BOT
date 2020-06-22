@@ -1,1 +1,18 @@
-
+# Database information
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+POSTGRES_DB=
+# Webex Teams Bot and django config vars
+# Sensible default values have been provided where possible
+DJANGO_SECRET_KEY=
+DJANGO_DEBUG=0  
+DJANGO_ALLOWED_HOSTS= *
+DJANGO_DATABASE=postgres
+DJANGO_SQL_ENGINE=django.db.backends.postgresql
+DJANGO_SQL_HOST=bot-db                            # This is the correct link name if using the provided docker-compose.yml
+DJANGO_SQL_PORT=5432
+DJANGO_SUPER_USER=root
+DJANGO_SUPER_USER_PASS=
+WEBEX_ACCESS_TOKEN=
+WEBEX_BOT_ID=
+WEBEX_ESCALATION_ROOM_ID=
