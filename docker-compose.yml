@@ -81,6 +81,21 @@ services:
             - php-admin
         networks:
             - proxy
+    bot-db:
+       image: postgres:12.0-alpine
+       env_file:
+            - ./env/BOTvariables.env
+       expose:
+            - "5432"
+    web:
+       image: mneiding/mango_uk_bot:latest
+       command: gunicorn mango_uk_bot.wsgi:application --bind 0.0.0.0:8000
+       ports:
+           - 80:8000
+       env_file:
+            - ./env/BOTvariables.env
+       links:
+           - bot-db:bot-db
 
 volumes:
     sql-datavolume:
