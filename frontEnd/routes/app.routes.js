@@ -2,20 +2,20 @@
 const express = require("express");
 const router = express.Router();
 
-//Import the controller
+// Import the controller
 const appController = require("../controllers/app.controller");
 
 
-//Route : Home - send them to login. 
+// Route: Home - send them to login. 
 router.get('/', appController.login)
 
-//Route : Login - send them to login.
+// Route: Login - send them to login.
 router.get('/login', appController.login)
 
-//Route: Main Page 
+// Route: Main Page 
 router.get('/submit', appController.submit)
 
-//Route: Update
+// Route: Update
 router.get('/update', appController.update)
 
 module.exports = router;
